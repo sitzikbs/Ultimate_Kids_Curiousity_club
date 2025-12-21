@@ -1,0 +1,31 @@
+[project]
+name = "ultimate-kids-curiousity-club"
+version = "0.1.0"
+description = "An educational platform designed to inspire curiosity and learning in kids"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+authors = [
+    { name = "Kids Curiosity Club Team" }
+]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.3.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
