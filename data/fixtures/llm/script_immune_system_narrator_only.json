@@ -1,0 +1,78 @@
+{
+  "episode_id": "test_ep002",
+  "segments": [
+    {
+      "segment_id": 1,
+      "character": "narrator",
+      "text": "Hello, young scientists! Today we're diving into an incredible topic: how our amazing bodies fight off germs and keep us healthy!",
+      "duration_estimate_seconds": 8.0,
+      "segment_type": "INTRODUCTION"
+    },
+    {
+      "segment_id": 2,
+      "character": "narrator",
+      "text": "First, let's talk about what germs actually are. Germs are tiny, tiny living things - so small we can't see them without a microscope!",
+      "duration_estimate_seconds": 8.5,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 3,
+      "character": "narrator",
+      "text": "There are different types of germs, like bacteria and viruses. Some germs are harmless, but others can make us sick.",
+      "duration_estimate_seconds": 7.5,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 4,
+      "character": "narrator",
+      "text": "Now here's the really cool part - our bodies have an amazing defense system called the immune system!",
+      "duration_estimate_seconds": 7.0,
+      "segment_type": "TRANSITION"
+    },
+    {
+      "segment_id": 5,
+      "character": "narrator",
+      "text": "Your skin is like a protective wall that keeps most germs out. But what happens when germs do get inside?",
+      "duration_estimate_seconds": 7.0,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 6,
+      "character": "narrator",
+      "text": "That's when special cells called white blood cells jump into action! They're like tiny soldiers patrolling your body.",
+      "duration_estimate_seconds": 7.5,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 7,
+      "character": "narrator",
+      "text": "When white blood cells find germs, they attack them! Some white blood cells eat the germs, while others make special weapons called antibodies.",
+      "duration_estimate_seconds": 9.0,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 8,
+      "character": "narrator",
+      "text": "Antibodies are amazing because they remember germs. If the same germ comes back, your body can fight it off even faster!",
+      "duration_estimate_seconds": 8.0,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 9,
+      "character": "narrator",
+      "text": "You can help your immune system stay strong by eating healthy foods, getting enough sleep, and washing your hands often.",
+      "duration_estimate_seconds": 8.5,
+      "segment_type": "APPLICATION"
+    },
+    {
+      "segment_id": 10,
+      "character": "narrator",
+      "text": "And that's how your incredible body fights germs every single day! Your immune system is like a superhero team protecting you. Keep learning and stay healthy!",
+      "duration_estimate_seconds": 9.5,
+      "segment_type": "CONCLUSION"
+    }
+  ],
+  "total_segments": 10,
+  "estimated_duration_seconds": 80.5,
+  "characters_used": ["narrator"]
+}
