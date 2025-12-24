@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-# Add the tests directory to the Python path
+# Add the tests directory to the Python path (append, not insert at beginning)
 tests_dir = Path(__file__).parent
 if str(tests_dir) not in sys.path:
-    sys.path.insert(0, str(tests_dir))
+    sys.path.append(str(tests_dir))
 
 # Import fixtures from fixture modules
 # Using try/except to handle import during collection phase

@@ -3,7 +3,6 @@
 from datetime import datetime
 
 import pytest
-
 from utils.cost_tracker import APICall, CostTracker
 
 

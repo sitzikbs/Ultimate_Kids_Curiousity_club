@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import pytest
-
 from utils.fixture_loader import (
     list_available_fixtures,
     load_json_fixture,
