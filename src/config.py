@@ -38,10 +38,10 @@ class Settings(BaseSettings):
     @classmethod
     def ensure_path_exists(cls, v: Path) -> Path:
         """Ensure directory paths exist.
-        
+
         Args:
             v: Path to validate
-            
+
         Returns:
             Validated path
         """
@@ -52,13 +52,13 @@ class Settings(BaseSettings):
     @classmethod
     def validate_llm_provider(cls, v: str) -> str:
         """Validate LLM provider is supported.
-        
+
         Args:
             v: Provider name
-            
+
         Returns:
             Validated provider name
-            
+
         Raises:
             ValueError: If provider is not supported
         """
@@ -71,13 +71,13 @@ class Settings(BaseSettings):
     @classmethod
     def validate_tts_provider(cls, v: str) -> str:
         """Validate TTS provider is supported.
-        
+
         Args:
             v: Provider name
-            
+
         Returns:
             Validated provider name
-            
+
         Raises:
             ValueError: If provider is not supported
         """
@@ -90,13 +90,13 @@ class Settings(BaseSettings):
     @classmethod
     def validate_image_provider(cls, v: str) -> str:
         """Validate image provider is supported.
-        
+
         Args:
             v: Provider name
-            
+
         Returns:
             Validated provider name
-            
+
         Raises:
             ValueError: If provider is not supported
         """
@@ -107,7 +107,7 @@ class Settings(BaseSettings):
 
     def validate_api_keys(self) -> None:
         """Validate required API keys are present when not using mocks.
-        
+
         Raises:
             ValueError: If required API keys are missing
         """
@@ -143,9 +143,7 @@ class Settings(BaseSettings):
             errors.append("OPENAI_API_KEY is required when IMAGE_PROVIDER is 'dalle'")
 
         if errors:
-            raise ValueError(
-                "Missing required API keys:\n  " + "\n  ".join(errors)
-            )
+            raise ValueError("Missing required API keys:\n  " + "\n  ".join(errors))
 
 
 # Singleton instance
@@ -154,7 +152,7 @@ _settings: Settings | None = None
 
 def get_settings() -> Settings:
     """Get the singleton settings instance.
-    
+
     Returns:
         Settings instance
     """

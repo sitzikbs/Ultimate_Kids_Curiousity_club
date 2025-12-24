@@ -17,13 +17,13 @@ class VocabularyLevel(str, Enum):
 
 def validate_duration(value: int | float) -> int:
     """Validate duration is within acceptable range (5-20 minutes).
-    
+
     Args:
         value: Duration in minutes
-        
+
     Returns:
         Validated duration
-        
+
     Raises:
         ValueError: If duration is outside acceptable range
     """
@@ -35,13 +35,13 @@ def validate_duration(value: int | float) -> int:
 
 def validate_age(value: int) -> int:
     """Validate age is within target range (5-12 years).
-    
+
     Args:
         value: Age in years
-        
+
     Returns:
         Validated age
-        
+
     Raises:
         ValueError: If age is outside target range
     """
@@ -52,13 +52,13 @@ def validate_age(value: int) -> int:
 
 def validate_file_path(value: str | Path | None) -> Path | None:
     """Validate file path exists and is readable.
-    
+
     Args:
         value: File path to validate
-        
+
     Returns:
         Validated Path object or None
-        
+
     Raises:
         ValueError: If path doesn't exist or isn't readable
     """
@@ -79,13 +79,13 @@ def validate_file_path(value: str | Path | None) -> Path | None:
 
 def validate_image_path(value: str | Path | None) -> Path | None:
     """Validate image file path has correct extension.
-    
+
     Args:
         value: Image file path to validate
-        
+
     Returns:
         Validated Path object or None
-        
+
     Raises:
         ValueError: If path has invalid extension
     """
@@ -99,8 +99,7 @@ def validate_image_path(value: str | Path | None) -> Path | None:
     valid_extensions = {".png", ".jpg", ".jpeg", ".webp"}
     if path.suffix.lower() not in valid_extensions:
         raise ValueError(
-            f"Invalid image extension: {path.suffix}. "
-            f"Must be one of {valid_extensions}"
+            f"Invalid image extension: {path.suffix}. Must be one of {valid_extensions}"
         )
 
     return path
@@ -108,13 +107,13 @@ def validate_image_path(value: str | Path | None) -> Path | None:
 
 def validate_url(value: str | None) -> str | None:
     """Validate URL format.
-    
+
     Args:
         value: URL to validate
-        
+
     Returns:
         Validated URL or None
-        
+
     Raises:
         ValueError: If URL format is invalid
     """
@@ -129,13 +128,13 @@ def validate_url(value: str | None) -> str | None:
 
 def validate_show_id(value: str) -> str:
     """Validate show ID format (lowercase, underscores, alphanumeric).
-    
+
     Args:
         value: Show ID to validate
-        
+
     Returns:
         Validated show ID
-        
+
     Raises:
         ValueError: If show ID format is invalid
     """
@@ -143,9 +142,7 @@ def validate_show_id(value: str) -> str:
         raise ValueError("Show ID cannot be empty")
 
     if not value.replace("_", "").isalnum():
-        raise ValueError(
-            "Show ID must contain only letters, numbers, and underscores"
-        )
+        raise ValueError("Show ID must contain only letters, numbers, and underscores")
 
     if value != value.lower():
         raise ValueError("Show ID must be lowercase")
@@ -155,13 +152,13 @@ def validate_show_id(value: str) -> str:
 
 def validate_episode_id(value: str) -> str:
     """Validate episode ID format.
-    
+
     Args:
         value: Episode ID to validate
-        
+
     Returns:
         Validated episode ID
-        
+
     Raises:
         ValueError: If episode ID format is invalid
     """

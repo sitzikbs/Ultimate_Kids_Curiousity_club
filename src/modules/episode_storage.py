@@ -15,7 +15,7 @@ class EpisodeStorage:
 
     def __init__(self, episodes_dir: Path | None = None):
         """Initialize the storage.
-        
+
         Args:
             episodes_dir: Directory for episode storage (default: from settings)
         """
@@ -23,10 +23,10 @@ class EpisodeStorage:
 
     def save_episode(self, episode: Episode) -> None:
         """Save episode to disk with atomic write.
-        
+
         Args:
             episode: Episode to save
-            
+
         Raises:
             StorageError: If saving fails
         """
@@ -61,14 +61,14 @@ class EpisodeStorage:
 
     def load_episode(self, show_id: str, episode_id: str) -> Episode:
         """Load episode from disk.
-        
+
         Args:
             show_id: Show identifier
             episode_id: Episode identifier
-            
+
         Returns:
             Episode instance
-            
+
         Raises:
             EpisodeNotFoundError: If episode doesn't exist
             StorageError: If loading fails
@@ -99,12 +99,12 @@ class EpisodeStorage:
         self, episode: Episode, stage: PipelineStage, data: dict[str, Any] | None = None
     ) -> None:
         """Save checkpoint at a specific pipeline stage.
-        
+
         Args:
             episode: Episode to checkpoint
             stage: Current pipeline stage
             data: Optional additional checkpoint data
-            
+
         Raises:
             StorageError: If saving fails
         """
@@ -133,7 +133,8 @@ class EpisodeStorage:
                     )
             except (OSError, json.JSONDecodeError) as e:
                 raise StorageError(
-                    f"Failed to save checkpoint for episode '{episode.episode_id}': {e}",
+                    f"Failed to save checkpoint for episode "
+                    f"'{episode.episode_id}': {e}",
                     episode_id=episode.episode_id,
                     show_id=episode.show_id,
                     stage=stage.value,
@@ -146,15 +147,15 @@ class EpisodeStorage:
         self, show_id: str, episode_id: str, stage: PipelineStage
     ) -> dict[str, Any] | None:
         """Load checkpoint data for a specific stage.
-        
+
         Args:
             show_id: Show identifier
             episode_id: Episode identifier
             stage: Pipeline stage to load
-            
+
         Returns:
             Checkpoint data or None if not found
-            
+
         Raises:
             StorageError: If loading fails
         """
@@ -184,10 +185,10 @@ class EpisodeStorage:
 
     def list_episodes(self, show_id: str) -> list[str]:
         """List all episodes for a show.
-        
+
         Args:
             show_id: Show identifier
-            
+
         Returns:
             List of episode IDs
         """
@@ -200,11 +201,11 @@ class EpisodeStorage:
 
     def delete_episode(self, show_id: str, episode_id: str) -> None:
         """Delete an episode and its checkpoints.
-        
+
         Args:
             show_id: Show identifier
             episode_id: Episode identifier
-            
+
         Raises:
             EpisodeNotFoundError: If episode doesn't exist
             StorageError: If deletion fails
@@ -223,9 +224,7 @@ class EpisodeStorage:
             episode_path.unlink()
 
             # Delete checkpoints directory
-            checkpoint_dir = (
-                self.episodes_dir / show_id / "checkpoints" / episode_id
-            )
+            checkpoint_dir = self.episodes_dir / show_id / "checkpoints" / episode_id
             if checkpoint_dir.exists():
                 for checkpoint_file in checkpoint_dir.glob("*.json"):
                     checkpoint_file.unlink()
@@ -240,10 +239,10 @@ class EpisodeStorage:
 
     def _episode_to_dict(self, episode: Episode) -> dict[str, Any]:
         """Convert Episode to dict for JSON serialization.
-        
+
         Args:
             episode: Episode to convert
-            
+
         Returns:
             Dictionary representation
         """
@@ -268,10 +267,10 @@ class EpisodeStorage:
 
     def _dict_to_episode(self, data: dict[str, Any]) -> Episode:
         """Convert dict to Episode instance.
-        
+
         Args:
             data: Episode data
-            
+
         Returns:
             Episode instance
         """

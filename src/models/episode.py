@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models.story import Script, StoryOutline, StorySegment
 from src.utils.validators import EpisodeId
@@ -39,6 +39,19 @@ class ApprovalStatus(str, Enum):
 class Episode(BaseModel):
     """Complete episode with all generation stages."""
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "episode_id": "ep_001_bike_chains",
+                "show_id": "olivers_workshop",
+                "topic": "How bike chains work",
+                "title": "The Broken Bike",
+                "current_stage": "OUTLINING",
+                "approval_status": "NOT_REQUIRED",
+            }
+        }
+    )
+
     episode_id: EpisodeId
     show_id: str
     topic: str
@@ -54,23 +67,9 @@ class Episode(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
     cost_estimate: float = 0.0
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
-            "example": {
-                "episode_id": "ep_001_bike_chains",
-                "show_id": "olivers_workshop",
-                "topic": "How bike chains work",
-                "title": "The Broken Bike",
-                "current_stage": "OUTLINING",
-                "approval_status": "NOT_REQUIRED",
-            }
-        }
-
     def update_stage(self, stage: PipelineStage) -> None:
         """Update the current pipeline stage.
-        
+
         Args:
             stage: New pipeline stage
         """
@@ -79,7 +78,7 @@ class Episode(BaseModel):
 
     def set_approval_status(self, status: ApprovalStatus, feedback: str = "") -> None:
         """Set the approval status with optional feedback.
-        
+
         Args:
             status: Approval status
             feedback: Optional feedback message
@@ -90,7 +89,7 @@ class Episode(BaseModel):
 
     def add_segment(self, segment: StorySegment) -> None:
         """Add a story segment to the episode.
-        
+
         Args:
             segment: Story segment to add
         """
@@ -99,7 +98,7 @@ class Episode(BaseModel):
 
     def add_script(self, script: Script) -> None:
         """Add a script to the episode.
-        
+
         Args:
             script: Script to add
         """
@@ -108,7 +107,7 @@ class Episode(BaseModel):
 
     def is_complete(self) -> bool:
         """Check if episode is complete.
-        
+
         Returns:
             True if episode is complete
         """
@@ -116,7 +115,7 @@ class Episode(BaseModel):
 
     def is_failed(self) -> bool:
         """Check if episode generation failed.
-        
+
         Returns:
             True if episode failed
         """

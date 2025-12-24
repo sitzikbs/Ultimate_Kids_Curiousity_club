@@ -17,7 +17,7 @@ from src.models.show import (
     VoiceConfig,
     WorldDescription,
 )
-from src.utils.errors import ShowNotFoundError, StorageError, ValidationError
+from src.utils.errors import ShowNotFoundError, StorageError
 
 
 class ShowBlueprintManager:
@@ -25,7 +25,7 @@ class ShowBlueprintManager:
 
     def __init__(self, shows_dir: Path | None = None):
         """Initialize the manager.
-        
+
         Args:
             shows_dir: Directory containing show data (default: from settings)
         """
@@ -33,13 +33,13 @@ class ShowBlueprintManager:
 
     def load_show(self, show_id: str) -> ShowBlueprint:
         """Load a show blueprint from disk.
-        
+
         Args:
             show_id: Show identifier
-            
+
         Returns:
             ShowBlueprint instance
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
             StorageError: If loading fails
@@ -47,9 +47,7 @@ class ShowBlueprintManager:
         show_dir = self.shows_dir / show_id
 
         if not show_dir.exists():
-            raise ShowNotFoundError(
-                f"Show '{show_id}' not found", show_id=show_id
-            )
+            raise ShowNotFoundError(f"Show '{show_id}' not found", show_id=show_id)
 
         try:
             # Load show metadata
@@ -123,13 +121,23 @@ class ShowBlueprintManager:
                 locations=locations,
             )
 
-            # Load concepts history
-            concepts_path = show_dir / "concepts_covered.json"
+            # Load concepts history (try JSON first, then YAML)
+            concepts_path_json = show_dir / "concepts_covered.json"
+            concepts_path_yaml = show_dir / "concepts_covered.yaml"
             concepts_history = ConceptsHistory()
 
-            if concepts_path.exists():
+            concepts_path = None
+            if concepts_path_json.exists():
+                concepts_path = concepts_path_json
+            elif concepts_path_yaml.exists():
+                concepts_path = concepts_path_yaml
+
+            if concepts_path:
                 with open(concepts_path) as f:
-                    concepts_data = json.load(f)
+                    if concepts_path.suffix == ".json":
+                        concepts_data = json.load(f)
+                    else:
+                        concepts_data = yaml.safe_load(f)
 
                 if isinstance(concepts_data, dict):
                     concepts_list = concepts_data.get("concepts", [])
@@ -140,9 +148,7 @@ class ShowBlueprintManager:
 
                 for concept_data in concepts_list:
                     if isinstance(concept_data, dict):
-                        concepts_history.concepts.append(
-                            ConceptEntry(**concept_data)
-                        )
+                        concepts_history.concepts.append(ConceptEntry(**concept_data))
 
             # Load characters (if directory exists)
             characters = []
@@ -189,10 +195,10 @@ class ShowBlueprintManager:
 
     def save_show(self, blueprint: ShowBlueprint) -> None:
         """Save a show blueprint to disk.
-        
+
         Args:
             blueprint: ShowBlueprint to save
-            
+
         Raises:
             StorageError: If saving fails
         """
@@ -284,9 +290,7 @@ class ShowBlueprintManager:
                         "role": character.role,
                         "personality_snippet": character.personality,
                         "image_path": (
-                            str(character.image_path)
-                            if character.image_path
-                            else None
+                            str(character.image_path) if character.image_path else None
                         ),
                         "voice_config": self._voice_config_to_dict(
                             character.voice_config
@@ -305,7 +309,7 @@ class ShowBlueprintManager:
 
     def list_shows(self) -> list[Show]:
         """List all available shows.
-        
+
         Returns:
             List of Show instances
         """
@@ -335,7 +339,7 @@ class ShowBlueprintManager:
                         created_at=show_data.get("created_at"),
                     )
                 )
-            except (OSError, yaml.YAMLError) as e:
+            except (OSError, yaml.YAMLError):
                 # Skip shows with invalid metadata
                 continue
 
@@ -343,11 +347,11 @@ class ShowBlueprintManager:
 
     def update_protagonist(self, show_id: str, protagonist: Protagonist) -> None:
         """Update protagonist for a show.
-        
+
         Args:
             show_id: Show identifier
             protagonist: New protagonist data
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
         """
@@ -357,11 +361,11 @@ class ShowBlueprintManager:
 
     def update_world(self, show_id: str, world: WorldDescription) -> None:
         """Update world description for a show.
-        
+
         Args:
             show_id: Show identifier
             world: New world description
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
         """
@@ -371,11 +375,11 @@ class ShowBlueprintManager:
 
     def add_character(self, show_id: str, character: Character) -> None:
         """Add a supporting character to a show.
-        
+
         Args:
             show_id: Show identifier
             character: Character to add
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
         """
@@ -384,16 +388,20 @@ class ShowBlueprintManager:
         self.save_show(blueprint)
 
     def add_concept(
-        self, show_id: str, concept: str, episode_id: str, complexity_level: str = "introductory"
+        self,
+        show_id: str,
+        concept: str,
+        episode_id: str,
+        complexity_level: str = "introductory",
     ) -> None:
         """Add a covered concept to the show's history.
-        
+
         Args:
             show_id: Show identifier
             concept: Educational concept covered
             episode_id: Episode where concept was covered
             complexity_level: Complexity level of the concept
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
         """
@@ -403,13 +411,13 @@ class ShowBlueprintManager:
 
     def get_covered_concepts(self, show_id: str) -> list[str]:
         """Get list of all covered concepts for a show.
-        
+
         Args:
             show_id: Show identifier
-            
+
         Returns:
             List of concept names
-            
+
         Raises:
             ShowNotFoundError: If show doesn't exist
         """
@@ -418,10 +426,10 @@ class ShowBlueprintManager:
 
     def _load_voice_config(self, data: dict) -> VoiceConfig:
         """Load VoiceConfig from dict.
-        
+
         Args:
             data: Voice config data
-            
+
         Returns:
             VoiceConfig instance
         """
@@ -435,10 +443,10 @@ class ShowBlueprintManager:
 
     def _voice_config_to_dict(self, config: VoiceConfig) -> dict:
         """Convert VoiceConfig to dict.
-        
+
         Args:
             config: VoiceConfig instance
-            
+
         Returns:
             Dictionary representation
         """

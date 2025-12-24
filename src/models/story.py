@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.utils.validators import EpisodeId
 
@@ -10,16 +10,8 @@ from src.utils.validators import EpisodeId
 class StoryBeat(BaseModel):
     """A single story beat in the narrative structure."""
 
-    beat_number: int
-    title: str
-    description: str
-    educational_focus: str
-    key_moments: list[str] = Field(default_factory=list)
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "beat_number": 1,
                 "title": "The Problem",
@@ -32,23 +24,20 @@ class StoryBeat(BaseModel):
                 ],
             }
         }
+    )
+
+    beat_number: int
+    title: str
+    description: str
+    educational_focus: str
+    key_moments: list[str] = Field(default_factory=list)
 
 
 class StoryOutline(BaseModel):
     """Complete story outline for an episode."""
 
-    episode_id: EpisodeId
-    show_id: str
-    topic: str
-    title: str
-    educational_concept: str
-    story_beats: list[StoryBeat] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=datetime.now)
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "episode_id": "ep_001",
                 "show_id": "olivers_workshop",
@@ -58,22 +47,22 @@ class StoryOutline(BaseModel):
                 "story_beats": [],
             }
         }
+    )
+
+    episode_id: EpisodeId
+    show_id: str
+    topic: str
+    title: str
+    educational_concept: str
+    story_beats: list[StoryBeat] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 
 class StorySegment(BaseModel):
     """A segment of the story for detailed script generation."""
 
-    segment_number: int
-    beat_number: int
-    description: str
-    characters_involved: list[str] = Field(default_factory=list)
-    setting: str
-    educational_content: str
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "segment_number": 1,
                 "beat_number": 1,
@@ -83,20 +72,21 @@ class StorySegment(BaseModel):
                 "educational_content": "Explain how chain links connect",
             }
         }
+    )
+
+    segment_number: int
+    beat_number: int
+    description: str
+    characters_involved: list[str] = Field(default_factory=list)
+    setting: str
+    educational_content: str
 
 
 class ScriptBlock(BaseModel):
     """A single block of dialogue or narration in the script."""
 
-    speaker: str
-    text: str
-    speaker_voice_id: str | None = None
-    duration_estimate: float = 0.0
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "speaker": "Oliver",
                 "text": "Hmm, this chain has lots of little links...",
@@ -104,18 +94,19 @@ class ScriptBlock(BaseModel):
                 "duration_estimate": 3.5,
             }
         }
+    )
+
+    speaker: str
+    text: str
+    speaker_voice_id: str | None = None
+    duration_estimate: float = 0.0
 
 
 class Script(BaseModel):
     """Complete script for a story segment."""
 
-    segment_number: int
-    script_blocks: list[ScriptBlock] = Field(default_factory=list)
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "segment_number": 1,
                 "script_blocks": [
@@ -123,3 +114,7 @@ class Script(BaseModel):
                 ],
             }
         }
+    )
+
+    segment_number: int
+    script_blocks: list[ScriptBlock] = Field(default_factory=list)

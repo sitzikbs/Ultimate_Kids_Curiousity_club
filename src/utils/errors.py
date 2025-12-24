@@ -19,7 +19,7 @@ class PodcastError(Exception):
         **kwargs: Any,
     ):
         """Initialize error with context tracking.
-        
+
         Args:
             message: Error message
             stage: Pipeline stage where error occurred
@@ -77,7 +77,7 @@ class APIError(PodcastError):
         **kwargs: Any,
     ):
         """Initialize API error with provider context.
-        
+
         Args:
             message: Error message
             provider: API provider name (e.g., "openai", "elevenlabs")
@@ -120,13 +120,13 @@ def retry_on_failure(
     exceptions: tuple[type[Exception], ...] = (Exception,),
 ):
     """Decorator to retry a function on transient failures.
-    
+
     Args:
         max_retries: Maximum number of retry attempts
         delay: Initial delay between retries in seconds
         backoff: Multiplier for delay after each retry
         exceptions: Tuple of exception types to catch and retry
-        
+
     Returns:
         Decorated function
     """
