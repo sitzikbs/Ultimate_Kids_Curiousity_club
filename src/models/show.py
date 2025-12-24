@@ -1,6 +1,6 @@
 """Show Blueprint data models for the Ultimate Kids Curiosity Club."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -16,7 +16,8 @@ class Show(BaseModel):
         ..., description="Voice configuration for the narrator"
     )
     created_at: datetime = Field(
-        default_factory=datetime.now, description="When the show was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the show was created",
     )
 
     @field_validator("show_id")
@@ -112,7 +113,7 @@ class ConceptsHistory(BaseModel):
         description="List of concepts with metadata (episode_id, topic, date)",
     )
     last_updated: datetime = Field(
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(UTC),
         description="When the concepts history was last updated",
     )
 

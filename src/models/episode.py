@@ -1,6 +1,6 @@
 """Episode data models for the Ultimate Kids Curiosity Club."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -54,8 +54,10 @@ class Episode(BaseModel):
         default=None, description="Feedback from approval process"
     )
     created_at: datetime = Field(
-        default_factory=datetime.now, description="When the episode was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the episode was created",
     )
     updated_at: datetime = Field(
-        default_factory=datetime.now, description="When the episode was last updated"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the episode was last updated",
     )

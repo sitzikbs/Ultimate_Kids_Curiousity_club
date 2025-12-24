@@ -1,6 +1,6 @@
 """Story generation data models for the Ultimate Kids Curiosity Club."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
@@ -33,7 +33,8 @@ class StoryOutline(BaseModel):
         default_factory=list, description="List of story beats"
     )
     created_at: datetime = Field(
-        default_factory=datetime.now, description="When the outline was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the outline was created",
     )
 
 
