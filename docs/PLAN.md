@@ -200,7 +200,7 @@ Storage ←→ All Subsystems
 **Purpose:** Enrich topic inputs with Show Blueprint context for story generation  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 1-2 days
 
 **Key Deliverables:**
 - Template system with Jinja2 for show context injection
@@ -208,44 +208,150 @@ Storage ←→ All Subsystems
 - Prompt versioning and A/B testing capability
 - Integration with Show Blueprint data (protagonist, world, characters, concepts)
 
+**Dependencies:** None  
+**Blocks:** WP2a, WP2b, WP6a
+
 **Why This Matters:** LLMs need rich context to generate consistent stories. This service automatically injects protagonist values, world rules, covered concepts, and show theme into prompts for each generation stage.
 
 ---
 
-### WP1: Foundation
-**Purpose:** Core data models, configuration, and Show Blueprint management  
+### WP1: Foundation & Data Models
+**Purpose:** Core data models, configuration, and Show Blueprint management (critical path)  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 5-6 days (all sub-WPs combined)
+
+This work package is broken into 5 sub-packages for parallel development:
+
+#### WP1a: Core Models (Show Blueprint + Episode)
+**Purpose:** Pydantic data models for Show Blueprint and episode structures  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1-2 days
 
 **Key Deliverables:**
-- Pydantic models (Show, ShowBlueprint, Protagonist, WorldDescription, Character, Episode, StorySegment, Script, etc.)
-- Configuration system with mock/real provider switching
-- ShowBlueprintManager for loading/validating show data
-- Image path support for protagonist, world, characters
-- ConceptsHistory tracking to avoid repetition
+- Show Blueprint models (Show, Protagonist, WorldDescription, Character, ConceptsHistory)
+- Episode models (Episode, StoryOutline, StoryBeat, StorySegment, Script, ScriptBlock)
+- PipelineStage enum and validation rules
 
 **Dependencies:** None  
-**Blocks:** All other work packages
+**Blocks:** WP1b, WP1c, WP1d, WP1e, WP2a, WP6a, WP7a, WP9a
 
 ---
 
-### WP2: LLM Service
+#### WP1b: Configuration (Settings & Config)
+**Purpose:** Centralized settings and configuration system  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1 day
+
+**Key Deliverables:**
+- Settings class with environment-based configuration
+- Mock mode toggle for development
+- API key management
+- Provider preferences (LLM, TTS, Image)
+- Storage path configuration
+
+**Dependencies:** WP1a  
+**Blocks:** WP1c, WP1d, WP2a, WP3, WP4, WP5, WP6a
+
+---
+
+#### WP1c: Blueprint Manager (ShowBlueprintManager)
+**Purpose:** Show Blueprint loading, saving, and management system  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2 days
+
+**Key Deliverables:**
+- ShowBlueprintManager with CRUD operations
+- Show Blueprint loading/saving from disk
+- Concepts tracking and management
+- Show templates (Oliver, Hannah)
+- Character and world management
+
+**Dependencies:** WP1a, WP1b  
+**Blocks:** WP2a, WP6a, WP7a, WP9a, WP9b
+
+---
+
+#### WP1d: Storage (Episode Storage + Error Handling)
+**Purpose:** File-based storage for episodes and error handling infrastructure  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1-2 days
+
+**Key Deliverables:**
+- EpisodeStorage class for save/load operations
+- Checkpoint saving/loading for pipeline resumption
+- Custom exception hierarchy
+- Error context tracking and retry decorators
+- Atomic writes and file locking
+
+**Dependencies:** WP1a, WP1b  
+**Blocks:** WP6a, WP6b, WP7b
+
+---
+
+#### WP1e: Testing & Validation
+**Purpose:** Validation utilities and comprehensive testing infrastructure  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1 day
+
+**Key Deliverables:**
+- Custom Pydantic types (DurationMinutes, AgeRange, VocabularyLevel)
+- File path validators
+- Content validators (profanity, age-appropriate checking)
+- Test suite for foundation components
+- Test fixtures and helpers
+
+**Dependencies:** WP1a, WP1b, WP1c, WP1d  
+**Blocks:** WP2a, WP2b, WP8
+
+---
+
+### WP2: LLM Services & Story Generation
 **Purpose:** Story content generation through incremental stages  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 4-5 days (all sub-WPs combined)
+
+This work package is broken into 2 sub-packages:
+
+#### WP2a: Provider Abstraction, Ideation & Outline Generation
+**Purpose:** LLM provider abstraction and first two story generation stages  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2-3 days
 
 **Key Deliverables:**
-- Provider abstraction (OpenAI, Anthropic, Mock)
+- Provider abstraction layer (OpenAI, Anthropic, Mock)
 - IdeationService: topic → story concept
 - OutlineService: concept → reviewable story beats
-- SegmentGenerationService: outline → detailed segments (what happens)
-- ScriptGenerationService: segments → narration + dialogue (how it's told)
-- Validation: age-appropriate content checking
+- Provider factory and retry logic
+- Mock provider with fixture-based responses
 
-**Dependencies:** WP0 (Prompt Enhancement), WP1 (Foundation)  
-**Blocks:** WP6 (Orchestrator)
+**Dependencies:** WP0, WP1a, WP1b  
+**Blocks:** WP2b, WP6a
+
+---
+
+#### WP2b: Segment Generation, Script Generation & Cost Tracking
+**Purpose:** Final story generation stages with cost monitoring  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2 days
+
+**Key Deliverables:**
+- SegmentGenerationService: outline → detailed segments
+- ScriptGenerationService: segments → narration + dialogue scripts
+- Response parsing and Pydantic validation
+- Cost tracking and token usage monitoring
+- Integration tests for end-to-end LLM pipeline
+
+**Dependencies:** WP2a  
+**Blocks:** WP6a, WP6b
 
 ---
 
@@ -253,7 +359,7 @@ Storage ←→ All Subsystems
 **Purpose:** Text-to-speech audio synthesis for narrator and character voices  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 2-3 days
 
 **Key Deliverables:**
 - Provider abstraction (ElevenLabs, Google TTS, OpenAI TTS, Mock)
@@ -261,8 +367,8 @@ Storage ←→ All Subsystems
 - Voice listing and configuration
 - Support for narrator + protagonist + supporting character voices
 
-**Dependencies:** WP1 (Foundation)  
-**Blocks:** WP6 (Orchestrator)
+**Dependencies:** WP1a, WP1b  
+**Blocks:** WP6b
 
 ---
 
@@ -270,7 +376,7 @@ Storage ←→ All Subsystems
 **Purpose:** Professional audio composition and mixing  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 2-3 days
 
 **Key Deliverables:**
 - Segment sequencing with timing
@@ -278,8 +384,8 @@ Storage ←→ All Subsystems
 - Sound effects at markers
 - MP3 export with ID3 metadata
 
-**Dependencies:** WP1 (Foundation)  
-**Blocks:** WP6 (Orchestrator)
+**Dependencies:** WP1a, WP1b  
+**Blocks:** WP6b
 
 ---
 
@@ -287,7 +393,7 @@ Storage ←→ All Subsystems
 **Purpose:** Show Blueprint image management and optional generation  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 1-2 days
 
 **Key Deliverables:**
 - Image loading and validation (protagonist, world, characters)
@@ -296,8 +402,8 @@ Storage ←→ All Subsystems
 - Mock image provider
 - Image path management in Show Blueprint
 
-**Dependencies:** WP1 (Foundation)  
-**Blocks:** WP6 (Orchestrator), WP9 (Dashboard)
+**Dependencies:** WP1a, WP1b  
+**Blocks:** WP6b, WP9b
 
 ---
 
@@ -305,19 +411,44 @@ Storage ←→ All Subsystems
 **Purpose:** Coordinate services for end-to-end episode generation with human review  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 3-4 days (all sub-WPs combined)
+
+This work package is broken into 2 sub-packages:
+
+#### WP6a: State Machine & Workflow
+**Purpose:** Core pipeline state machine with approval workflow  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1.5-2 days
 
 **Key Deliverables:**
-- State machine managing pipeline stages (IDEATION → OUTLINING → APPROVAL → SEGMENT → SCRIPT → AUDIO → MIXING)
-- Human approval gate after OUTLINING stage
-- Checkpointing and resume capability
-- Service integration with factory pattern
+- State machine for 8 pipeline stages with approval gate
+- Human approval workflow (pause, review, approve/reject)
 - Show Blueprint context injection at each stage
-- ConceptsHistory update after completion
-- Error handling and retry logic
+- State transition validation and progression logic
+- Event emission for UI notifications
 
-**Dependencies:** WP0, WP1, WP2, WP3, WP4, WP5  
-**Blocks:** WP7 (CLI), WP9 (Dashboard)
+**Dependencies:** WP0, WP1a, WP1b, WP1c, WP2a  
+**Blocks:** WP6b, WP7a, WP7b, WP9a, WP9c
+
+---
+
+#### WP6b: Reliability & Recovery
+**Purpose:** Production-ready reliability features for pipeline  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1.5-2 days
+
+**Key Deliverables:**
+- Checkpoint save/restore functionality
+- Error handling and retry logic
+- Progress tracking and logging
+- Service integration (TTS, Audio Mixer, Image Manager)
+- Resume-from-any-stage capability
+- Integration testing with mock and real services
+
+**Dependencies:** WP6a, WP3, WP4, WP5, WP2b  
+**Blocks:** WP7b, WP9c
 
 ---
 
@@ -325,16 +456,42 @@ Storage ←→ All Subsystems
 **Purpose:** Command-line interface for show and episode management  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 2-4 days (all sub-WPs combined)
+
+This work package is broken into 2 sub-packages:
+
+#### WP7a: Show Commands
+**Purpose:** CLI interface for show management and Show Blueprint viewing  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1-2 days
 
 **Key Deliverables:**
-- Show management commands (`shows list`, `shows create`, `shows init`, `shows info`)
-- Show Blueprint commands (`shows characters`, `shows concepts`, `shows suggest-topics`)
-- Episode commands (`episodes create`, `episodes list`, `episodes resume`)
-- Testing commands (`test tts`, `test llm`)
-- Progress tracking and status display
+- Show management commands (list, create, init, info)
+- Show Blueprint commands (characters, concepts, suggest-topics)
+- Character management within shows
+- Interactive prompts for show creation
+- Formatted terminal output with rich
 
-**Dependencies:** WP6 (Orchestrator)  
+**Dependencies:** WP1a, WP1b, WP1c  
+**Blocks:** WP7b
+
+---
+
+#### WP7b: Episode Commands
+**Purpose:** CLI interface for episode creation and approval workflow  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1-2 days
+
+**Key Deliverables:**
+- Episode management commands (create, resume, list, approve, reject)
+- Approval workflow integration
+- Configuration commands (show, set-provider, toggle-mock)
+- Progress visualization with rich (progress bars, spinners, cost tracking)
+- Interactive prompts for episode creation
+
+**Dependencies:** WP1a, WP1b, WP1d, WP6a, WP6b, WP7a  
 **Blocks:** None
 
 ---
@@ -343,7 +500,7 @@ Storage ←→ All Subsystems
 **Purpose:** Comprehensive testing with cost controls  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** Ongoing throughout all WPs
 
 **Key Deliverables:**
 - Test fixtures (LLM responses, audio samples, images, story outlines)
@@ -354,7 +511,7 @@ Storage ←→ All Subsystems
 - Story format validation
 
 **Dependencies:** All work packages  
-**Ongoing:** Developed alongside other WPs
+**Blocks:** None (developed alongside other WPs)
 
 ---
 
@@ -362,22 +519,62 @@ Storage ←→ All Subsystems
 **Purpose:** Human review interface for outlines, scripts, and Show Blueprint management  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 5.5-8 days (all sub-WPs combined)
+
+This work package is broken into 3 sub-packages:
+
+#### WP9a: Dashboard Backend & API
+**Purpose:** FastAPI server with REST endpoints and WebSocket support  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1.5-2 days
 
 **Key Deliverables:**
-- FastAPI backend with REST + WebSocket APIs
-- React/Vue frontend with rich editor
-- Show Blueprint editor (protagonist, world, characters with images)
-- Outline approval interface (approve/reject/edit story beats)
-- Script editor with audio preview
-- Episode pipeline dashboard with progress tracking
-- ConceptsHistory viewer (topics already covered)
-- Real-time pipeline status updates
+- FastAPI application with CORS support
+- REST endpoints for show/episode data
+- WebSocket endpoint for real-time updates
+- Static file serving for HTML/CSS/JS
+- API documentation (auto-generated)
 
-**Dependencies:** WP1 (Foundation), WP6 (Orchestrator), WP5 (Image Service)  
-**Blocks:** None (enhances workflow)
+**Dependencies:** WP1a, WP1b, WP1c  
+**Blocks:** WP9b, WP9c
 
-**Estimated Effort:** 7-10 days
+---
+
+#### WP9b: Show Blueprint Editor UI
+**Purpose:** Show Blueprint editing interface  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2-3 days
+
+**Key Deliverables:**
+- Show list page with search/filter
+- Protagonist profile editor with image upload
+- World description editor with location images
+- Character management (add/edit/delete)
+- Concepts covered timeline
+- Responsive design (desktop/tablet)
+
+**Dependencies:** WP9a, WP5  
+**Blocks:** WP9c
+
+---
+
+#### WP9c: Outline Approval & Pipeline Dashboard
+**Purpose:** Episode workflow UI with approval interface  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2-3 days
+
+**Key Deliverables:**
+- Outline approval UI with inline editing
+- Pipeline status dashboard with stage indicators
+- Real-time progress updates (WebSocket)
+- Episode list with filtering
+- Approval history tracking
+
+**Dependencies:** WP9a, WP9b, WP6a, WP6b  
+**Blocks:** None
 
 ---
 
@@ -385,21 +582,44 @@ Storage ←→ All Subsystems
 **Purpose:** Public-facing website and podcast distribution pipeline  
 **Owner:** Unassigned  
 **Status:** 🔴 Not Started  
-**GitHub Issue:** TBD
+**Estimated Effort:** 3.5-4.5 days (all sub-WPs combined)
+
+This work package is broken into 2 sub-packages:
+
+#### WP10a: Website & SEO
+**Purpose:** Static website with episode listings and SEO optimization  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 1.5-2 days
 
 **Key Deliverables:**
-- Static website with episode listings (already built, ported from old repo)
+- Episode listing pages with audio player
+- Episode metadata schema and JSON data files
+- SEO optimization (Schema.org, social media tags, sitemap)
+- Analytics verification and event tracking
+- Website deployment and hosting configuration
+
+**Dependencies:** None (can start independently)  
+**Blocks:** None
+
+---
+
+#### WP10b: Podcast Distribution & Hosting
+**Purpose:** Podcast hosting integration and RSS feed management  
+**Owner:** Unassigned  
+**Status:** 🔴 Not Started  
+**Estimated Effort:** 2-2.5 days
+
+**Key Deliverables:**
 - Podcast hosting integration (Transistor.fm, Buzzsprout, or RSS.com)
-- RSS feed generation and management
 - Automated episode metadata upload
-- Audio player integration on website
-- Podcast directory submission (Apple, Spotify, Google)
-- Analytics and SEO optimization
+- RSS feed generation and management (RSS 2.0 + iTunes tags)
+- Publication orchestrator for multi-platform coordination
+- Podcast directory submissions (Apple, Spotify, Google)
+- CI/CD pipeline for automated publishing
 
-**Dependencies:** WP6 (Orchestrator - produces final MP3s)  
-**Blocks:** None (distribution layer)
-
-**Estimated Effort:** 3-4 days
+**Dependencies:** WP6a, WP6b (produces final MP3s), WP7b  
+**Blocks:** None
 
 **Why This Matters:** The content generation pipeline is useless without distribution. This WP handles the "last mile" - getting finished episodes to listeners on their preferred platforms.
 
@@ -408,30 +628,49 @@ Storage ←→ All Subsystems
 ## 🔄 Work Package Dependencies
 
 ```
-        WP0 (Prompt)
-           ↓
-        WP1 (Foundation)
-           ↓
-    ┌──────┼──────┬──────┐
-    ↓      ↓      ↓      ↓
-   WP2    WP3    WP4    WP5
-  (LLM)  (TTS) (Mixer) (Image)
-    └──────┼──────┴──────┘
-           ↓
-        WP6 (Orchestrator)
-           ↓
-     ┌─────┼─────┬─────────┐
-     ↓     ↓     ↓         ↓
-   WP7  WP9   WP10     WP8 (Ongoing)
-  (CLI) (Dash) (Website)
+           WP0 (Prompt)
+              ↓
+        ┌─────┴─────┐
+        ↓           ↓
+   WP1a (Models)  WP2a (Provider+Ideation+Outline)
+        ↓           ↓
+   WP1b (Config)  WP2b (Segment+Script+Cost)
+        ↓
+   WP1c (Blueprint Manager)
+        ↓
+   WP1d (Storage)
+        ↓
+   WP1e (Testing)
+        ↓
+    ┌───┴───┬──────┬──────┐
+    ↓       ↓      ↓      ↓
+   WP3    WP4    WP5   WP6a (State Machine)
+  (TTS) (Mixer) (Image)    ↓
+    └───┬───┴──────┴───→ WP6b (Reliability)
+                          ↓
+        ┌─────────────────┼─────────────────┐
+        ↓                 ↓                 ↓
+    WP7a (Show)      WP9a (Backend)    WP10a (Website)
+        ↓                 ↓                 ↓
+    WP7b (Episode)   WP9b (Blueprint)  WP10b (Distribution)
+                          ↓
+                     WP9c (Approval)
+                          
+                     WP8 (Testing - Ongoing)
 ```
 
 **Development Sequence:**
-1. **Phase 1:** WP0 + WP1 (Foundation)
-2. **Phase 2:** WP2, WP3, WP4, WP5 (Can be parallelized)
-3. **Phase 3:** WP6 (Integration)
-4. **Phase 4:** WP7 + WP9 (CLI + Dashboard)
-5. **Ongoing:** WP8 (Testing throughout)
+1. **Phase 1 (Sequential - 5-6 days):** WP0 + WP1 (all sub-WPs: 1a→1b→1c→1d→1e)
+2. **Phase 2 (Parallel - 4-5 days):** 
+   - Team A: WP2a → WP2b (LLM Services)
+   - Team B: WP3 + WP4 (Audio Production)
+   - Team C: WP5 (Image Service)
+3. **Phase 3 (Sequential - 3-4 days):** WP6a → WP6b (Orchestrator)
+4. **Phase 4 (Parallel - 5.5-8 days):**
+   - Team A: WP7a → WP7b (CLI)
+   - Team B: WP9a → WP9b → WP9c (Dashboard)
+   - Team C: WP10a + WP10b (Distribution)
+5. **Ongoing:** WP8 (Testing throughout all phases)
 
 ## 💰 Cost Management
 
@@ -488,23 +727,40 @@ Storage ←→ All Subsystems
 
 **Assuming serial development by one developer:**
 - WP0: 1-2 days
-- WP1: 3-4 days (Show Blueprint models + management)
-- WP2: 4-5 days (4 LLM services: Ideation, Outline, Segment, Script)
-- WP3: 2-3 days
-- WP4: 2-3 days
-- WP5: 1-2 days
-- WP6: 3-4 days (Human approval gate + pipeline stages)
-- WP7: 2-3 days
-- WP9: 7-10 days (Web dashboard)
+- WP1: 5-6 days total
+  - WP1a: 1-2 days (Core Models)
+  - WP1b: 1 day (Configuration)
+  - WP1c: 2 days (Blueprint Manager)
+  - WP1d: 1-2 days (Storage)
+  - WP1e: 1 day (Testing)
+- WP2: 4-5 days total
+  - WP2a: 2-3 days (Provider, Ideation, Outline)
+  - WP2b: 2 days (Segment, Script, Cost)
+- WP3: 2-3 days (TTS)
+- WP4: 2-3 days (Audio Mixer)
+- WP5: 1-2 days (Image Service)
+- WP6: 3-4 days total
+  - WP6a: 1.5-2 days (State Machine)
+  - WP6b: 1.5-2 days (Reliability)
+- WP7: 2-4 days total
+  - WP7a: 1-2 days (Show Commands)
+  - WP7b: 1-2 days (Episode Commands)
+- WP9: 5.5-8 days total
+  - WP9a: 1.5-2 days (Backend API)
+  - WP9b: 2-3 days (Blueprint Editor)
+  - WP9c: 2-3 days (Approval Dashboard)
+- WP10: 3.5-4.5 days total
+  - WP10a: 1.5-2 days (Website & SEO)
+  - WP10b: 2-2.5 days (Podcast Distribution)
 - WP8: Ongoing
 
 **Total:** ~4-6 weeks for MVP
 
 **With parallel development (multiple agents):**
-- Phase 1: 3-4 days (WP0 + WP1)
-- Phase 2: 4-5 days (WP2-5 parallel)
-- Phase 3: 3-4 days (WP6)
-- Phase 4: 7-10 days (WP7 + WP9 parallel)
+- Phase 1: 5-6 days (WP0 + WP1a→1e sequential)
+- Phase 2: 4-5 days (WP2a→2b, WP3+4, WP5 parallel)
+- Phase 3: 3-4 days (WP6a→6b sequential)
+- Phase 4: 5.5-8 days (WP7a→7b, WP9a→9b→9c, WP10a+10b parallel)
 
 **Total:** ~3-4 weeks with 4 parallel agents
 
