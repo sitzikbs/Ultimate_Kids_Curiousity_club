@@ -13,7 +13,7 @@ def test_llm_response_parsing_benchmark(benchmark, llm_fixtures_dir):
     pytest.skip("Benchmark test - implement when LLM service is available")
 
     # Example implementation:
-    # from tests.utils.fixture_loader import load_llm_ideation_fixture
+    # from utils.fixture_loader import load_llm_ideation_fixture
     #
     # def parse_response():
     #     fixture = load_llm_ideation_fixture("airplanes", llm_fixtures_dir)
@@ -63,7 +63,7 @@ def test_fixture_loading_benchmark(benchmark, llm_fixtures_dir):
     Tests how quickly we can load test fixtures from disk.
     Baseline: <5ms per fixture
     """
-    from tests.utils.fixture_loader import load_llm_ideation_fixture
+    from utils.fixture_loader import load_llm_ideation_fixture
 
     def load_fixtures():
         return load_llm_ideation_fixture("airplanes", llm_fixtures_dir)

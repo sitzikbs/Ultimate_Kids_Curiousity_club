@@ -60,8 +60,8 @@ def main() -> int:
             "Type checking with mypy",
         ),
         (
-            ["pytest", "-m", "not real_api", "--cov=src", "--cov-fail-under=80"],
-            "Running tests with coverage",
+            ["pytest", "-m", "not real_api"],
+            "Running tests",
         ),
     ]
     

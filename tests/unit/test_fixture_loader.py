@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.utils.fixture_loader import (
+from utils.fixture_loader import (
     list_available_fixtures,
     load_json_fixture,
     load_llm_ideation_fixture,

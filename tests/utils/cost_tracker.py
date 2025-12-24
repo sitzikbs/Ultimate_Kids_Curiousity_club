@@ -126,10 +126,11 @@ class CostTracker:
         print(f"Total Calls: {summary['total_calls']}")
         print(f"Budget Limit: ${summary['budget_limit_usd']:.2f}")
         print(f"Remaining Budget: ${summary['remaining_budget_usd']:.2f}")
-        print(
-            f"Status: {'✓ Within Budget' if summary['within_budget'] else '⚠ Over Budget'}"
-        )
+        status = "✓ Within Budget" if summary["within_budget"] else "⚠ Over Budget"
+        print(f"Status: {status}")
         print("\nBreakdown by Service:")
         for service, data in summary["by_service"].items():
-            print(f"  {service}: ${data['cost_usd']:.4f} ({data['call_count']} calls)")
+            cost = data["cost_usd"]
+            count = data["call_count"]
+            print(f"  {service}: ${cost:.4f} ({count} calls)")
         print("=" * 60 + "\n")

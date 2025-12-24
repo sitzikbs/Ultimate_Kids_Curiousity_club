@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from tests.utils.cost_tracker import APICall, CostTracker
+from utils.cost_tracker import APICall, CostTracker
 
 
 @pytest.mark.unit

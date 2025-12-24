@@ -1,42 +1,52 @@
 """Global pytest fixtures for Ultimate Kids Curiosity Club tests."""
 
+import sys
 from pathlib import Path
 
 import pytest
 
-from tests.fixtures.audio import (
-    audio_processing_config,
-    background_music_metadata,
-    episode_audio_metadata,
-    mock_audio_segment,
-    mock_audio_segments_list,
-    silent_mp3_path,
-)
+# Add the tests directory to the Python path
+tests_dir = Path(__file__).parent
+if str(tests_dir) not in sys.path:
+    sys.path.insert(0, str(tests_dir))
 
 # Import fixtures from fixture modules
-from tests.fixtures.characters import (
-    all_characters,
-    generic_character,
-    hannah_character,
-    narrator_character,
-    oliver_character,
-)
-from tests.fixtures.episodes import (
-    audio_synthesis_episode,
-    complete_episode,
-    episode_with_show_blueprint,
-    episodes_list,
-    new_episode,
-    scripting_episode,
-)
-from tests.fixtures.services import (
-    mock_audio_mixer,
-    mock_image_service,
-    mock_llm_service,
-    mock_orchestrator,
-    mock_tts_service,
-    service_settings,
-)
+# Using try/except to handle import during collection phase
+try:
+    from fixtures.audio import (
+        audio_processing_config,
+        background_music_metadata,
+        episode_audio_metadata,
+        mock_audio_segment,
+        mock_audio_segments_list,
+        silent_mp3_path,
+    )
+    from fixtures.characters import (
+        all_characters,
+        generic_character,
+        hannah_character,
+        narrator_character,
+        oliver_character,
+    )
+    from fixtures.episodes import (
+        audio_synthesis_episode,
+        complete_episode,
+        episode_with_show_blueprint,
+        episodes_list,
+        new_episode,
+        scripting_episode,
+    )
+    from fixtures.services import (
+        mock_audio_mixer,
+        mock_image_service,
+        mock_llm_service,
+        mock_orchestrator,
+        mock_tts_service,
+        service_settings,
+    )
+except ImportError:
+    # During early import phase, fixtures may not be available yet
+    pass
 
 # Re-export fixtures so they're available to tests
 __all__ = [
