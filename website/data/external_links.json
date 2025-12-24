@@ -1,0 +1,22 @@
+{
+  "podcast": {
+    "apple": "#",
+    "spotify": "#",
+    "amazon": "#",
+    "youtube": "#",
+    "iheartradio": "#",
+    "pocketcasts": "#",
+    "overcast": "#",
+    "castbox": "#",
+    "podcastaddict": "#",
+    "deezer": "#",
+    "stitcher": "#",
+    "tunein": "#",
+    "rss": "#"
+  },
+  "social": {
+    "instagram": "#",
+    "facebook": "#",
+    "twitter": "#"
+  }
+}

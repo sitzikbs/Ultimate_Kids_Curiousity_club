@@ -1,0 +1,81 @@
+# Maplewood - Oliver's World
+# Setting for Oliver's Workshop STEM podcast
+
+world_name: "Maplewood"
+era_or_style: "modern suburban, slightly retro"
+
+description: >
+  A friendly, mostly-real suburban town where kids ride bikes, teachers know your name, and
+  neighborhood bakeries smell like cinnamon. The small twist: Maplewood celebrates hands-on
+  curiosity through people and shared resources rather than everyday visible contraptions.
+  A kindly retired tinkerer, Mrs. Chen, tends a 'Curiosity Corner' in the public library and
+  the elementary school hosts a modest Fab Lab for guided experiments. It's not magic — it's
+  mentorship, community support, and playful problem-solving.
+
+# World imagery (to be generated/added)
+image_paths:
+  - path: "data/shows/olivers_workshop/images/maplewood_overview.png"
+    description: "Overhead view of Maplewood suburban street"
+  - path: "data/shows/olivers_workshop/images/olivers_backyard_workshop.png"
+    description: "Oliver's cluttered but cozy backyard workshop"
+  - path: "data/shows/olivers_workshop/images/curiosity_corner.png"
+    description: "Mrs. Chen's Curiosity Corner in the library"
+
+# Key Locations
+key_locations:
+  - name: "Oliver's Backyard Workshop"
+    description: >
+      A cluttered but cozy shed behind Oliver's house filled with spare parts, tools,
+      sketches, and half-built gadgets — the central place where ideas become experiments.
+    
+  - name: "Maplewood Elementary School"
+    description: >
+      The local school where Oliver and his friends learn and where many social problems arise
+      (lost homework, science-fair challenges). A place for lessons both academic and social.
+    
+  - name: "Maplewood Makers (Community Makerspace)"
+    description: >
+      A friendly community workshop run by volunteers where kids and adults share tools,
+      teach workshops, and collaborate on larger builds. A hub for resources and mentors.
+    
+  - name: "Mrs. Chen's Curiosity Corner (Library Alcove)"
+    description: >
+      A small, characterful alcove inside the Maplewood Public Library tended by Mrs. Chen,
+      a retired tinkerer. She keeps odd parts, notebooks of sketches, and a drawer of
+      'curiosity bits' that kids can borrow. Mrs. Chen offers gentle guidance and surprising
+      historical stories about simple machines.
+    
+  - name: "School Fab Lab (Maplewood Elementary)"
+    description: >
+      A modest fabrication corner at the school supervised by Ms. Park, equipped with
+      safe, kid-friendly tools (3D pens, basic circuit kits, measuring tools) used in class
+      projects and science fair prep. It's where formal STEM lessons meet hands-on practice.
+    
+  - name: "The Treehouse"
+    description: >
+      A neighborhood hideout built by the kids; it's used for brainstorming, secret tests of
+      small inventions, and planning solutions away from prying grown-up eyes.
+
+# Supporting Characters (see characters/ directory for full profiles)
+supporting_characters:
+  - name: "Maya Rivera"
+    role: "Best Friend / Problem-bearer"
+    personality_snippet: "Warm and outgoing but a bit scatterbrained — often misplaces things or gets into small dilemmas that lead to stories."
+    character_file: "characters/maya_rivera.yaml"
+    
+  - name: "Sam Patel"
+    role: "Helper Friend / Co-tinkerer"
+    personality_snippet: "Thoughtful and methodical; good at drawing, measuring, and turning Oliver's wild ideas into safe, testable steps."
+    character_file: "characters/sam_patel.yaml"
+    
+  - name: "Ms. Park"
+    role: "School Science Teacher / Mentor"
+    personality_snippet: "Encouraging and practical. She asks the right questions to guide experiments and emphasizes safety and learning from failure."
+    character_file: "characters/ms_park.yaml"
+
+# World Rules
+world_rules:
+  - "No magic — inventive solutions come from curiosity, observation, and experimentation."
+  - "Adults are generally supportive; kids solve problems together with guidance, not alone."
+  - "Safety and learning matter: experiments should be tested, measured, and sometimes fail before they succeed."
+  - "Every problem is an opportunity to learn a STEM concept and practice teamwork."

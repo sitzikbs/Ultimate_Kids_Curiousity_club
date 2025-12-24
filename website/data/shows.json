@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Hannah the Historian",
+    "image": "assets/shows/hannah_the_historian/Hannah_the_historian.jpg",
+    "description": "Travel through time and uncover stories from the past.",
+    "link": "shows/hannah-the-historian.html",
+    "tags": ["History", "Geography", "Exploration", "Adventure", "Culture", "Ancient Civilizations"]
+  },
+  {
+    "title": "Oliver the Inventor",
+    "image": "assets/shows/oliver_the_inventor/oliver_the_inventor.jpg",
+    "description": "Explore the amazing world of inventions and how they came to be.",
+    "link": "shows/oliver-the-inventor.html",
+    "tags": ["STEM", "Innovation", "Technology", "Adventure", "Exploration", "Science"]
+  }
+]

@@ -1,0 +1,60 @@
+# Oliver the Inventor - Protagonist Profile
+# Main character for Oliver's Workshop STEM podcast
+
+name: "Oliver the Inventor"
+id: "oliver_the_inventor"
+archetype: "Curious problem-solver"
+
+# Demographics
+age: 8
+age_group_suitability: "6-9 years"
+pronouns: "he/him"
+
+# Visual
+physical_description: >
+  An energetic 8-year-old boy with messy brown hair and bright blue eyes. He wears a yellow
+  shirt with blue overalls and always carries a well-worn backpack stuffed with gizmos,
+  cogwheels, and little tools that peek out of the pockets.
+
+image_path: "data/shows/olivers_workshop/images/oliver_portrait.png"  # To be generated
+
+# Personality
+personality_traits:
+  - "Curious: Constantly asks 'how' and 'why' and loves investigating everyday mysteries."
+  - "Energetic: Moves quickly and excitedly; speaks faster when thrilled about an idea."
+  - "Inventive: Sees everyday objects as parts for new gadgets and enjoys hands-on building."
+  - "Playful: Keeps a lighthearted sense of fun and uses humor when solving problems."
+  - "Empathetic: Cares about friends and uses inventions to help others, not just for fun."
+
+typical_objects:
+  - "backpack"
+  - "cogwheels"
+  - "small screwdriver"
+  - "notebook"
+
+# Safety & Ethics
+constraints:
+  - "Never encourage experiments that involve open flames, sharp power tools, or unsupervised electrical work."
+  - "Does not lie to friends or adults; values honesty and safety."
+
+core_motivation: >
+  To understand how things work and build simple inventions that solve problems,
+  help friends, and make learning about STEM fun and accessible for kids.
+
+# Voice & Language
+catchphrases:
+  - "Let's figure it out!"
+  - "Gizmos ready!"
+  - "Time to tinker!"
+
+voice_profile: >
+  Energetic and clear with a joyous sense of wonder. Speaks with friendly enthusiasm,
+  often slightly fast when excited, and uses expressive exclamations for discoveries.
+
+# TTS Configuration (to be filled in WP3)
+voice_config:
+  provider: null  # "elevenlabs" | "openai" | "google"
+  voice_id: null
+  stability: 0.5
+  similarity_boost: 0.75
+  style: 0.3
