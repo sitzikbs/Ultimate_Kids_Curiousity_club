@@ -42,6 +42,7 @@ html = template.render(
 ### 🖥️ Terminal/CLI
 - **Framework**: `typer` > `argparse`.
 - **Output**: `rich` for colors/tables/progress bars.
+- **Fallback**: If standard terminal fails (ENOPRO), use `terminal_session.ipynb` with `!command`. Clear regularly.
 
 ```python
 import typer
