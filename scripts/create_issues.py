@@ -74,7 +74,12 @@ def parse_wp_file(file_path):
         title = file_path.stem.replace('_', ' ')
     
     wp_id = get_wp_id(file_path)
-    dep_info = DEPENDENCY_MAP.get(wp_id, {"depends_on": [], "phase": 0})
+    
+    # Get dependency info with safe defaults
+    if wp_id and wp_id in DEPENDENCY_MAP:
+        dep_info = DEPENDENCY_MAP[wp_id]
+    else:
+        dep_info = {"depends_on": [], "phase": 0}
     
     # Create issue body
     # We want to link to the file and list the tasks
@@ -177,7 +182,7 @@ def create_issues():
         wp_id = get_wp_id(p)
         if not wp_id:
             return (999, 0, '')
-        dep_info = DEPENDENCY_MAP.get(wp_id, {"phase": 999})
+        dep_info = DEPENDENCY_MAP.get(wp_id, {"depends_on": [], "phase": 999})
         match = re.search(r'WP(\d+)([a-z]?)', p.name)
         if match:
             num = int(match.group(1))
@@ -193,7 +198,12 @@ def create_issues():
     current_phase = None
     for wp_file in wp_files:
         wp_id = get_wp_id(wp_file)
-        dep_info = DEPENDENCY_MAP.get(wp_id, {"phase": 0})
+        
+        # Get dependency info with safe defaults
+        if wp_id and wp_id in DEPENDENCY_MAP:
+            dep_info = DEPENDENCY_MAP[wp_id]
+        else:
+            dep_info = {"depends_on": [], "phase": 0}
         
         # Print phase header
         if dep_info["phase"] != current_phase:
@@ -214,13 +224,8 @@ def create_issues():
         temp_body_file = WORKSPACE_ROOT / "temp_issue_body.md"
         temp_body_file.write_text(body)
         
-        # Add labels for phase and dependencies
-        labels = [f"phase-{dep_info['phase']}"]
-        if not dep_info["depends_on"]:
-            labels.append("ready-to-start")
-        
-        labels_str = ",".join(labels)
-        cmd = f'gh issue create --title "{title}" --body-file "{temp_body_file}" --label "{labels_str}"'
+        # Create issue without labels (labels don't exist yet in repo)
+        cmd = f'gh issue create --title "{title}" --body-file "{temp_body_file}"'
         result = run_command(cmd)
         
         if result:
