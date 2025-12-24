@@ -6,7 +6,7 @@ configuration, including mock mode toggle, API keys, and provider preferences.
 
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
         mode="after",
     )
     @classmethod
-    def validate_api_keys(cls, v: str | None, info) -> str | None:
+    def validate_api_keys(cls, v: str | None, info: ValidationInfo) -> str | None:
         """Validate that API keys are provided when not using mocks.
 
         Args:
@@ -93,3 +93,13 @@ def get_settings() -> Settings:
     if _settings is None:
         _settings = Settings()
     return _settings
+
+
+def reset_settings() -> None:
+    """Reset the singleton Settings instance.
+
+    This is primarily used for testing to ensure each test has a clean state.
+    Should not be used in production code.
+    """
+    global _settings
+    _settings = None

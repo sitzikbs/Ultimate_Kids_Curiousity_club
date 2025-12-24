@@ -4,7 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from src.config import Settings, get_settings
+from src.config import Settings, get_settings, reset_settings
+
+
+@pytest.fixture(autouse=True)
+def reset_singleton():
+    """Reset the singleton before each test to ensure clean state."""
+    reset_settings()
+    yield
+    reset_settings()
 
 
 class TestSettings:
@@ -122,11 +130,6 @@ class TestGetSettings:
 
     def test_singleton_behavior(self, monkeypatch):
         """Test that get_settings returns the same instance."""
-        # Clear the singleton before testing
-        import src.config
-
-        src.config._settings = None
-
         monkeypatch.setenv("USE_MOCK_SERVICES", "true")
 
         settings1 = get_settings()
@@ -163,10 +166,8 @@ class TestSettingsValidation:
         settings = Settings()
         assert settings.USE_MOCK_SERVICES is True
 
-        # Clear singleton
-        import src.config
-
-        src.config._settings = None
+        # Reset singleton and test "false"
+        reset_settings()
 
         # Test "false"
         monkeypatch.setenv("USE_MOCK_SERVICES", "false")
@@ -186,10 +187,9 @@ class TestSettingsValidation:
         # Should use default, not the lowercase version
         assert settings.LLM_PROVIDER == "openai"
 
-        # Now test with correct case
-        monkeypatch.setenv("LLM_PROVIDER", "anthropic")
-        import src.config
+        # Reset and test with correct case
+        reset_settings()
 
-        src.config._settings = None
+        monkeypatch.setenv("LLM_PROVIDER", "anthropic")
         settings = Settings()
         assert settings.LLM_PROVIDER == "anthropic"
