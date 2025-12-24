@@ -72,3 +72,4 @@ logs/
 # Misc
 *.bak
 *.tmp
+demo_wp1.py
