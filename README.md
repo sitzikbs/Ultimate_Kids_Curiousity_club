@@ -10,15 +10,40 @@ An educational platform designed to inspire curiosity and learning in kids.
 
 ### Setup
 
-1. **Install the project with dependencies:**
+1. **Clone the repository** (if you haven't already):
    ```bash
-   pip install -e .
+   git clone https://github.com/sitzikbs/Ultimate_Kids_Curiousity_club.git
+   cd Ultimate_Kids_Curiousity_club
    ```
 
-2. **Install development dependencies (for testing and linting):**
+2. **Install the package with all dependencies:**
    ```bash
    pip install -e ".[dev]"
    ```
+   
+   This will:
+   - Install the package in editable mode
+   - Install Pydantic for data models
+   - Install pytest for testing
+   - Install ruff for linting
+
+   **Note:** The `-e` flag installs in "editable" mode, which means changes to the source code are immediately reflected without reinstalling.
+
+### Troubleshooting
+
+If you encounter import errors:
+
+1. Make sure you've installed the package:
+   ```bash
+   pip install -e ".[dev]"
+   ```
+
+2. Verify the installation:
+   ```bash
+   pip show ultimate-kids-curiousity-club
+   ```
+
+3. If using a virtual environment, make sure it's activated before installing and running tests.
 
 ## Running Tests
 
