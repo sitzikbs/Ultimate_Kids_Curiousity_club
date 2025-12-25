@@ -1,7 +1,7 @@
 """Data models for the Ultimate Kids Curiosity Club."""
 
-from src.models.episode import Episode, PipelineStage
-from src.models.show import (
+from models.episode import Episode, PipelineStage
+from models.show import (
     Character,
     ConceptsHistory,
     Protagonist,
@@ -9,7 +9,7 @@ from src.models.show import (
     ShowBlueprint,
     WorldDescription,
 )
-from src.models.story import (
+from models.story import (
     Script,
     ScriptBlock,
     StoryBeat,

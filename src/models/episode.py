@@ -5,7 +5,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from src.models.story import Script, StoryOutline, StorySegment
+from models.story import Script, StoryOutline, StorySegment
 
 
 class PipelineStage(str, Enum):

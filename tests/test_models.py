@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from src.models import (
+from models import (
     Character,
     ConceptsHistory,
     Episode,
