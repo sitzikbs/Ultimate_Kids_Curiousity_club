@@ -1,9 +1,13 @@
 """Test suite for the Ultimate Kids Curiosity Club."""
 
-import pytest
 
 
 def test_basic_import():
-    """Test that the main package can be imported."""
-    import src
-    assert src.__version__ == "0.1.0"
+    """Test that the package can be imported."""
+    # Test that models can be imported
+    from models import Episode, PipelineStage, Show
+
+    # Basic smoke test
+    assert Show is not None
+    assert Episode is not None
+    assert PipelineStage is not None
