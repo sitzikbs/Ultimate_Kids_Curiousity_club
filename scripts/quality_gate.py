@@ -56,7 +56,7 @@ def main() -> int:
             "Format checking with ruff",
         ),
         (
-            ["mypy", "src/"],
+            ["mypy", "-p", "models", "-p", "utils", "-p", "modules"],
             "Type checking with mypy",
         ),
         (
