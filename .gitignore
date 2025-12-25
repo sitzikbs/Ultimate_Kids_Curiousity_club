@@ -41,6 +41,7 @@ uv.lock
 *.swo
 *~
 .DS_Store
+terminal_session.ipynb
 
 # Testing
 .pytest_cache/
