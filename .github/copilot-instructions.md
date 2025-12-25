@@ -1,6 +1,7 @@
 # GitHub Copilot Instructions
 
 ## Context
+
 - **Role**: Python/Terminal Developer
 - **Focus**: Automation, CLI Tools, HTML Reports
 - **OS**: Linux (primary), macOS (secondary), WSL (rare)
@@ -8,6 +9,7 @@
 ## Code Guidelines
 
 ### 🐍 Python (3.10+)
+
 - **Tools**: `uv` (deps), `ruff` (lint/fmt), `pytest`
 - **Typing**: Strict usage (`list[str]`, `str | None`, `dict[str, Any]`)
 - **Paths**: `pathlib.Path` ONLY. No `os.path.join`.
@@ -20,12 +22,13 @@ def load_config(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
 # ❌ DON'T
-def load_config(path): 
+def load_config(path):
     f = open(path) # missing context manager, typing
     return json.load(f)
 ```
 
 ### 📊 HTML Reports
+
 - **Templates**: Use **Jinja2**. Avoid generating HTML strings in code.
 - **Self-Contained**: Embed resources (CSS/Images) via base64/inline styles.
 - **Data**: Pandas `DataFrame.to_html()` with simple CSS classes.
@@ -40,6 +43,7 @@ html = template.render(
 ```
 
 ### 🖥️ Terminal/CLI
+
 - **Framework**: `typer` > `argparse`.
 - **Output**: `rich` for colors/tables/progress bars.
 - **Fallback**: If standard terminal fails (ENOPRO), use `terminal_session.ipynb` with `!command`. Clear regularly.
@@ -53,15 +57,18 @@ def main(name: str):
 ```
 
 ### 🐚 Shell Scripts
+
 - **Shebang**: `#!/bin/bash`
 - **Safety**: `set -euo pipefail` (REQUIRED)
 - **OS Check**: `[[ "$OSTYPE" == "darwin"* ]]` vs `linux-gnu`
 
 ### 🔒 Security
+
 - **Secrets**: Use `.env` files (`python-dotenv`).
 - **Git**: Never commit `.env` or credentials.
 
 ### 🧪 Testing
+
 - **Framework**: `pytest`
 - **Pattern**: Fixtures over setup/teardown methods.
 - **Mocks**: Use `unittest.mock` or `pytest-mock`.
