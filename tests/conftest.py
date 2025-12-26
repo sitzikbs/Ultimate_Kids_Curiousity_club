@@ -10,6 +10,12 @@ tests_dir = Path(__file__).parent
 if str(tests_dir) not in sys.path:
     sys.path.append(str(tests_dir))
 
+# Add the src directory to the Python path for imports
+project_root = tests_dir.parent
+src_dir = project_root / "src"
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
 # Import fixtures from fixture modules
 # Using try/except to handle import during collection phase
 try:
