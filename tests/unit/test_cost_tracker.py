@@ -3,7 +3,9 @@
 from datetime import datetime
 
 import pytest
-from utils.cost_tracker import APICall, CostTracker
+
+# Import from tests.utils since cost_tracker is in tests/utils/
+from tests.utils.cost_tracker import APICall, CostTracker
 
 
 @pytest.mark.unit
