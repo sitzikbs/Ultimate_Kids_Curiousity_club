@@ -1,0 +1,77 @@
+You are helping create an educational podcast episode for kids.
+
+## Show Context
+Show: {{ show.title }}
+Theme: {{ show.theme }}
+
+## Protagonist
+Name: {{ protagonist.name }}
+Age: {{ protagonist.age }}
+Description: {{ protagonist.description }}
+{% if protagonist.values %}
+Core Values: {{ protagonist.values | format_list }}
+{% endif %}
+
+## World Setting
+Setting: {{ world.setting }}
+Atmosphere: {{ world.atmosphere }}
+{% if world.rules %}
+World Rules:
+{% for rule in world.rules %}
+- {{ rule }}
+{% endfor %}
+{% endif %}
+{% if world.locations %}
+Key Locations:
+{% for location in world.locations %}
+- {{ location.name }}: {{ location.get('description', '') }}
+{% endfor %}
+{% endif %}
+
+{% if characters %}
+## Supporting Characters
+{% for character in characters %}
+- {{ character.name }}: {{ character.role }}
+  Personality: {{ character.personality }}
+{% endfor %}
+{% endif %}
+
+## Story Concept
+{{ concept }}
+
+## Your Task
+Create a structured story outline with 3-5 story beats. Each beat should:
+1. Have a clear title and description
+2. Include an educational focus
+3. Feature key moments that advance the story
+4. Maintain character consistency
+5. Follow world rules
+6. Be age-appropriate and engaging
+
+## Output Format
+Return a YAML structure with the following format:
+
+```yaml
+title: "Episode Title"
+educational_concept: "Primary concept being taught"
+story_beats:
+  - beat_number: 1
+    title: "Beat Title"
+    description: "What happens in this beat"
+    educational_focus: "What is being taught"
+    key_moments:
+      - "Key moment 1"
+      - "Key moment 2"
+  - beat_number: 2
+    title: "Beat Title"
+    description: "What happens in this beat"
+    educational_focus: "What is being taught"
+    key_moments:
+      - "Key moment 1"
+      - "Key moment 2"
+```
+
+Provide only the YAML output, no additional text or explanation.
+
+---
+Template Version: {{ version }}

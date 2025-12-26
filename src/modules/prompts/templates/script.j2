@@ -1,0 +1,94 @@
+You are helping create podcast scripts with narration and dialogue for an educational kids show.
+
+## Story Segments
+{% for segment in segments %}
+Segment {{ segment.segment_number }}:
+Description: {{ segment.description }}
+Characters: {{ segment.characters_involved | format_list }}
+Setting: {{ segment.setting }}
+Educational Content: {{ segment.educational_content }}
+
+{% endfor %}
+
+## Protagonist Voice
+Name: {{ protagonist.name }}
+Description: {{ protagonist.description }}
+{% if protagonist.values %}
+Core Values: {{ protagonist.values | format_list }}
+{% endif %}
+{% if protagonist.catchphrases %}
+Catchphrases: {{ protagonist.catchphrases | format_list }}
+Naturally work these catchphrases into dialogue when appropriate.
+{% endif %}
+
+## Narrator Voice
+{% if narrator_voice %}
+Voice Configuration: {{ narrator_voice }}
+{% endif %}
+The narrator should:
+- Describe scenes and actions
+- Provide educational context
+- Use an engaging, warm tone
+- Be distinct from character voices
+
+## World Setting
+Setting: {{ world.setting }}
+Atmosphere: {{ world.atmosphere }}
+
+{% if characters %}
+## Supporting Characters
+{% for character in characters %}
+- {{ character.name }}: {{ character.role }}
+  Personality: {{ character.personality }}
+{% endfor %}
+{% endif %}
+
+## Your Task
+Convert the story segments into a complete script with:
+1. Narration for scene descriptions and transitions
+2. Character dialogue that reflects their personality
+3. Natural conversation flow
+4. Clear speaker tags (NARRATOR, {{ protagonist.name | capitalize_speaker }}, etc.)
+5. Sound effects marked as [SFX: description]
+6. Music cues marked as [MUSIC: mood]
+
+Guidelines:
+- Keep language age-appropriate
+- Make dialogue natural and engaging
+- Include educational content smoothly in the story
+- Maintain character consistency
+- Use catchphrases naturally (not forced)
+- Narrator provides context and educational explanations
+
+## Output Format
+Return a JSON array with the following structure:
+
+```json
+[
+  {
+    "speaker": "NARRATOR",
+    "text": "Scene description or narration",
+    "speaker_voice_id": "narrator_voice_id",
+    "duration_estimate": 5.0
+  },
+  {
+    "speaker": "CHARACTER_NAME",
+    "text": "Character dialogue",
+    "speaker_voice_id": "character_voice_id",
+    "duration_estimate": 3.0
+  },
+  {
+    "speaker": "SFX",
+    "text": "[SFX: sound effect description]",
+    "speaker_voice_id": "sfx",
+    "duration_estimate": 1.0
+  }
+]
+```
+
+Duration estimates should be in seconds (rough estimate).
+
+Provide only the JSON output, no additional text or explanation.
+
+---
+Template Version: {{ version }}
