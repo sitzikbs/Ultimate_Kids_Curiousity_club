@@ -3,9 +3,12 @@
 This module provides the EpisodeStorage class for managing episode data
 persistence, including checkpoint saving/loading, atomic writes, and file
 locking for concurrent access.
+
+Note: File locking requires Unix-like systems (Linux, macOS). The fcntl module
+is used for file locking operations.
 """
 
-import fcntl
+import fcntl  # Unix-specific file locking
 import json
 import shutil
 from datetime import UTC, datetime
@@ -184,14 +187,14 @@ class EpisodeStorage:
 
         if stage == PipelineStage.OUTLINING and episode.outline:
             # Use model_dump with mode='json' to properly serialize datetime objects
-            checkpoint_data["outline"] = json.loads(episode.outline.model_dump_json())
+            checkpoint_data["outline"] = episode.outline.model_dump(mode="json")
         elif stage == PipelineStage.SEGMENT_GENERATION and episode.segments:
             checkpoint_data["segments"] = [
-                json.loads(seg.model_dump_json()) for seg in episode.segments
+                seg.model_dump(mode="json") for seg in episode.segments
             ]
         elif stage == PipelineStage.SCRIPT_GENERATION and episode.scripts:
             checkpoint_data["scripts"] = [
-                json.loads(script.model_dump_json()) for script in episode.scripts
+                script.model_dump(mode="json") for script in episode.scripts
             ]
 
         # Save checkpoint with atomic write

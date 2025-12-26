@@ -5,7 +5,6 @@ system, including context tracking, retry decorators, and structured error loggi
 """
 
 import logging
-import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 from functools import wraps
@@ -119,6 +118,8 @@ def retry_on_failure(
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            import time  # Import here as it's only needed for retry logic
+
             last_exception: Exception | None = None
 
             for attempt in range(max_attempts):
