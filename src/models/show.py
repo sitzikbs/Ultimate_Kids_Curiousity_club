@@ -131,4 +131,6 @@ class ShowBlueprint(BaseModel):
         default_factory=ConceptsHistory,
         description="History of educational concepts",
     )
-    episodes: list[str] = Field(default_factory=list, description="List of episode IDs")
+    episodes: list[str] = Field(
+        default_factory=list, description="List of episode IDs"
+    )

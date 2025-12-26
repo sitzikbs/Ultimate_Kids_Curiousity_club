@@ -41,7 +41,9 @@ class Episode(BaseModel):
     scripts: list[Script] = Field(
         default_factory=list, description="Scripts for each segment"
     )
-    audio_path: str | None = Field(default=None, description="Path to final audio file")
+    audio_path: str | None = Field(
+        default=None, description="Path to final audio file"
+    )
     current_stage: PipelineStage = Field(
         default=PipelineStage.PENDING, description="Current pipeline stage"
     )

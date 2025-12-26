@@ -1,6 +1,5 @@
 """Test suite for the Ultimate Kids Curiosity Club."""
 
-import pytest
 
 
 @pytest.mark.unit

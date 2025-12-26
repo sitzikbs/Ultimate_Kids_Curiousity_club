@@ -317,7 +317,9 @@ class TestEpisodeModels:
         script = Script(
             segment_number=1,
             script_blocks=[
-                ScriptBlock(speaker="Test", text="Test", speaker_voice_id="test_voice")
+                ScriptBlock(
+                    speaker="Test", text="Test", speaker_voice_id="test_voice"
+                )
             ],
         )
 
