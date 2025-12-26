@@ -1,0 +1,9 @@
+# Kids Curiosity Club - robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://kidscuriosityclub.com/sitemap.xml
+
+# Disallow crawling of CDN assets (they're served from separate domain)
+# All other paths are allowed

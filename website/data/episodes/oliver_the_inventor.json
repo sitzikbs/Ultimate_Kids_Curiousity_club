@@ -1,0 +1,38 @@
+{
+  "show_id": "oliver_the_inventor",
+  "show_title": "Oliver the Inventor",
+  "episodes": [
+    {
+      "id": "ep_001",
+      "title": "The Lever Adventure",
+      "description": "Oliver discovers how levers work by building a see-saw! Learn about simple machines and how they make our lives easier through fun experiments and examples.",
+      "duration": "8:32",
+      "duration_seconds": 512,
+      "publish_date": "2025-12-24T10:00:00Z",
+      "audio_url": "https://cdn.kidscuriosityclub.com/oliver_the_inventor/ep_001.mp3",
+      "artwork_url": "../../assets/shows/oliver_the_inventor/oliver_the_inventor.jpg",
+      "show_notes_html": "<p>In this episode, Oliver explores the amazing world of levers and discovers how they're used everywhere!</p><h3>Learning Objectives</h3><ul><li>Understand how levers work</li><li>Learn about fulcrums and mechanical advantage</li><li>Identify levers in everyday objects</li></ul><h3>Key Concepts</h3><ul><li>Simple machines</li><li>Physics and force</li><li>Engineering principles</li></ul><h3>Try It Yourself!</h3><p>Build your own lever at home using a ruler, a pencil, and some small objects. Can you lift something heavy with less effort?</p>",
+      "show_notes_text": "In this episode, Oliver explores the amazing world of levers and discovers how they're used everywhere! Learning Objectives: Understand how levers work, Learn about fulcrums and mechanical advantage, Identify levers in everyday objects. Key Concepts: Simple machines, Physics and force, Engineering principles. Try It Yourself! Build your own lever at home using a ruler, a pencil, and some small objects.",
+      "tags": ["STEM", "Physics", "Simple Machines", "Engineering"],
+      "concepts": ["levers", "fulcrum", "mechanical advantage", "force"],
+      "file_size": 6820000,
+      "explicit": false
+    },
+    {
+      "id": "ep_002",
+      "title": "The Light Bulb Revolution",
+      "description": "Join Oliver as he discovers how Thomas Edison and other inventors created the light bulb and changed the world forever! Learn about electricity, innovation, and persistence.",
+      "duration": "9:05",
+      "duration_seconds": 545,
+      "publish_date": "2025-12-31T10:00:00Z",
+      "audio_url": "https://cdn.kidscuriosityclub.com/oliver_the_inventor/ep_002.mp3",
+      "artwork_url": "../../assets/shows/oliver_the_inventor/oliver_the_inventor.jpg",
+      "show_notes_html": "<p>Oliver tells the inspiring story of the light bulb and the inventors who never gave up!</p><h3>Learning Objectives</h3><ul><li>Learn about Thomas Edison and his experiments</li><li>Understand how electricity creates light</li><li>Discover the importance of persistence in invention</li></ul><h3>Key Concepts</h3><ul><li>Electricity and circuits</li><li>Innovation and experimentation</li><li>History of technology</li></ul><h3>Fun Fact</h3><p>Did you know Edison tested over 3,000 different materials before finding the right filament for the light bulb?</p>",
+      "show_notes_text": "Oliver tells the inspiring story of the light bulb and the inventors who never gave up! Learning Objectives: Learn about Thomas Edison and his experiments, Understand how electricity creates light, Discover the importance of persistence in invention. Key Concepts: Electricity and circuits, Innovation and experimentation, History of technology. Fun Fact: Edison tested over 3,000 different materials before finding the right filament!",
+      "tags": ["STEM", "Innovation", "Technology", "History"],
+      "concepts": ["electricity", "light bulb", "Edison", "invention"],
+      "file_size": 7250000,
+      "explicit": false
+    }
+  ]
+}
