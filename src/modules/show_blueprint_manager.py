@@ -109,16 +109,31 @@ class ShowBlueprintManager:
         # Filter out None values from voice_config
         voice_config = {k: v for k, v in voice_config.items() if v is not None}
 
+        # Handle different field names between storage format and model
+        # personality_traits is a list in YAML, we'll extract first values if present
+        personality_traits = protagonist_data.get("personality_traits", [])
+        values = []
+        if isinstance(personality_traits, list) and personality_traits:
+            # Extract key values from personality traits (before the colon)
+            values = [
+                trait.split(":")[0].strip().lower()
+                for trait in personality_traits
+                if isinstance(trait, str)
+            ]
+
         protagonist = Protagonist(
             name=protagonist_data.get("name", ""),
             age=protagonist_data.get("age", 0),
             description=protagonist_data.get("physical_description", ""),
-            values=protagonist_data.get("core_values", []),
+            values=values or protagonist_data.get("core_values", []),
             catchphrases=protagonist_data.get("catchphrases", []),
-            backstory=protagonist_data.get("backstory", ""),
+            backstory=protagonist_data.get(
+                "core_motivation", protagonist_data.get("backstory", "")
+            ),
             image_path=protagonist_data.get("image_path"),
             voice_config=voice_config,
         )
+
 
         # Create WorldDescription model
         world = WorldDescription(
