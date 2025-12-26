@@ -144,7 +144,9 @@ def retry_on_failure(
                 raise last_exception
 
             # This should never happen, but added for type safety
-            raise RuntimeError(f"Unexpected state in retry_on_failure for {func.__name__}")
+            raise RuntimeError(
+                f"Unexpected state in retry_on_failure for {func.__name__}"
+            )
 
         return wrapper  # type: ignore
 
