@@ -30,17 +30,32 @@ tests/
 
 ## Running Tests
 
+### Setup First
+
+Before running tests, ensure all dependencies are installed:
+
+```bash
+# Using uv (recommended)
+uv sync --dev
+
+# Using pip
+pip install -e ".[dev]"
+```
+
 ### All Tests (Mock Only)
 
 ```bash
-# Run all tests except real_api
+# Using uv (recommended)
+uv run pytest
+
+# Using pytest directly (after pip install)
 pytest
 
 # With coverage
-pytest --cov=src --cov-report=html
+uv run pytest --cov=src --cov-report=html
 
 # Verbose output
-pytest -v
+uv run pytest -v
 ```
 
 ### By Category
@@ -333,27 +348,41 @@ pytest --collect-only
 
 ### Import Errors
 
+If you see import errors like `ModuleNotFoundError: No module named 'config'` or `ModuleNotFoundError: No module named 'pydantic_settings'`:
+
+**Using uv (recommended):**
 ```bash
-# Reinstall in editable mode
+# Sync all dependencies including dev dependencies
+uv sync --dev
+
+# Run tests with the project environment
+uv run pytest
+```
+
+**Using pip:**
+```bash
+# Install in editable mode with dev dependencies
 pip install -e ".[dev]"
 
-# With uv
-uv sync --dev
+# Run tests
+pytest
 ```
+
+**Important:** If you're in a devcontainer or codespace and see pytest using `/usr/local/py-utils/venvs/pytest/bin/python`, you're using a global pytest that doesn't have access to project dependencies. Always use `uv run pytest` or ensure you've activated the project's virtual environment.
 
 ### Benchmark Fixture Not Found
 
 If you see errors like `fixture 'benchmark' not found`:
 
 ```bash
-# Install pytest-benchmark
-pip install pytest-benchmark
+# With uv (recommended)
+uv sync --dev
 
-# With uv
-uv pip install pytest-benchmark
+# With pip
+pip install pytest-benchmark
 ```
 
-The benchmark tests in `tests/benchmarks/` require the `pytest-benchmark` plugin. This should be automatically installed with `[dev]` dependencies, but if you're using `uv run pytest` without proper setup, you may need to install it explicitly.
+The benchmark tests in `tests/benchmarks/` require the `pytest-benchmark` plugin. This should be automatically installed with `[dev]` dependencies via `uv sync --dev`.
 
 ### Fixture Not Found
 
