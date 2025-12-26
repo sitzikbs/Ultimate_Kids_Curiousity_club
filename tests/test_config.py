@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.config import Settings, get_settings, reset_settings
+from config import Settings, get_settings, reset_settings
 
 
 @pytest.fixture(autouse=True)
@@ -140,11 +140,6 @@ class TestGetSettings:
 
     def test_singleton_preserves_state(self, monkeypatch):
         """Test that singleton preserves settings values."""
-        # Clear the singleton before testing
-        import src.config
-
-        src.config._settings = None
-
         monkeypatch.setenv("USE_MOCK_SERVICES", "true")
         monkeypatch.setenv("LLM_PROVIDER", "anthropic")
 
