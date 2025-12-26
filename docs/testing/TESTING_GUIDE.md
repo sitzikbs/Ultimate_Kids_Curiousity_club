@@ -310,6 +310,20 @@ def test_parsing_benchmark(benchmark):
 
 ## Troubleshooting
 
+### Installation
+
+Make sure all test dependencies are installed:
+
+```bash
+# Using pip
+pip install -e ".[dev]"
+
+# Using uv
+uv sync --dev
+# or
+uv pip install -e ".[dev]"
+```
+
 ### Tests Not Found
 
 ```bash
@@ -322,7 +336,24 @@ pytest --collect-only
 ```bash
 # Reinstall in editable mode
 pip install -e ".[dev]"
+
+# With uv
+uv sync --dev
 ```
+
+### Benchmark Fixture Not Found
+
+If you see errors like `fixture 'benchmark' not found`:
+
+```bash
+# Install pytest-benchmark
+pip install pytest-benchmark
+
+# With uv
+uv pip install pytest-benchmark
+```
+
+The benchmark tests in `tests/benchmarks/` require the `pytest-benchmark` plugin. This should be automatically installed with `[dev]` dependencies, but if you're using `uv run pytest` without proper setup, you may need to install it explicitly.
 
 ### Fixture Not Found
 

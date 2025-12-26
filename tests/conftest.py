@@ -153,3 +153,11 @@ def cost_tracker():
             f"Test suite exceeded budget: ${tracker.get_total_cost():.2f} > "
             f"${tracker._budget_limit:.2f}"
         )
+
+
+# Note: This is intentionally commented out to document the approach.
+# pytest-benchmark plugin provides the 'benchmark' fixture when installed.
+# If users get errors about 'benchmark' fixture not found, they should:
+#   pip install pytest-benchmark
+# or
+#   uv add --dev pytest-benchmark
