@@ -132,20 +132,24 @@ def real_api_settings() -> dict[str, bool]:
 
 @pytest.fixture
 def cost_tracker():
-    """Create a CostTracker instance for real API tests."""
+    """Cost tracker fixture for real API tests.
+
+    Yields a cost tracker that monitors API costs and enforces budget limits.
+    Prints a summary at the end of the test session.
+    """
     from utils.cost_tracker import CostTracker
 
     tracker = CostTracker()
+    tracker.set_budget_limit(10.0)  # $10 budget per test session
     yield tracker
 
-    # After test, report costs
-    total = tracker.get_total_cost()
-    if total > 0:
-        print(f"\n💰 Test cost: ${total:.4f}")
+    # Print summary after tests
+    tracker.print_summary()
 
-    # Check budget
-    if total > tracker._budget_limit:
+    # Fail if budget exceeded
+    within_budget, _ = tracker.check_budget()
+    if not within_budget:
         pytest.fail(
-            f"Budget exceeded! Test cost ${total:.2f} "
-            f"exceeds limit of ${tracker._budget_limit:.2f}"
+            f"Test suite exceeded budget: ${tracker.get_total_cost():.2f} > "
+            f"${tracker._budget_limit:.2f}"
         )

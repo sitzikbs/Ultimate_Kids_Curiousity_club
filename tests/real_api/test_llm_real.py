@@ -8,29 +8,6 @@ import pytest
 from utils.cost_tracker import CostTracker
 
 
-@pytest.fixture
-def cost_tracker() -> CostTracker:
-    """Cost tracker fixture for real API tests.
-
-    Yields a cost tracker that monitors API costs and enforces budget limits.
-    Prints a summary at the end of the test session.
-    """
-    tracker = CostTracker()
-    tracker.set_budget_limit(10.0)  # $10 budget per test session
-    yield tracker
-
-    # Print summary after tests
-    tracker.print_summary()
-
-    # Fail if budget exceeded
-    within_budget, _ = tracker.check_budget()
-    if not within_budget:
-        pytest.fail(
-            f"Test suite exceeded budget: ${tracker.get_total_cost():.2f} > "
-            f"${tracker._budget_limit:.2f}"
-        )
-
-
 @pytest.mark.real_api
 def test_openai_ideation_real(
     real_api_settings: dict[str, bool], cost_tracker: CostTracker
