@@ -45,7 +45,8 @@ class TTSCostTracker:
         """Initialize cost tracker.
 
         Args:
-            budget_threshold: Optional budget threshold in USD for warnings
+            budget_threshold: Optional budget threshold in USD for warnings.
+                            Warnings are printed to stdout by default.
         """
         self.budget_threshold = budget_threshold
         self.entries: list[TTSCostEntry] = []
@@ -91,7 +92,11 @@ class TTSCostTracker:
         return entry
 
     def _issue_budget_warning(self) -> None:
-        """Issue a warning when budget threshold is exceeded."""
+        """Issue a warning when budget threshold is exceeded.
+
+        Note: This prints to stdout by default. For production use,
+        consider integrating with a logging system or event handler.
+        """
         print(
             f"⚠️  Budget threshold exceeded: ${self._total_cost:.2f} / "
             f"${self.budget_threshold:.2f}"

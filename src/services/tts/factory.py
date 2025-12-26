@@ -18,6 +18,10 @@ def retry_on_failure(
 ) -> Callable:
     """Decorator to retry function on transient failures.
 
+    This decorator only retries on transient network/API errors (timeouts,
+    connection issues, rate limits, 5xx errors). Non-transient errors
+    (invalid parameters, authentication failures) are raised immediately.
+
     Args:
         max_retries: Maximum number of retry attempts
         delay_seconds: Initial delay between retries in seconds
@@ -39,22 +43,21 @@ def retry_on_failure(
                 except Exception as e:
                     last_exception = e
                     if attempt < max_retries:
-                        # Check if it's a transient error
+                        # Check if it's a transient error worth retrying
                         error_msg = str(e).lower()
-                        if any(
-                            keyword in error_msg
-                            for keyword in [
-                                "timeout",
-                                "connection",
-                                "rate limit",
-                                "503",
-                                "502",
-                                "429",
-                            ]
-                        ):
+                        transient_keywords = [
+                            "timeout",
+                            "connection",
+                            "rate limit",
+                            "503",
+                            "502",
+                            "429",
+                        ]
+                        if any(keyword in error_msg for keyword in transient_keywords):
                             time.sleep(delay)
                             delay *= backoff_factor
                             continue
+                    # Non-transient error or max retries reached
                     raise
 
             # If we get here, all retries failed
@@ -86,8 +89,12 @@ class RetryableTTSProvider(BaseTTSProvider):
         self.provider = provider
         self.max_retries = max_retries
         self.delay_seconds = delay_seconds
+        self._retry_decorator = retry_on_failure(
+            max_retries=max_retries,
+            delay_seconds=delay_seconds,
+            backoff_factor=2.0,
+        )
 
-    @retry_on_failure(max_retries=3, delay_seconds=1.0, backoff_factor=2.0)
     def synthesize(
         self,
         text: str,
@@ -96,7 +103,9 @@ class RetryableTTSProvider(BaseTTSProvider):
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Synthesize with retry logic."""
-        return self.provider.synthesize(text, voice_id, output_path, **kwargs)
+        # Apply retry decorator to the provider's synthesize method
+        retryable_synthesize = self._retry_decorator(self.provider.synthesize)
+        return retryable_synthesize(text, voice_id, output_path, **kwargs)
 
     def list_voices(self) -> list[dict[str, Any]]:
         """List voices (no retry needed for listing)."""
