@@ -1,7 +1,9 @@
 """Test suite for the Ultimate Kids Curiosity Club."""
 
+import pytest
 
 
+@pytest.mark.unit
 def test_basic_import():
     """Test that the package can be imported."""
     # Test that models can be imported

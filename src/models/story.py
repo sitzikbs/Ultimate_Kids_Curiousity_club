@@ -11,9 +11,7 @@ class StoryBeat(BaseModel):
     beat_number: int = Field(..., description="Sequential number of the beat")
     title: str = Field(..., description="Title of the beat")
     description: str = Field(..., description="Description of what happens in the beat")
-    educational_focus: str = Field(
-        ..., description="Educational focus of this beat"
-    )
+    educational_focus: str = Field(..., description="Educational focus of this beat")
     key_moments: list[str] = Field(
         default_factory=list, description="Key moments in the beat"
     )
@@ -26,9 +24,7 @@ class StoryOutline(BaseModel):
     show_id: str = Field(..., description="Show this outline belongs to")
     topic: str = Field(..., description="Topic of the episode")
     title: str = Field(..., description="Title of the episode")
-    educational_concept: str = Field(
-        ..., description="Primary educational concept"
-    )
+    educational_concept: str = Field(..., description="Primary educational concept")
     story_beats: list[StoryBeat] = Field(
         default_factory=list, description="List of story beats"
     )

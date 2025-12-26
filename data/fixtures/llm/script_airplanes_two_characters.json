@@ -1,0 +1,78 @@
+{
+  "episode_id": "test_ep001",
+  "segments": [
+    {
+      "segment_id": 1,
+      "character": "narrator",
+      "text": "Welcome back, curious learners! Today we're going on an amazing adventure to discover how airplanes fly through the sky!",
+      "duration_estimate_seconds": 7.5,
+      "segment_type": "INTRODUCTION"
+    },
+    {
+      "segment_id": 2,
+      "character": "oliver",
+      "text": "Hi everyone! I'm Oliver, and I LOVE airplanes! Have you ever wondered how something so heavy can fly?",
+      "duration_estimate_seconds": 6.0,
+      "segment_type": "DIALOGUE"
+    },
+    {
+      "segment_id": 3,
+      "character": "hannah",
+      "text": "That's a great question, Oliver! Did you know that the Wright Brothers made the first successful airplane flight way back in 1903?",
+      "duration_estimate_seconds": 7.0,
+      "segment_type": "DIALOGUE"
+    },
+    {
+      "segment_id": 4,
+      "character": "narrator",
+      "text": "That's right, Hannah! And to understand how airplanes fly, we need to learn about four important forces.",
+      "duration_estimate_seconds": 6.5,
+      "segment_type": "TRANSITION"
+    },
+    {
+      "segment_id": 5,
+      "character": "oliver",
+      "text": "The four forces are lift, weight, thrust, and drag. Let me explain! Lift pushes the airplane up, while weight pulls it down.",
+      "duration_estimate_seconds": 8.0,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 6,
+      "character": "hannah",
+      "text": "And thrust moves the plane forward! The engines create thrust by pushing air backward really fast.",
+      "duration_estimate_seconds": 6.5,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 7,
+      "character": "oliver",
+      "text": "Right! And drag is like resistance - it tries to slow the plane down. The plane has to push through the air!",
+      "duration_estimate_seconds": 7.0,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 8,
+      "character": "narrator",
+      "text": "Great explanations! Now, let's talk about how wings create lift. This is the really cool part!",
+      "duration_estimate_seconds": 6.0,
+      "segment_type": "TRANSITION"
+    },
+    {
+      "segment_id": 9,
+      "character": "hannah",
+      "text": "Airplane wings have a special shape. They're curved on top and flatter on the bottom. This shape is super important!",
+      "duration_estimate_seconds": 7.5,
+      "segment_type": "EXPLANATION"
+    },
+    {
+      "segment_id": 10,
+      "character": "narrator",
+      "text": "And that brings us to the end of today's adventure! Remember, airplanes fly because of lift, thrust, weight, and drag all working together. Keep being curious!",
+      "duration_estimate_seconds": 9.0,
+      "segment_type": "CONCLUSION"
+    }
+  ],
+  "total_segments": 10,
+  "estimated_duration_seconds": 71.0,
+  "characters_used": ["narrator", "oliver", "hannah"]
+}
