@@ -35,12 +35,18 @@ tests/
 Before running tests, ensure all dependencies are installed:
 
 ```bash
-# Using uv (recommended)
+# Using uv (recommended) - REQUIRED STEPS:
+# 1. Sync dev dependencies
 uv sync --dev
+
+# 2. Install the package in editable mode
+uv pip install -e .
 
 # Using pip
 pip install -e ".[dev]"
 ```
+
+**Important for uv users**: Both steps are required. Step 1 installs test tools (pytest, etc.), and Step 2 installs the project package with its dependencies (pydantic-settings, etc.) so imports work correctly.
 
 ### All Tests (Mock Only)
 
@@ -330,13 +336,15 @@ def test_parsing_benchmark(benchmark):
 Make sure all test dependencies are installed:
 
 ```bash
-# Using pip
-pip install -e ".[dev]"
-
-# Using uv
+# Using uv (recommended) - TWO STEPS:
+# Step 1: Sync dev dependencies
 uv sync --dev
-# or
-uv pip install -e ".[dev]"
+
+# Step 2: Install package in editable mode
+uv pip install -e .
+
+# Using pip (one command)
+pip install -e ".[dev]"
 ```
 
 ### Tests Not Found
@@ -350,16 +358,24 @@ pytest --collect-only
 
 If you see import errors like `ModuleNotFoundError: No module named 'config'` or `ModuleNotFoundError: No module named 'pydantic_settings'`:
 
-**Using uv (recommended):**
+**Using uv (recommended) - TWO STEPS REQUIRED:**
 ```bash
-# Sync all dependencies including dev dependencies
+# Step 1: Sync dev dependencies (pytest, pytest-benchmark, etc.)
 uv sync --dev
 
-# Run tests with the project environment
+# Step 2: Install the package itself in editable mode
+uv pip install -e .
+
+# Now run tests
 uv run pytest
 ```
 
-**Using pip:**
+**Why both steps?** 
+- `uv sync --dev` installs test tools (pytest, ruff, mypy, etc.)
+- `uv pip install -e .` installs your project package with its dependencies (pydantic-settings, python-dotenv, etc.)
+- Both are needed for imports to work correctly
+
+**Using pip (simpler - one command):**
 ```bash
 # Install in editable mode with dev dependencies
 pip install -e ".[dev]"
@@ -368,7 +384,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-**Important:** If you're in a devcontainer or codespace and see pytest using `/usr/local/py-utils/venvs/pytest/bin/python`, you're using a global pytest that doesn't have access to project dependencies. Always use `uv run pytest` or ensure you've activated the project's virtual environment.
+**Important:** If you're in a devcontainer or codespace and see pytest using `/usr/local/py-utils/venvs/pytest/bin/python`, you're using a global pytest that doesn't have access to project dependencies. The two-step uv process above or the pip command will fix this.
 
 ### Benchmark Fixture Not Found
 
