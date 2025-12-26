@@ -1,20 +1,24 @@
 # Kids Curiosity Club - Development Progress
 
-**Last Updated:** December 23, 2025 (Auto-generated)
+**Last Updated:** December 26, 2025 (Auto-generated)
 
 ## 📊 Overall Progress
 
 | Work Package | Status | Progress | Owner | GitHub Issue |
 |-------------|--------|----------|-------|--------------|
 | WP0: Prompt Enhancement | 🔴 Not Started | 0% | Unassigned | TBD |
-| WP1: Foundation | 🔴 Not Started | 0% | Unassigned | TBD |
+| WP1a: Core Models | 🟢 Complete | 100% | @copilot | #61 |
+| WP1b: Configuration | 🟢 Complete | 100% | @copilot | #62 |
+| WP1c: Blueprint Manager | 🔴 Not Started | 0% | Unassigned | TBD |
+| WP1d: Storage | 🔴 Not Started | 0% | Unassigned | TBD |
+| WP1e: Testing & Validation | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP2: LLM Services | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP3: TTS Service | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP4: Audio Mixer | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP5: Image Service | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP6: Orchestrator | 🔴 Not Started | 0% | Unassigned | TBD |
 | WP7: CLI Interface | 🔴 Not Started | 0% | Unassigned | TBD |
-| WP8: Testing | 🔴 Not Started | 0% | Unassigned | TBD |
+| WP8: Testing Infrastructure | 🟢 Complete | 100% | @copilot | #85 |
 | WP9: Web Dashboard | 🔴 Not Started | 0% | Unassigned | TBD |
 
 **Legend:**
@@ -28,7 +32,10 @@
 **Target:** Complete WP0 and WP1 to establish Show Blueprint architecture
 
 ### Active Work
-- None currently - Planning phase complete, ready for implementation
+- ✅ WP1a: Core Models - **COMPLETE** (Show Blueprint, Episode, Story models with Pydantic)
+- ✅ WP1b: Configuration - **COMPLETE** (Settings with pydantic-settings, .env support)
+- ✅ WP8: Testing Infrastructure - **COMPLETE** (pytest, fixtures, cost tracking, CI/CD)
+- 🟡 Next up: WP1c (Blueprint Manager), WP1d (Storage), WP1e (Testing & Validation)
 
 ### Architecture Notes
 - **Story-Based Format:** Episodes feature protagonist going on adventures (NOT interview/dialogue)
@@ -37,7 +44,7 @@
 - **Human Review Gate:** Required approval before proceeding to full generation
 
 ### Blocked Items
-- All service WPs blocked by WP1
+- WP2-WP7, WP9 blocked by remaining WP1 sub-packages (WP1c, WP1d, WP1e)
 
 ## 📈 Detailed Progress
 
@@ -56,18 +63,68 @@
 
 ---
 
-### WP1: Foundation
-**Status:** 🔴 Not Started | **Progress:** 0/15 tasks
+### WP1a: Core Models
+**Status:** 🟢 Complete | **Progress:** 6/6 tasks
+
+#### Completed Tasks
+- [x] Show models (Show, Protagonist, WorldDescription, Character, ConceptsHistory)
+- [x] Episode models (Episode with PipelineStage enum)
+- [x] Story models (StoryBeat, StoryOutline, StorySegment, Script, ScriptBlock)
+- [x] Pydantic validation and JSON schemas
+- [x] Type hints and documentation
+- [x] Comprehensive test suite (24 tests passing)
+
+**Deliverables:** `src/models/{show.py, episode.py, story.py}`, `py.typed` marker
+
+---
+
+### WP1b: Configuration
+**Status:** 🟢 Complete | **Progress:** 3/3 tasks
+
+#### Completed Tasks
+- [x] Settings class with pydantic-settings
+- [x] Environment variable support (.env.example)
+- [x] Mock mode toggle and API key management
+- [x] Provider preferences configuration
+- [x] Comprehensive test suite (11 tests passing)
+
+**Deliverables:** `src/config.py`, `.env.example`
+
+---
+
+### WP1c: Blueprint Manager
+**Status:** 🔴 Not Started | **Progress:** 0/4 tasks
 
 #### High-Level Tasks
-- [ ] Data Models (0/6 subtasks: Show, ShowBlueprint, Protagonist, WorldDescription, Character, Episode)
-- [ ] Configuration System (0/3 subtasks)
-- [ ] Show Blueprint Manager (0/4 subtasks)
-- [ ] Testing (0/2 subtasks)
+- [ ] ShowBlueprintManager with CRUD operations
+- [ ] Show Blueprint loading/saving from disk
+- [ ] Concepts tracking and management
+- [ ] Show templates (Oliver, Hannah)
 
-**Key Update:** Core now focuses on Show Blueprint management with image path support
+**Blocked by:** None (can start now with WP1a+WP1b complete)
 
-[See detailed breakdown](work_packages/WP1_Foundation.md)
+---
+
+### WP1d: Storage
+**Status:** 🔴 Not Started | **Progress:** 0/3 tasks
+
+#### High-Level Tasks
+- [ ] EpisodeStorage class for save/load operations
+- [ ] Checkpoint saving/loading for pipeline resumption
+- [ ] Custom exception hierarchy and error handling
+
+**Blocked by:** WP1a, WP1b (now unblocked)
+
+---
+
+### WP1e: Testing & Validation
+**Status:** 🔴 Not Started | **Progress:** 0/2 tasks
+
+#### High-Level Tasks
+- [ ] Custom Pydantic types (DurationMinutes, AgeRange, VocabularyLevel)
+- [ ] File path validators and content validators
+
+**Blocked by:** WP1a, WP1b, WP1c, WP1d
 
 ---
 
@@ -168,16 +225,27 @@
 ---
 
 ### WP8: Testing Infrastructure
-**Status:** 🔴 Not Started | **Progress:** 0/10 tasks
-**Ongoing:** Developed alongside all WPs
+**Status:** 🟢 Complete | **Progress:** 10/10 tasks
 
-#### High-Level Tasks
-- [ ] Fixture System (0/4 subtasks: story outlines, segments, scripts, audio)
-- [ ] Test Markers (0/2 subtasks)
-- [ ] Cost Tracking (0/2 subtasks)
-- [ ] CI/CD (0/2 subtasks)
+#### Completed Tasks
+- [x] Pytest configuration (pytest.ini, .coveragerc, custom markers)
+- [x] Fixture system (characters, episodes, services, audio)
+- [x] Mock provider fixtures (LLM JSON responses, silent MP3s)
+- [x] Cost tracking utilities (CostTracker with budget enforcement)
+- [x] Real API test templates (gated with cost tracking)
+- [x] Integration test templates (ready for implementation)
+- [x] CI/CD pipeline (GitHub Actions, Python 3.10-3.12)
+- [x] Quality gates (pre-commit hooks, ruff, mypy)
+- [x] Performance benchmarking (pytest-benchmark)
+- [x] Comprehensive documentation (TESTING_GUIDE.md, REAL_API_TESTS.md)
 
-**Key Update:** Includes story format fixtures (outlines, segments, scripts)
+**Deliverables:** Complete testing infrastructure with 60 passing tests, 21 skipped placeholders
+
+**Key Features:**
+- Mock-first development with realistic fixtures
+- $10 budget enforcement for real API tests
+- Automated CI/CD with matrix testing
+- Quality gates (lint, format, type check, coverage)
 
 [See detailed breakdown](work_packages/WP8_Testing.md)
 
@@ -205,13 +273,20 @@
 
 ### Milestone 1: Foundation Ready ⏳
 **Target Date:** TBD  
-**Completion:** 0%
+**Completion:** 40% (2/5 complete)
 
 - [ ] WP0: Prompt Enhancement Complete
-- [ ] WP1: Foundation Complete
-- [ ] All data models defined (Show, ShowBlueprint, Protagonist, etc.)
-- [ ] Show Blueprint system working
-- [ ] Mock providers functional
+- [x] WP1a: Core Models Complete ✅
+- [x] WP1b: Configuration Complete ✅
+- [ ] WP1c: Blueprint Manager Complete
+- [ ] WP1d: Storage Complete
+- [ ] WP1e: Testing & Validation Complete
+
+**Progress Notes:**
+- ✅ All data models defined (Show, ShowBlueprint, Protagonist, Episode, Story)
+- ✅ Configuration system with pydantic-settings
+- ✅ Testing infrastructure established
+- 🟡 Blueprint Manager, Storage, and Validation remaining
 
 ### Milestone 2: Services Complete ⏳
 **Target Date:** TBD  
@@ -245,6 +320,13 @@
 - [ ] Human review workflow validated
 
 ## 📝 Recent Updates
+
+### December 26, 2025
+- ✅ **WP1a Complete:** Core models (Show, Episode, Story) with Pydantic validation
+- ✅ **WP1b Complete:** Configuration system with pydantic-settings and .env support
+- ✅ **WP8 Complete:** Comprehensive testing infrastructure with pytest, fixtures, cost tracking, and CI/CD
+- 📊 **Progress:** Foundation 40% complete (2/5 sub-packages done)
+- 🎯 **Next:** WP1c (Blueprint Manager), WP1d (Storage), WP1e (Testing & Validation)
 
 ### December 23, 2025
 - ✅ Planning documentation structure created
