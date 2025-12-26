@@ -31,7 +31,8 @@ class DALLEProvider(BaseImageProvider):
 
         Args:
             prompt: Text description of desired image
-            width: Image width in pixels (DALL-E supports 1024x1024, 1792x1024, 1024x1792)
+            width: Image width in pixels (DALL-E supports 1024x1024,
+                1792x1024, 1024x1792)
             height: Image height in pixels
             style: Optional style modifier
 

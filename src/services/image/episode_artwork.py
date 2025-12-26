@@ -201,7 +201,10 @@ class EpisodeArtworkGenerator:
             text_width = max(len(line) for line in lines) * 8
             text_height = len(lines) * 15
 
-        position = ((image.width - text_width) // 2, image.height - overlay_height // 2 - text_height // 2)
+        position = (
+            (image.width - text_width) // 2,
+            image.height - overlay_height // 2 - text_height // 2,
+        )
 
         draw.text(position, wrapped_text, fill=(255, 255, 255), font=font)
 

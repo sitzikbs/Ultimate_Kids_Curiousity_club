@@ -1,6 +1,5 @@
 """Unit tests for EpisodeArtworkGenerator."""
 
-from pathlib import Path
 
 import pytest
 from PIL import Image
@@ -99,7 +98,7 @@ def test_generate_youtube_thumbnail_saves_output(artwork_generator, tmp_path):
     """Test that YouTube thumbnail can be saved."""
     output_path = tmp_path / "youtube_thumb.png"
 
-    img = artwork_generator.generate_youtube_thumbnail(
+    artwork_generator.generate_youtube_thumbnail(
         "YouTube Episode", output_path=output_path
     )
 

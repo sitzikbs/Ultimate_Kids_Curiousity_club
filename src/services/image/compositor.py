@@ -184,7 +184,9 @@ class ImageCompositor:
 
             subtitle_x = (image.width - subtitle_width) // 2
             subtitle_y = text_y + 40
-            draw.text((subtitle_x, subtitle_y), subtitle, fill=(200, 200, 200), font=font)
+            draw.text(
+                (subtitle_x, subtitle_y), subtitle, fill=(200, 200, 200), font=font
+            )
 
         return image.convert("RGB")
 
