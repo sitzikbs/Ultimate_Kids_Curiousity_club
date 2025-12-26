@@ -64,12 +64,18 @@ class PromptEnhancer:
             FileNotFoundError: If ideation template not found
         """
         template = self.env.get_template("ideation.j2")
+        
+        # Get covered concepts, handling None case defensively
+        covered_concepts = []
+        if show_blueprint.concepts_history is not None:
+            covered_concepts = show_blueprint.concepts_history.concepts
+        
         return template.render(
             topic=topic,
             show=show_blueprint.show,
             protagonist=show_blueprint.protagonist,
             world=show_blueprint.world,
-            covered_concepts=show_blueprint.concepts_history.concepts,
+            covered_concepts=covered_concepts,
             version=self.version,
         )
 
