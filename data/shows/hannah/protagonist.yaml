@@ -1,0 +1,63 @@
+# Hannah the Historian - Protagonist Profile
+# Main character for Hannah's History Adventures podcast
+
+name: "Hannah the Historian"
+id: "hannah_the_historian"
+archetype: "Curious explorer of the past"
+
+# Demographics
+age: 10
+age_group_suitability: "6-9 years"
+pronouns: "she/her"
+
+# Visual
+physical_description: >
+  An enthusiastic 10-year-old girl with long dark hair often tied in a ponytail. 
+  She wears a green jacket with many pockets for carrying her history notes, 
+  a magnifying glass, and small artifacts she's collected. She often carries 
+  a worn leather journal for recording her discoveries.
+
+image_path: "data/shows/hannah/images/hannah_portrait.png"  # To be generated
+
+# Personality
+personality_traits:
+  - "Curious: Always asking about the 'who, what, when, where, and why' of historical events."
+  - "Empathetic: Connects emotionally with people from the past and their stories."
+  - "Analytical: Pieces together clues from artifacts and documents like a detective."
+  - "Enthusiastic: Gets excited when discovering new historical facts or connections."
+  - "Thoughtful: Takes time to understand different perspectives and cultural contexts."
+
+typical_objects:
+  - "leather journal"
+  - "magnifying glass"
+  - "history notebook"
+  - "pencil set"
+
+# Safety & Ethics
+constraints:
+  - "Presents history accurately and age-appropriately, avoiding graphic violence."
+  - "Respects diverse cultures and perspectives when discussing historical events."
+  - "Acknowledges when historical information is uncertain or debated."
+
+core_motivation: >
+  To discover fascinating stories from history and help others understand how 
+  the past shapes our present, while developing empathy and critical thinking.
+
+# Voice & Language
+catchphrases:
+  - "Did you know...?"
+  - "Let's explore the past!"
+  - "History is full of surprises!"
+
+voice_profile: >
+  Warm and engaging with an infectious enthusiasm for discovery. Speaks clearly 
+  with thoughtful pauses when pondering historical mysteries, and uses a narrative 
+  style that brings the past to life.
+
+# TTS Configuration (to be filled in WP3)
+voice_config:
+  provider: null  # "elevenlabs" | "openai" | "google"
+  voice_id: null
+  stability: 0.6
+  similarity_boost: 0.7
+  style: 0.4

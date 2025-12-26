@@ -1,0 +1,24 @@
+# Hannah's History Adventures - Show Metadata
+# History-focused educational podcast for 6-9 year olds
+
+show_id: "hannah"
+show_title: "Hannah's History Adventures"
+tagline: "Discover fascinating stories from the past!"
+
+theme: "History education through storytelling and exploration"
+genre: "Educational Adventure"
+target_age_range: "6-9 years"
+
+narrator_style: "Warm, engaging storyteller who brings historical events to life"
+narrator_voice_id: null  # To be configured in WP3
+
+topics_covered:
+  - "World History (ancient civilizations, historical figures)"
+  - "Cultural Heritage (traditions, celebrations, customs)"
+  - "Historical Events (important moments that shaped our world)"
+  - "Archaeology (discovering the past through artifacts)"
+  
+episode_length_target: "8-10 minutes"
+
+created_at: "2025-12-26"
+last_updated: "2025-12-26"

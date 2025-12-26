@@ -1,0 +1,87 @@
+# Historical Town - Hannah's World
+# Setting for Hannah's History Adventures podcast
+
+world_name: "Riverside"
+era_or_style: "Contemporary town with rich historical heritage"
+
+description: >
+  A charming town nestled along a river, where history comes alive through 
+  well-preserved buildings, fascinating museums, and stories passed down through 
+  generations. Riverside has layers of history - from indigenous settlements to 
+  colonial times to modern day. The town celebrates its heritage while remaining 
+  a vibrant, diverse community where kids can explore the past through museums, 
+  historical sites, and the stories of local residents.
+
+# World imagery (to be generated/added)
+image_paths:
+  - path: "data/shows/hannah/images/riverside_overview.png"
+    description: "Riverside town with historical buildings along the river"
+  - path: "data/shows/hannah/images/history_corner.png"
+    description: "Hannah's History Corner in the library"
+  - path: "data/shows/hannah/images/town_museum.png"
+    description: "Riverside Historical Museum exterior"
+
+# Key Locations
+key_locations:
+  - name: "The History Corner"
+    description: >
+      Hannah's special spot in the Riverside Public Library, a cozy alcove filled 
+      with reference books, maps, and a large table where she spreads out her 
+      research. The librarian, Mr. Chen, helps her access archive materials and 
+      rare documents.
+    
+  - name: "Riverside Historical Museum"
+    description: >
+      A converted Victorian mansion housing artifacts from different eras of the 
+      town's history. The curator, Dr. Martinez, often involves Hannah in new 
+      exhibits and lets her help identify mysterious artifacts.
+    
+  - name: "The Old Town Square"
+    description: >
+      The historic heart of Riverside, featuring buildings from the 1800s, 
+      plaques describing important events, and seasonal festivals celebrating 
+      the town's diverse heritage. A great place to imagine how life was different 
+      in the past.
+    
+  - name: "Grandma Rose's Attic"
+    description: >
+      Hannah's grandmother's attic, filled with family heirlooms, old photographs, 
+      letters, and objects from different time periods. Grandma Rose loves sharing 
+      stories about the family's past and the history she's witnessed.
+    
+  - name: "The Riverside Archives"
+    description: >
+      A climate-controlled vault in the library basement containing historical 
+      documents, photographs, and records dating back to the town's founding. 
+      Accessible with adult supervision for serious young historians.
+    
+  - name: "The Archaeological Dig Site"
+    description: >
+      A temporary excavation site near the river where professional archaeologists 
+      are uncovering artifacts from an indigenous settlement. They sometimes allow 
+      students to carefully observe and learn about their methods.
+
+# Supporting Characters (see characters/ directory for full profiles)
+supporting_characters:
+  - name: "Mr. Chen"
+    role: "Head Librarian / Research Guide"
+    personality_snippet: "Patient and knowledgeable, helps Hannah navigate research resources and access historical archives."
+    character_file: "characters/mr_chen.yaml"
+    
+  - name: "Dr. Martinez"
+    role: "Museum Curator / Mentor"
+    personality_snippet: "Passionate about making history accessible and exciting, often involves Hannah in museum projects."
+    character_file: "characters/dr_martinez.yaml"
+    
+  - name: "Grandma Rose"
+    role: "Family Historian / Storyteller"
+    personality_snippet: "Hannah's grandmother who shares personal stories and family history, connecting the past to the present."
+    character_file: "characters/grandma_rose.yaml"
+
+# World Rules
+world_rules:
+  - "History is about real people and real events - treat it with respect and accuracy."
+  - "Every artifact, document, and story offers a window into the past."
+  - "Different people experienced historical events differently - multiple perspectives matter."
+  - "The past helps us understand the present and make better choices for the future."
+  - "Handle historical materials with care - they are precious and irreplaceable."
