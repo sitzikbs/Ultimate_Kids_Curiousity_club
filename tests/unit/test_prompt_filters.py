@@ -36,6 +36,16 @@ class TestFormatList:
         result = format_list(["only"])
         assert result == "only"
 
+    def test_format_list_non_string_items(self):
+        """Test formatting list with non-string items."""
+        result = format_list([1, 2, 3])
+        assert result == "1, 2, 3"
+
+    def test_format_list_mixed_types(self):
+        """Test formatting list with mixed types."""
+        result = format_list([1, "hello", 3.14, True])
+        assert result == "1, hello, 3.14, True"
+
 
 class TestTruncateSmart:
     """Tests for truncate_smart filter."""

@@ -1,11 +1,13 @@
 """Custom Jinja2 filters for prompt templates."""
 
+from typing import Any
 
-def format_list(items: list[str] | None, separator: str = ", ") -> str:
+
+def format_list(items: list[Any] | None, separator: str = ", ") -> str:
     """Format a list as a comma-separated string.
 
     Args:
-        items: List of strings to format
+        items: List of items to format (will be converted to strings)
         separator: Separator to use between items
 
     Returns:
@@ -23,7 +25,8 @@ def format_list(items: list[str] | None, separator: str = ", ") -> str:
     """
     if not items:
         return ""
-    return separator.join(items)
+    # Convert all items to strings for robustness
+    return separator.join(str(item) for item in items)
 
 
 def truncate_smart(text: str | None, max_length: int = 100, suffix: str = "...") -> str:
