@@ -1,6 +1,5 @@
 """Unit tests for EpisodeArtworkGenerator."""
 
-
 import pytest
 from PIL import Image
 

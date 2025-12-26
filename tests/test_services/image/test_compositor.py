@@ -1,6 +1,5 @@
 """Unit tests for ImageCompositor."""
 
-
 import pytest
 from PIL import Image
 
