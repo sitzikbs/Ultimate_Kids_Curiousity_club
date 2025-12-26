@@ -51,18 +51,24 @@ pip install -e ".[dev]"
 ### All Tests (Mock Only)
 
 ```bash
-# Using uv (recommended)
-uv run pytest
+# Using uv (recommended) - use the virtual environment's Python directly
+uv run python -m pytest
+
+# Alternative: activate the virtual environment first
+source .venv/bin/activate  # On Linux/Mac
+pytest
 
 # Using pytest directly (after pip install)
 pytest
 
 # With coverage
-uv run pytest --cov=src --cov-report=html
+uv run python -m pytest --cov=src --cov-report=html
 
 # Verbose output
-uv run pytest -v
+uv run python -m pytest -v
 ```
+
+**Note for devcontainer/codespace users**: If you get import errors with `uv run pytest`, use `uv run python -m pytest` instead. This ensures pytest runs in the correct environment with all project dependencies available.
 
 ### By Category
 
@@ -366,8 +372,8 @@ uv sync --dev
 # Step 2: Install the package itself in editable mode
 uv pip install -e .
 
-# Now run tests
-uv run pytest
+# Now run tests - use python -m pytest to ensure correct environment
+uv run python -m pytest
 ```
 
 **Why both steps?** 
@@ -384,7 +390,18 @@ pip install -e ".[dev]"
 pytest
 ```
 
-**Important:** If you're in a devcontainer or codespace and see pytest using `/usr/local/py-utils/venvs/pytest/bin/python`, you're using a global pytest that doesn't have access to project dependencies. The two-step uv process above or the pip command will fix this.
+**Important for devcontainer/codespace users:** If you see pytest using `/usr/local/py-utils/venvs/pytest/bin/python` (a global pytest installation), it means `uv run pytest` is finding the wrong pytest. Instead use:
+
+```bash
+uv run python -m pytest
+```
+
+This runs pytest as a module in the virtual environment's Python, ensuring all project dependencies are available. Alternatively, activate the virtual environment first:
+
+```bash
+source .venv/bin/activate  # Linux/Mac
+pytest
+```
 
 ### Benchmark Fixture Not Found
 
