@@ -1,6 +1,5 @@
 """Mock TTS provider for cost-free testing."""
 
-import time
 from pathlib import Path
 from typing import Any
 

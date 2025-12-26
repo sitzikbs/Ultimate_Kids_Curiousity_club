@@ -1,9 +1,10 @@
 """Factory for creating TTS provider instances with retry logic."""
 
 import time
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from services.tts.base import BaseTTSProvider
 from services.tts.elevenlabs_provider import ElevenLabsProvider

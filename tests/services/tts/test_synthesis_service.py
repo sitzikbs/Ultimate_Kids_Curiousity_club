@@ -99,7 +99,8 @@ class TestAudioSynthesisService:
         assert len(chunks) > 1
         # Each chunk should be under max_chars
         for chunk in chunks:
-            assert len(chunk) <= 30 or chunk == sentences[0]  # Allow first if can't split
+            # Allow first if can't split
+            assert len(chunk) <= 30 or chunk == sentences[0]
 
     def test_synthesize_batch(self, synthesis_service, sample_voice_config):
         """Test batch synthesis of multiple segments."""

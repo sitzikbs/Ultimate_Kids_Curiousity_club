@@ -70,7 +70,8 @@ class AudioQualityValidator:
         if extension not in self.ACCEPTABLE_FORMATS:
             return (
                 False,
-                f"Invalid format: {extension}. Must be one of {self.ACCEPTABLE_FORMATS}",
+                f"Invalid format: {extension}. "
+                f"Must be one of {self.ACCEPTABLE_FORMATS}",
             )
 
         try:
@@ -107,7 +108,8 @@ class AudioQualityValidator:
             if actual_duration < self.MIN_DURATION_SECONDS:
                 return (
                     False,
-                    f"Duration too short: {actual_duration:.2f}s (min: {self.MIN_DURATION_SECONDS}s)",
+                    f"Duration too short: {actual_duration:.2f}s "
+                    f"(min: {self.MIN_DURATION_SECONDS}s)",
                     actual_duration,
                 )
 
@@ -121,7 +123,8 @@ class AudioQualityValidator:
                 ):
                     return (
                         False,
-                        f"Duration mismatch: {actual_duration:.2f}s vs expected {expected_duration:.2f}s "
+                        f"Duration mismatch: {actual_duration:.2f}s vs "
+                        f"expected {expected_duration:.2f}s "
                         f"(tolerance: ±{tolerance:.2f}s)",
                         actual_duration,
                     )
@@ -138,7 +141,8 @@ class AudioQualityValidator:
                 ):
                     return (
                         False,
-                        f"Duration vs text mismatch: {actual_duration:.2f}s for {words} words "
+                        f"Duration vs text mismatch: {actual_duration:.2f}s "
+                        f"for {words} words "
                         f"(expected ~{estimated_duration:.2f}s)",
                         actual_duration,
                     )
@@ -168,7 +172,8 @@ class AudioQualityValidator:
             if audio.dBFS < self.SILENCE_THRESHOLD_DB:
                 return (
                     False,
-                    f"Audio is too quiet: {audio.dBFS:.1f} dBFS (threshold: {self.SILENCE_THRESHOLD_DB} dBFS)",
+                    f"Audio is too quiet: {audio.dBFS:.1f} dBFS "
+                    f"(threshold: {self.SILENCE_THRESHOLD_DB} dBFS)",
                 )
 
             # Check for long silence periods
@@ -184,7 +189,8 @@ class AudioQualityValidator:
                     if silent_chunks >= max_silent_chunks:
                         return (
                             False,
-                            f"Audio contains prolonged silence (>{self.MAX_SILENCE_DURATION}s)",
+                            f"Audio contains prolonged silence "
+                            f"(>{self.MAX_SILENCE_DURATION}s)",
                         )
                 else:
                     silent_chunks = 0

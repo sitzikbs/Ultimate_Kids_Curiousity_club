@@ -11,7 +11,8 @@ class TTSCostEntry(BaseModel):
     """A single TTS cost entry."""
 
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="When the request was made"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the request was made",
     )
     provider: str = Field(..., description="TTS provider name")
     voice_id: str = Field(..., description="Voice ID used")
@@ -92,7 +93,8 @@ class TTSCostTracker:
     def _issue_budget_warning(self) -> None:
         """Issue a warning when budget threshold is exceeded."""
         print(
-            f"⚠️  Budget threshold exceeded: ${self._total_cost:.2f} / ${self.budget_threshold:.2f}"
+            f"⚠️  Budget threshold exceeded: ${self._total_cost:.2f} / "
+            f"${self.budget_threshold:.2f}"
         )
 
     def get_total_cost(self) -> float:
@@ -119,7 +121,8 @@ class TTSCostTracker:
         """
         by_provider: dict[str, float] = {}
         for entry in self.entries:
-            by_provider[entry.provider] = by_provider.get(entry.provider, 0.0) + entry.cost
+            provider = entry.provider
+            by_provider[provider] = by_provider.get(provider, 0.0) + entry.cost
         return by_provider
 
     def get_cost_by_voice(self) -> dict[str, float]:
@@ -171,7 +174,7 @@ class TTSCostTracker:
             return
 
         # Read JSON
-        with open(input_path, "r") as f:
+        with open(input_path) as f:
             report = TTSCostReport.model_validate_json(f.read())
 
         # Restore state
@@ -198,7 +201,9 @@ class TTSCostTracker:
             "by_provider": self.get_cost_by_provider(),
             "budget_threshold": self.budget_threshold,
             "budget_exceeded": (
-                self._total_cost >= self.budget_threshold if self.budget_threshold else False
+                self._total_cost >= self.budget_threshold
+                if self.budget_threshold
+                else False
             ),
         }
 

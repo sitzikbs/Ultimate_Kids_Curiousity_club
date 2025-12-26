@@ -105,7 +105,10 @@ class OpenAITTSProvider(BaseTTSProvider):
             {
                 "voice_id": "fable",
                 "name": "Fable",
-                "labels": {"gender": "male", "description": "Expressive and storytelling"},
+                "labels": {
+                    "gender": "male",
+                    "description": "Expressive and storytelling",
+                },
             },
             {
                 "voice_id": "onyx",
