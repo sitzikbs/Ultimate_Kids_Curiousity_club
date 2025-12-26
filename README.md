@@ -87,17 +87,30 @@ src/
 │   ├── episode.py        # Episode and Pipeline models
 │   └── story.py          # Story generation models
 ├── modules/
+│   └── prompts/          # Prompt Enhancement Service (WP0)
+│       ├── enhancer.py   # PromptEnhancer class
+│       ├── filters.py    # Custom Jinja2 filters
+│       ├── templates/    # Jinja2 prompt templates
+│       └── README.md     # Module documentation
 ├── utils/
 └── main.py
 
 tests/
 ├── test_basic.py
-└── test_models.py        # Model tests
+├── test_models.py        # Model tests
+└── unit/
+    ├── test_prompt_enhancer.py  # Prompt enhancer tests
+    └── test_prompt_filters.py   # Filter tests
+
+examples/
+└── prompt_enhancer_demo.py      # Working demo
 ```
 
 ## Example Usage
 
-After installing the package, you can use the models in your code:
+After installing the package, you can use the models and prompt enhancement:
+
+### Using Data Models
 
 ```python
 from models import Show, Episode, PipelineStage, ShowBlueprint
@@ -125,3 +138,29 @@ data = episode.model_dump()
 episode.current_stage = PipelineStage.IDEATION
 episode.current_stage = PipelineStage.OUTLINING
 ```
+
+### Using Prompt Enhancement Service
+
+```python
+from modules.prompts import PromptEnhancer
+from models import ShowBlueprint
+
+# Create a show blueprint with protagonist, world, etc.
+show_blueprint = ShowBlueprint(...)
+
+# Initialize the enhancer
+enhancer = PromptEnhancer(version="1.0.0")
+
+# Enhance prompts for each generation stage
+ideation_prompt = enhancer.enhance_ideation_prompt(
+    topic="How do plants make food?",
+    show_blueprint=show_blueprint
+)
+
+# Run the demo
+# python examples/prompt_enhancer_demo.py
+```
+
+For more details on the Prompt Enhancement Service, see:
+- `src/modules/prompts/README.md` - Full module documentation
+- `examples/prompt_enhancer_demo.py` - Working demonstration
