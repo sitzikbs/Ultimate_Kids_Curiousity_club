@@ -35,18 +35,14 @@ tests/
 Before running tests, ensure all dependencies are installed:
 
 ```bash
-# Using uv (recommended) - REQUIRED STEPS:
-# 1. Sync dev dependencies
-uv sync --dev
-
-# 2. Install the package in editable mode
-uv pip install -e .
+# Using uv (recommended)
+uv pip install -e ".[dev]"
 
 # Using pip
 pip install -e ".[dev]"
 ```
 
-**Important for uv users**: Both steps are required. Step 1 installs test tools (pytest, etc.), and Step 2 installs the project package with its dependencies (pydantic-settings, etc.) so imports work correctly.
+This installs the project package in editable mode along with all dev dependencies (pytest, ruff, mypy, etc.).
 
 ### All Tests (Mock Only)
 
@@ -68,7 +64,7 @@ uv run python -m pytest --cov=src --cov-report=html
 uv run python -m pytest -v
 ```
 
-**Note for devcontainer/codespace users**: If you get import errors with `uv run pytest`, use `uv run python -m pytest` instead. This ensures pytest runs in the correct environment with all project dependencies available.
+**Note for devcontainer/codespace users**: If you get import errors with `uv run pytest`, use `uv run python -m pytest` instead. This ensures pytest runs in the virtual environment with all project dependencies available.
 
 ### By Category
 
@@ -342,16 +338,14 @@ def test_parsing_benchmark(benchmark):
 Make sure all test dependencies are installed:
 
 ```bash
-# Using uv (recommended) - TWO STEPS:
-# Step 1: Sync dev dependencies
-uv sync --dev
+# Using uv (recommended)
+uv pip install -e ".[dev]"
 
-# Step 2: Install package in editable mode
-uv pip install -e .
-
-# Using pip (one command)
+# Using pip
 pip install -e ".[dev]"
 ```
+
+This single command installs both the project package and all development dependencies (pytest, ruff, mypy, etc.).
 
 ### Tests Not Found
 
@@ -364,33 +358,18 @@ pytest --collect-only
 
 If you see import errors like `ModuleNotFoundError: No module named 'config'` or `ModuleNotFoundError: No module named 'pydantic_settings'`:
 
-**Using uv (recommended) - TWO STEPS REQUIRED:**
+**Solution - Install with dev dependencies:**
 ```bash
-# Step 1: Sync dev dependencies (pytest, pytest-benchmark, etc.)
-uv sync --dev
+# Using uv (recommended)
+uv pip install -e ".[dev]"
 
-# Step 2: Install the package itself in editable mode
-uv pip install -e .
-
-# Now run tests - use python -m pytest to ensure correct environment
-uv run python -m pytest
-```
-
-**Why both steps?** 
-- `uv sync --dev` installs test tools (pytest, ruff, mypy, etc.)
-- `uv pip install -e .` installs your project package with its dependencies (pydantic-settings, python-dotenv, etc.)
-- Both are needed for imports to work correctly
-
-**Using pip (simpler - one command):**
-```bash
-# Install in editable mode with dev dependencies
+# Using pip
 pip install -e ".[dev]"
-
-# Run tests
-pytest
 ```
 
-**Important for devcontainer/codespace users:** If you see pytest using `/usr/local/py-utils/venvs/pytest/bin/python` (a global pytest installation), it means `uv run pytest` is finding the wrong pytest. Instead use:
+This installs the project package in editable mode with all development dependencies (pytest, pydantic-settings, etc.).
+
+**Important for devcontainer/codespace users:** If you still see pytest using `/usr/local/py-utils/venvs/pytest/bin/python` (a global pytest installation) after installation, use:
 
 ```bash
 uv run python -m pytest
@@ -408,14 +387,11 @@ pytest
 If you see errors like `fixture 'benchmark' not found`:
 
 ```bash
-# With uv (recommended)
-uv sync --dev
-
-# With pip
-pip install pytest-benchmark
+# Install with dev dependencies
+uv pip install -e ".[dev]"
 ```
 
-The benchmark tests in `tests/benchmarks/` require the `pytest-benchmark` plugin. This should be automatically installed with `[dev]` dependencies via `uv sync --dev`.
+The benchmark tests in `tests/benchmarks/` require the `pytest-benchmark` plugin, which is included in the `[dev]` dependencies.
 
 ### Fixture Not Found
 
