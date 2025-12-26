@@ -4,11 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oliver the Inventor - Kids Curiosity Club</title>
+    <meta name="description" content="Explore the amazing world of inventions and how they came to be with Oliver the Inventor. Educational STEM podcast for kids ages 6-12.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kidscuriosityclub.com/pages/shows/oliver-the-inventor.html">
+    <meta property="og:title" content="Oliver the Inventor - Kids Curiosity Club">
+    <meta property="og:description" content="Explore the amazing world of inventions and how they came to be with Oliver the Inventor.">
+    <meta property="og:image" content="https://kidscuriosityclub.com/assets/shows/oliver_the_inventor/oliver_the_inventor.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kidscuriosityclub.com/pages/shows/oliver-the-inventor.html">
+    <meta property="twitter:title" content="Oliver the Inventor - Kids Curiosity Club">
+    <meta property="twitter:description" content="Explore the amazing world of inventions and how they came to be with Oliver the Inventor.">
+    <meta property="twitter:image" content="https://kidscuriosityclub.com/assets/shows/oliver_the_inventor/oliver_the_inventor.jpg">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/style.css">
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "PodcastSeries",
+      "name": "Oliver the Inventor",
+      "description": "Explore the amazing world of inventions and how they came to be. Educational STEM podcast for kids ages 6-12.",
+      "image": "https://kidscuriosityclub.com/assets/shows/oliver_the_inventor/oliver_the_inventor.jpg",
+      "url": "https://kidscuriosityclub.com/pages/shows/oliver-the-inventor.html",
+      "author": {
+        "@type": "Organization",
+        "name": "Kids Curiosity Club",
+        "url": "https://kidscuriosityclub.com"
+      },
+      "keywords": "STEM, science, innovation, technology, kids podcast, inventions, engineering",
+      "genre": ["Education", "Kids & Family", "Science"]
+    }
+    </script>
 </head>
 <body>
 
@@ -28,27 +63,14 @@
     <!-- Episode List -->
     <main class="container py-5">
         <div class="row">
-            <div class="col-md-8 offset-md-2">
+            <div class="col-md-10 offset-md-1">
                 <h2 class="mb-4">Episodes</h2>
-                <div class="alert alert-info">
-                    <h5>Coming Soon!</h5>
-                    <p>Oliver's invention adventures are currently in production. Check back soon for exciting episodes about groundbreaking inventions, brilliant inventors, and the stories behind the gadgets we use every day!</p>
+                <div id="episodes-container">
+                    <div class="alert alert-info">
+                        <h5>Coming Soon!</h5>
+                        <p>Oliver's invention adventures are currently in production. Check back soon for exciting episodes about groundbreaking inventions, brilliant inventors, and the stories behind the gadgets we use every day!</p>
+                    </div>
                 </div>
-                
-                <!-- Future episodes will be added here -->
-                <ul class="list-group episode-list d-none">
-                    <!-- Episode template for future use -->
-                    <li class="list-group-item">
-                        <div>
-                            <h5>Episode 1: The Light Bulb</h5>
-                            <p>Join Oliver as he discovers how Thomas Edison and others invented the light bulb and changed the world forever.</p>
-                            <audio controls style="width: 100%;">
-                                <source src="../../assets/episodes/oliver/episode1.mp3" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </div>
-                    </li>
-                </ul>
             </div>
         </div>
     </main>
@@ -57,6 +79,12 @@
     <div id="footer-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="../../js/bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEpisodes('oliver_the_inventor', 'episodes-container');
+        });
+    </script>
 </body>
 </html>

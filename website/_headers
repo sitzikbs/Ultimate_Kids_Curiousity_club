@@ -1,0 +1,43 @@
+# Cache configuration for Cloudflare Pages
+# See: https://developers.cloudflare.com/pages/platform/headers/
+
+# Static assets - cache for 1 year (immutable)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML pages - short cache for quick updates
+/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+
+/pages/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+
+/pages/shows/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+
+# Episode data - short cache to allow updates
+/data/episodes/*.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/data/*.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+# SEO files - medium cache
+/sitemap.xml
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/robots.txt
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Security headers for all pages
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
