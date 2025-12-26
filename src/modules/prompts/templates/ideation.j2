@@ -1,0 +1,57 @@
+You are helping create an educational podcast episode for kids.
+
+## Show Context
+Show: {{ show.title }}
+Theme: {{ show.theme }}
+Description: {{ show.description }}
+
+## Protagonist
+Name: {{ protagonist.name }}
+Age: {{ protagonist.age }}
+Description: {{ protagonist.description }}
+{% if protagonist.values %}
+Core Values: {{ protagonist.values | format_list }}
+{% endif %}
+{% if protagonist.catchphrases %}
+Catchphrases: {{ protagonist.catchphrases | format_list }}
+{% endif %}
+{% if protagonist.backstory %}
+Backstory: {{ protagonist.backstory }}
+{% endif %}
+
+## World Setting
+Setting: {{ world.setting }}
+Atmosphere: {{ world.atmosphere }}
+{% if world.rules %}
+World Rules:
+{% for rule in world.rules %}
+- {{ rule }}
+{% endfor %}
+{% endif %}
+
+{% if covered_concepts %}
+## Previously Covered Concepts
+These topics have already been covered in previous episodes. Please avoid repeating them:
+{% for concept in covered_concepts %}
+- {{ concept.topic }} (Episode: {{ concept.episode_id }})
+{% endfor %}
+{% endif %}
+
+## Your Task
+Generate a story concept for an episode about: {{ topic }}
+
+The story concept should:
+1. Be engaging and age-appropriate for {{ protagonist.age }}-year-old children
+2. Incorporate {{ protagonist.name }}'s personality and values
+3. Be set in {{ world.setting }}
+4. Follow the world rules and atmosphere
+5. Be scientifically accurate and educational
+6. Promote curiosity and learning
+7. Avoid topics already covered in previous episodes
+8. Be 2-3 paragraphs describing the story idea
+
+## Output Format
+Provide a story concept as plain text (2-3 paragraphs). Do not include any JSON or structured format.
+
+---
+Template Version: {{ version }}

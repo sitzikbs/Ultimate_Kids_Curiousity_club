@@ -1,0 +1,81 @@
+You are helping create detailed story segments for an educational podcast episode.
+
+## Story Outline
+Episode: {{ outline.title }}
+Topic: {{ outline.topic }}
+Educational Concept: {{ outline.educational_concept }}
+
+Story Beats:
+{% for beat in outline.story_beats %}
+{{ beat.beat_number }}. {{ beat.title }}
+   Description: {{ beat.description }}
+   Educational Focus: {{ beat.educational_focus }}
+{% if beat.key_moments %}
+   Key Moments:
+{% for moment in beat.key_moments %}
+   - {{ moment }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+## Protagonist
+Name: {{ protagonist.name }}
+Description: {{ protagonist.description }}
+{% if protagonist.values %}
+Core Values: {{ protagonist.values | format_list }}
+{% endif %}
+{% if protagonist.catchphrases %}
+Catchphrases: {{ protagonist.catchphrases | format_list }}
+{% endif %}
+
+## World Setting
+Setting: {{ world.setting }}
+Atmosphere: {{ world.atmosphere }}
+{% if world.rules %}
+World Rules:
+{% for rule in world.rules %}
+- {{ rule }}
+{% endfor %}
+{% endif %}
+
+{% if characters %}
+## Supporting Characters
+{% for character in characters %}
+- {{ character.name }}: {{ character.role }}
+  Personality: {{ character.personality }}
+  Description: {{ character.description }}
+{% endfor %}
+{% endif %}
+
+## Your Task
+Expand each story beat into detailed segments. Each segment should:
+1. Describe what happens in detail (not dialogue yet)
+2. Specify which characters are involved
+3. Describe the setting
+4. Clearly present the educational content
+5. Maintain character consistency
+6. Follow world rules
+7. Be engaging and age-appropriate
+
+Create 1-2 segments per beat depending on complexity.
+
+## Output Format
+Return a JSON array with the following structure:
+
+```json
+[
+  {
+    "segment_number": 1,
+    "beat_number": 1,
+    "description": "Detailed description of what happens",
+    "characters_involved": ["Character1", "Character2"],
+    "setting": "Location description",
+    "educational_content": "What educational content is covered"
+  }
+]
+```
+
+Provide only the JSON output, no additional text or explanation.
+
+---
+Template Version: {{ version }}
