@@ -87,9 +87,10 @@ class TestWebsiteStructure:
                     "concepts",
                 ]
                 for field in required_fields:
-                    assert (
-                        field in episode
-                    ), f"Missing field {field} in episode {episode.get('id', 'unknown')}"
+                    episode_id = episode.get("id", "unknown")
+                    assert field in episode, (
+                        f"Missing field {field} in episode {episode_id}"
+                    )
 
 
 class TestSitemap:
