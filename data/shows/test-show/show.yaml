@@ -1,0 +1,8 @@
+show_id: test-show
+show_title: Oliver's STEM Adventures
+tagline: Explore the amazing world of inventions and STEM!
+theme: STEM education through hands-on invention and problem-solving
+narrator_voice_config:
+  provider: mock
+  voice_id: mock_narrator
+created_at: '2025-12-29T06:10:17.455309+00:00'
