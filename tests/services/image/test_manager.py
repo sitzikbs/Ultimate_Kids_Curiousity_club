@@ -1,6 +1,5 @@
 """Unit tests for ImageManager."""
 
-
 import pytest
 from PIL import Image
 

@@ -1,6 +1,5 @@
 """Unit tests for EpisodeArtworkGenerator."""
 
-
 import pytest
 from PIL import Image
 
@@ -65,9 +64,7 @@ def test_generate_artwork_saves_output(artwork_generator, tmp_path):
     """Test that artwork can be saved to file."""
     output_path = tmp_path / "episode_art.png"
 
-    img = artwork_generator.generate_artwork(
-        "Test Episode", output_path=output_path
-    )
+    img = artwork_generator.generate_artwork("Test Episode", output_path=output_path)
 
     assert output_path.exists()
     assert isinstance(img, Image.Image)
