@@ -126,9 +126,7 @@ class OutlineService:
             show_id=data.get("show_id", show_blueprint.show.show_id),
             topic=data.get("topic", "Generated Topic"),
             title=data.get("title", "Generated Title"),
-            educational_concept=data.get(
-                "educational_concept", "Educational Content"
-            ),
+            educational_concept=data.get("educational_concept", "Educational Content"),
             story_beats=story_beats,
         )
 
@@ -146,9 +144,7 @@ class OutlineService:
         # Check number of beats (should be 3-5)
         num_beats = len(outline.story_beats)
         if num_beats < 3 or num_beats > 5:
-            raise ValueError(
-                f"Outline should have 3-5 story beats, got {num_beats}"
-            )
+            raise ValueError(f"Outline should have 3-5 story beats, got {num_beats}")
 
         # Validate each beat has required fields
         for beat in outline.story_beats:

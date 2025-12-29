@@ -1,8 +1,9 @@
 """Mock LLM provider for cost-free testing."""
 
 import json
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any
 
 from services.llm.base import BaseLLMProvider
 
@@ -22,7 +23,9 @@ class MockLLMProvider(BaseLLMProvider):
         """
         if fixtures_dir is None:
             # Default to project data/fixtures/llm directory
-            fixtures_dir = Path(__file__).parent.parent.parent.parent / "data" / "fixtures" / "llm"
+            fixtures_dir = (
+                Path(__file__).parent.parent.parent.parent / "data" / "fixtures" / "llm"
+            )
 
         self.fixtures_dir = Path(fixtures_dir)
         self.delay_seconds = delay_seconds
@@ -63,17 +66,24 @@ class MockLLMProvider(BaseLLMProvider):
         # Add artificial delay if specified
         if self.delay_seconds > 0:
             import asyncio
+
             await asyncio.sleep(self.delay_seconds)
 
         # Detect type of generation from prompt content
         prompt_lower = prompt.lower()
 
         # Ideation: Generate story concept
-        if "story concept" in prompt_lower or "ideation" in prompt_lower:
+        if (
+            "story concept" in prompt_lower or "ideation" in prompt_lower
+        ) and "outline" not in prompt_lower:
             return self._generate_concept(prompt)
 
         # Outline: Generate story beats
-        if "story beats" in prompt_lower or "outline" in prompt_lower:
+        if (
+            "story beats" in prompt_lower
+            or "outline" in prompt_lower
+            or "beat" in prompt_lower
+        ):
             return self._generate_outline(prompt)
 
         # Segment: Generate detailed segments
@@ -113,6 +123,7 @@ class MockLLMProvider(BaseLLMProvider):
             chunk = response[i : i + chunk_size]
             if self.delay_seconds > 0:
                 import asyncio
+
                 await asyncio.sleep(self.delay_seconds / 10)
             yield chunk
 
@@ -132,15 +143,20 @@ class MockLLMProvider(BaseLLMProvider):
         if "hannah" in prompt.lower():
             protagonist = "Hannah"
 
-        return f"""In this exciting adventure, {protagonist} discovers the fascinating world of {topic}! 
-When a curious question pops into their mind during an ordinary day, {protagonist} embarks on an 
-imaginative journey to uncover the answer. Along the way, they encounter surprising phenomena, 
-learn important scientific concepts, and demonstrate values like curiosity and perseverance.
-
-The story weaves together hands-on exploration with age-appropriate explanations, making complex 
-topics accessible and engaging for young learners. {protagonist} uses creative problem-solving and 
-teamwork to understand the science behind everyday wonders, inspiring children to ask their own 
-questions about the world around them."""
+        return (
+            f"In this exciting adventure, {protagonist} discovers the "
+            f"fascinating world of {topic}! When a curious question pops into "
+            f"their mind during an ordinary day, {protagonist} embarks on an "
+            f"imaginative journey to uncover the answer. Along the way, they "
+            f"encounter surprising phenomena, learn important scientific "
+            f"concepts, and demonstrate values like curiosity and perseverance.\n\n"
+            f"The story weaves together hands-on exploration with age-appropriate "
+            f"explanations, making complex topics accessible and engaging for "
+            f"young learners. {protagonist} uses creative problem-solving and "
+            f"teamwork to understand the science behind everyday wonders, "
+            f"inspiring children to ask their own questions about the world "
+            f"around them."
+        )
 
     def _generate_outline(self, prompt: str) -> str:
         """Generate a story outline in YAML format."""
@@ -195,11 +211,15 @@ story_beats:
 
     def _generate_segments(self, prompt: str) -> str:
         """Generate detailed story segments."""
+        # Check if this is actually a script request based on prompt keywords
+        if "dialogue" in prompt.lower() or "speaker" in prompt.lower():
+            return self._generate_script(prompt)
+
         return """[
   {
     "segment_number": 1,
     "beat_number": 1,
-    "description": "Oliver is in his workshop when he notices something unusual that catches his attention.",
+    "description": "Oliver is in his workshop when he notices something unusual.",
     "characters_involved": ["Oliver"],
     "setting": "Oliver's Workshop",
     "educational_content": "Introduction to observation and asking questions"
@@ -207,7 +227,7 @@ story_beats:
   {
     "segment_number": 2,
     "beat_number": 1,
-    "description": "Oliver examines the phenomenon more closely, his curiosity growing stronger.",
+    "description": "Oliver examines the phenomenon more closely.",
     "characters_involved": ["Oliver"],
     "setting": "Oliver's Workshop",
     "educational_content": "The importance of careful observation in science"
@@ -219,7 +239,7 @@ story_beats:
         return """[
   {
     "speaker": "NARRATOR",
-    "text": "Welcome to Oliver's Workshop! Today, Oliver is about to discover something amazing.",
+    "text": "Welcome to Oliver's Workshop! Today, Oliver is about to discover!",
     "speaker_voice_id": "narrator_voice",
     "duration_estimate": 4.5
   },

@@ -1,6 +1,7 @@
 """Anthropic LLM provider implementation."""
 
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from tenacity import (
     retry,

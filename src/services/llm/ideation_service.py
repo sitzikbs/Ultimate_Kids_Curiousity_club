@@ -101,7 +101,8 @@ class IdeationService:
         for keyword in unsafe_keywords:
             if keyword in concept_lower:
                 raise ValueError(
-                    f"Content safety check failed: potentially inappropriate content detected"
+                    "Content safety check failed: potentially inappropriate "
+                    "content detected"
                 )
 
     def _check_concept_repetition(
@@ -120,7 +121,6 @@ class IdeationService:
             return True
 
         covered_topics = [
-            c.get("topic", "").lower()
-            for c in show_blueprint.concepts_history.concepts
+            c.get("topic", "").lower() for c in show_blueprint.concepts_history.concepts
         ]
         return topic.lower() not in covered_topics

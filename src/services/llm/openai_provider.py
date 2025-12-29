@@ -1,7 +1,7 @@
 """OpenAI LLM provider implementation."""
 
-import asyncio
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from tenacity import (
     retry,
@@ -27,8 +27,7 @@ class OpenAIProvider(BaseLLMProvider):
             from openai import AsyncOpenAI
         except ImportError as e:
             raise ImportError(
-                "openai package not installed. "
-                "Install with: pip install openai>=1.0.0"
+                "openai package not installed. Install with: pip install openai>=1.0.0"
             ) from e
 
         self.client = AsyncOpenAI(api_key=api_key)
