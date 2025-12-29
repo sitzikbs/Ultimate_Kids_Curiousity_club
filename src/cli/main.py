@@ -51,16 +51,16 @@ def main_callback(
     verbose: bool = verbose_option,
 ):
     """Kids Podcast Generator - Create educational podcasts for curious kids.
-    
+
     Use --help with any command to see detailed usage information.
     """
     # Store global options in context
     ctx.ensure_object(dict)
     ctx.obj["verbose"] = verbose
     ctx.obj["config_file"] = config_file
-    
+
     if verbose:
-        console.print(f"[dim]Verbose mode enabled[/dim]")
+        console.print("[dim]Verbose mode enabled[/dim]")
         if config_file:
             console.print(f"[dim]Config file: {config_file}[/dim]")
 
