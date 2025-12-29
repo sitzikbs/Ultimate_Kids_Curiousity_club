@@ -32,6 +32,57 @@ def _get_manager() -> ShowBlueprintManager:
     return ShowBlueprintManager(shows_dir=settings.SHOWS_DIR)
 
 
+def _find_episode(episode_id: str) -> Episode:
+    """Find episode across all shows.
+
+    Args:
+        episode_id: Episode identifier
+
+    Returns:
+        Episode instance
+
+    Raises:
+        HTTPException: If episode is not found
+    """
+    storage = _get_storage()
+    manager = _get_manager()
+    shows = manager.list_shows()
+
+    for show in shows:
+        try:
+            return storage.load_episode(show.show_id, episode_id)
+        except FileNotFoundError:
+            continue
+
+    raise HTTPException(status_code=404, detail=f"Episode {episode_id} not found")
+
+
+def _episode_to_detail_response(episode: Episode) -> EpisodeDetailResponse:
+    """Convert Episode to EpisodeDetailResponse.
+
+    Args:
+        episode: Episode instance
+
+    Returns:
+        EpisodeDetailResponse with all episode data
+    """
+    return EpisodeDetailResponse(
+        episode_id=episode.episode_id,
+        show_id=episode.show_id,
+        topic=episode.topic,
+        title=episode.title,
+        current_stage=episode.current_stage.value,
+        approval_status=episode.approval_status,
+        approval_feedback=episode.approval_feedback,
+        created_at=episode.created_at,
+        updated_at=episode.updated_at,
+        outline=episode.outline.model_dump() if episode.outline else None,
+        segments=[seg.model_dump() for seg in episode.segments],
+        scripts=[script.model_dump() for script in episode.scripts],
+        audio_path=episode.audio_path,
+    )
+
+
 @router.get("/shows/{show_id}/episodes", response_model=list[EpisodeResponse])
 async def list_episodes(show_id: str) -> list[EpisodeResponse]:
     """List all episodes for a show.
@@ -86,39 +137,8 @@ async def get_episode(episode_id: str) -> EpisodeDetailResponse:
         Complete episode data including outline and scripts
     """
     try:
-        storage = _get_storage()
-
-        # Load episode from all shows (search through shows)
-        settings = get_settings()
-        manager = ShowBlueprintManager(shows_dir=settings.SHOWS_DIR)
-        shows = manager.list_shows()
-
-        episode = None
-        for show in shows:
-            try:
-                episode = storage.load_episode(show.show_id, episode_id)
-                break
-            except FileNotFoundError:
-                continue
-
-        if episode is None:
-            raise HTTPException(status_code=404, detail=f"Episode {episode_id} not found")
-
-        return EpisodeDetailResponse(
-            episode_id=episode.episode_id,
-            show_id=episode.show_id,
-            topic=episode.topic,
-            title=episode.title,
-            current_stage=episode.current_stage.value,
-            approval_status=episode.approval_status,
-            approval_feedback=episode.approval_feedback,
-            created_at=episode.created_at,
-            updated_at=episode.updated_at,
-            outline=episode.outline.model_dump() if episode.outline else None,
-            segments=[seg.model_dump() for seg in episode.segments],
-            scripts=[script.model_dump() for script in episode.scripts],
-            audio_path=episode.audio_path,
-        )
+        episode = _find_episode(episode_id)
+        return _episode_to_detail_response(episode)
     except HTTPException:
         raise
     except Exception as e:
@@ -140,22 +160,7 @@ async def update_outline(
     """
     try:
         storage = _get_storage()
-
-        # Find episode
-        settings = get_settings()
-        manager = ShowBlueprintManager(shows_dir=settings.SHOWS_DIR)
-        shows = manager.list_shows()
-
-        episode = None
-        for show in shows:
-            try:
-                episode = storage.load_episode(show.show_id, episode_id)
-                break
-            except FileNotFoundError:
-                continue
-
-        if episode is None:
-            raise HTTPException(status_code=404, detail=f"Episode {episode_id} not found")
+        episode = _find_episode(episode_id)
 
         # Update outline
         old_stage = episode.current_stage
@@ -174,21 +179,7 @@ async def update_outline(
                 new_stage=episode.current_stage.value,
             )
 
-        return EpisodeDetailResponse(
-            episode_id=episode.episode_id,
-            show_id=episode.show_id,
-            topic=episode.topic,
-            title=episode.title,
-            current_stage=episode.current_stage.value,
-            approval_status=episode.approval_status,
-            approval_feedback=episode.approval_feedback,
-            created_at=episode.created_at,
-            updated_at=episode.updated_at,
-            outline=episode.outline.model_dump() if episode.outline else None,
-            segments=[seg.model_dump() for seg in episode.segments],
-            scripts=[script.model_dump() for script in episode.scripts],
-            audio_path=episode.audio_path,
-        )
+        return _episode_to_detail_response(episode)
     except HTTPException:
         raise
     except ValueError as e:
@@ -212,22 +203,7 @@ async def approve_episode(
     """
     try:
         storage = _get_storage()
-
-        # Find episode
-        settings = get_settings()
-        manager = ShowBlueprintManager(shows_dir=settings.SHOWS_DIR)
-        shows = manager.list_shows()
-
-        episode = None
-        for show in shows:
-            try:
-                episode = storage.load_episode(show.show_id, episode_id)
-                break
-            except FileNotFoundError:
-                continue
-
-        if episode is None:
-            raise HTTPException(status_code=404, detail=f"Episode {episode_id} not found")
+        episode = _find_episode(episode_id)
 
         # Update approval status
         old_stage = episode.current_stage
@@ -252,21 +228,7 @@ async def approve_episode(
             new_stage=episode.current_stage.value,
         )
 
-        return EpisodeDetailResponse(
-            episode_id=episode.episode_id,
-            show_id=episode.show_id,
-            topic=episode.topic,
-            title=episode.title,
-            current_stage=episode.current_stage.value,
-            approval_status=episode.approval_status,
-            approval_feedback=episode.approval_feedback,
-            created_at=episode.created_at,
-            updated_at=episode.updated_at,
-            outline=episode.outline.model_dump() if episode.outline else None,
-            segments=[seg.model_dump() for seg in episode.segments],
-            scripts=[script.model_dump() for script in episode.scripts],
-            audio_path=episode.audio_path,
-        )
+        return _episode_to_detail_response(episode)
     except HTTPException:
         raise
     except ValueError as e:
