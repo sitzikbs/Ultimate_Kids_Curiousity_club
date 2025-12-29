@@ -156,6 +156,18 @@ class TestIdeationService:
         assert len(concept) > 50
 
     @pytest.mark.asyncio
+    async def test_generate_concept_rejects_repeated_topic(self, mock_show_blueprint):
+        """Test that repeated topics are rejected."""
+        provider = MockLLMProvider()
+        service = IdeationService(provider)
+
+        # Try to generate concept for a topic that's already covered (gravity)
+        with pytest.raises(ValueError, match="already been covered"):
+            await service.generate_concept(
+                topic="gravity", show_blueprint=mock_show_blueprint
+            )
+
+    @pytest.mark.asyncio
     async def test_generate_concept_without_concepts_history(self, mock_show_blueprint):
         """Test concept generation when no concepts history exists."""
         # Remove concepts history

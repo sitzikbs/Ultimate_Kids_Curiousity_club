@@ -211,10 +211,6 @@ story_beats:
 
     def _generate_segments(self, prompt: str) -> str:
         """Generate detailed story segments."""
-        # Check if this is actually a script request based on prompt keywords
-        if "dialogue" in prompt.lower() or "speaker" in prompt.lower():
-            return self._generate_script(prompt)
-
         return """[
   {
     "segment_number": 1,

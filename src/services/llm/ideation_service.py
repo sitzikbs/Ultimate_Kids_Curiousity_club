@@ -47,11 +47,18 @@ class IdeationService:
             and educational tie-in
 
         Raises:
-            ValueError: If topic is empty or invalid
+            ValueError: If topic is empty or invalid, or if concept was
+                       already covered in previous episodes
             Exception: If generation fails
         """
         if not topic or not topic.strip():
             raise ValueError("Topic cannot be empty")
+
+        # Check if topic already covered
+        if not self._check_concept_repetition(topic, show_blueprint):
+            raise ValueError(
+                f"Topic '{topic}' has already been covered in a previous episode"
+            )
 
         # Enhance prompt with Show Blueprint context
         enhanced_prompt = self.enhancer.enhance_ideation_prompt(topic, show_blueprint)

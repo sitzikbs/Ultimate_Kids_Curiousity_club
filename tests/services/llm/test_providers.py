@@ -1,5 +1,7 @@
 """Tests for LLM provider implementations."""
 
+import os
+
 import pytest
 
 from services.llm.base import BaseLLMProvider
@@ -38,10 +40,12 @@ class TestMockLLMProvider:
         """Test generating a script."""
         provider = MockLLMProvider()
 
-        prompt = "Generate script with dialogue for the segment."
+        # Use a prompt that specifically requests script/dialogue
+        prompt = "Generate a script with speaker tags and dialogue for this story."
         result = await provider.generate(prompt, max_tokens=2000, temperature=0.7)
 
         assert result
+        # Should contain speaker or narrator since we asked for script
         assert "speaker" in result.lower() or "narrator" in result.lower()
 
     @pytest.mark.asyncio
@@ -140,7 +144,8 @@ class TestLLMProviderFactory:
 
 
 @pytest.mark.skipif(
-    True, reason="Requires OpenAI API key - run manually with real credentials"
+    not os.getenv("OPENAI_API_KEY"),
+    reason="Requires OpenAI API key - set OPENAI_API_KEY to run",
 )
 class TestOpenAIProviderIntegration:
     """Integration tests for OpenAI provider (requires API key)."""
@@ -148,8 +153,6 @@ class TestOpenAIProviderIntegration:
     @pytest.mark.asyncio
     async def test_openai_generate(self):
         """Test OpenAI generation."""
-        import os
-
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             pytest.skip("OPENAI_API_KEY not set")
@@ -165,8 +168,6 @@ class TestOpenAIProviderIntegration:
 
     def test_openai_token_counting(self):
         """Test OpenAI token counting with tiktoken."""
-        import os
-
         api_key = os.getenv("OPENAI_API_KEY", "fake-key")
         provider = LLMProviderFactory.create_provider("openai", api_key=api_key)
 
@@ -178,7 +179,8 @@ class TestOpenAIProviderIntegration:
 
 
 @pytest.mark.skipif(
-    True, reason="Requires Anthropic API key - run manually with real credentials"
+    not os.getenv("ANTHROPIC_API_KEY"),
+    reason="Requires Anthropic API key - set ANTHROPIC_API_KEY to run",
 )
 class TestAnthropicProviderIntegration:
     """Integration tests for Anthropic provider (requires API key)."""
@@ -186,8 +188,6 @@ class TestAnthropicProviderIntegration:
     @pytest.mark.asyncio
     async def test_anthropic_generate(self):
         """Test Anthropic generation."""
-        import os
-
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             pytest.skip("ANTHROPIC_API_KEY not set")

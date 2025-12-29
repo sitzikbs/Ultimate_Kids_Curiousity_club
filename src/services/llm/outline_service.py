@@ -94,12 +94,28 @@ class OutlineService:
         """
         try:
             # Try to extract YAML from markdown code blocks if present
+            # Handle various formats: ```yaml, ```yml, or just ```
             if "```yaml" in yaml_content:
-                yaml_content = yaml_content.split("```yaml")[1].split("```")[0]
+                parts = yaml_content.split("```yaml", 1)
+                if len(parts) > 1:
+                    yaml_content = parts[1].split("```", 1)[0]
+            elif "```yml" in yaml_content:
+                parts = yaml_content.split("```yml", 1)
+                if len(parts) > 1:
+                    yaml_content = parts[1].split("```", 1)[0]
             elif "```" in yaml_content:
-                yaml_content = yaml_content.split("```")[1].split("```")[0]
+                # Generic code block - try to extract first block
+                parts = yaml_content.split("```", 2)
+                if len(parts) >= 3:
+                    yaml_content = parts[1]
 
             data = yaml.safe_load(yaml_content)
+
+            # Validate that we got a dict, not a string or other type
+            if not isinstance(data, dict):
+                raise ValueError(
+                    f"YAML parsing returned {type(data).__name__} instead of dict"
+                )
         except Exception as e:
             raise ValueError(f"Failed to parse outline YAML: {e}") from e
 
