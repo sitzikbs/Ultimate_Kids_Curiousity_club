@@ -5,7 +5,8 @@ Run with: pytest -m real_api
 """
 
 import pytest
-from utils.cost_tracker import CostTracker
+
+from tests.utils.cost_tracker import CostTracker
 
 
 @pytest.mark.real_api
