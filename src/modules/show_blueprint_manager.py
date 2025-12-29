@@ -81,7 +81,8 @@ class ShowBlueprintManager:
         characters = []
         characters_dir = show_dir / "characters"
         if characters_dir.exists():
-            for char_file in characters_dir.glob("*.yaml"):
+            # Sort character files for consistent ordering
+            for char_file in sorted(characters_dir.glob("*.yaml")):
                 with char_file.open("r") as f:
                     char_data = yaml.safe_load(f)
                     characters.append(Character(**char_data))
@@ -90,7 +91,7 @@ class ShowBlueprintManager:
         episodes = []
         episodes_dir = show_dir / "episodes"
         if episodes_dir.exists():
-            episodes = [ep.name for ep in episodes_dir.iterdir() if ep.is_dir()]
+            episodes = sorted([ep.name for ep in episodes_dir.iterdir() if ep.is_dir()])
 
         # Create Show model
         show = Show(
@@ -258,7 +259,7 @@ class ShowBlueprintManager:
             raise FileNotFoundError(f"Shows directory not found: {self.shows_dir}")
 
         shows = []
-        for show_dir in self.shows_dir.iterdir():
+        for show_dir in sorted(self.shows_dir.iterdir()):
             if not show_dir.is_dir():
                 continue
 
