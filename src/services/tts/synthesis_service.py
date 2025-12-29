@@ -202,8 +202,7 @@ class AudioSynthesisService:
             # Add padding if requested
             if add_padding and len(results) < len(segments):
                 padding_path = (
-                    self.output_dir
-                    / f"padding_{segment['segment_number']:03d}.mp3"
+                    self.output_dir / f"padding_{segment['segment_number']:03d}.mp3"
                 )
                 padding_ms = int(self.padding_seconds * 1000)
                 silence = AudioSegment.silent(duration=padding_ms)

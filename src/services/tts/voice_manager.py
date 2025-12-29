@@ -109,9 +109,7 @@ class VoiceManager:
         params = base_params.copy() if base_params else {}
 
         # Get emotion mapping
-        emotion_params = self.DEFAULT_EMOTION_MAPPINGS.get(
-            emotion.lower(), {}
-        )
+        emotion_params = self.DEFAULT_EMOTION_MAPPINGS.get(emotion.lower(), {})
 
         # Merge with base params (emotion params override base)
         params.update(emotion_params)
@@ -140,9 +138,7 @@ class VoiceManager:
             ValueError: If sample_dir was not set during initialization
         """
         if not self.sample_dir:
-            raise ValueError(
-                "sample_dir must be set to generate voice previews"
-            )
+            raise ValueError("sample_dir must be set to generate voice previews")
 
         # Determine output filename
         if not output_filename:

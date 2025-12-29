@@ -40,9 +40,7 @@ class TestAudioSynthesisService:
         assert synthesis_service is not None
         assert synthesis_service.output_dir.exists()
 
-    def test_synthesize_single_segment(
-        self, synthesis_service, sample_voice_config
-    ):
+    def test_synthesize_single_segment(self, synthesis_service, sample_voice_config):
         """Test synthesizing a single segment."""
         text = "Hello! This is a test segment."
 
