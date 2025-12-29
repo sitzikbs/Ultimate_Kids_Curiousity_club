@@ -180,6 +180,15 @@ PROFANITY_LIST = {
     # Add more as needed
 }
 
+# Scary/violent keywords for age-appropriate filtering
+SCARY_KEYWORDS = [
+    "blood", "kill", "murder", "weapon",
+    "gun", "knife", "terror", "horror"
+]
+
+# Vowels for syllable counting
+VOWELS = "aeiou"
+
 
 def check_profanity(text: str) -> bool:
     """Check if text contains profanity.
@@ -218,12 +227,11 @@ def count_syllables(word: str) -> int:
     if not word:
         return 0
 
-    vowels = "aeiou"
     syllable_count = 0
     previous_was_vowel = False
 
     for char in word:
-        is_vowel = char in vowels
+        is_vowel = char in VOWELS
         if is_vowel and not previous_was_vowel:
             syllable_count += 1
         previous_was_vowel = is_vowel
@@ -294,12 +302,8 @@ def validate_age_appropriate(text: str, max_grade_level: float = 7.0) -> bool:
         return False
 
     # Check for scary/violent keywords (basic filter)
-    scary_keywords = [
-        "blood", "kill", "murder", "weapon",
-        "gun", "knife", "terror", "horror"
-    ]
     text_lower = text.lower()
-    for keyword in scary_keywords:
+    for keyword in SCARY_KEYWORDS:
         if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
             return False
 
