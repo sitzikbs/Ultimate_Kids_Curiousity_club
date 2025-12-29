@@ -1,8 +1,5 @@
-# Concepts Covered - Oliver's Workshop
-# Educational tracking to avoid repetition
-
-show_id: "olivers_workshop"
-concepts: []  # Will be populated as episodes are generated
-# Format: [{"concept": "levers", "episode_id": "ep_001", "date": "2025-12-24", "complexity_level": "introductory"}]
-
-last_updated: "2025-12-24"
+{
+  "show_id": "olivers_workshop",
+  "concepts": [],
+  "last_updated": "2025-12-24"
+}
