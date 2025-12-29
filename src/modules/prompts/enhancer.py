@@ -48,9 +48,7 @@ class PromptEnhancer:
 
         return env
 
-    def enhance_ideation_prompt(
-        self, topic: str, show_blueprint: ShowBlueprint
-    ) -> str:
+    def enhance_ideation_prompt(self, topic: str, show_blueprint: ShowBlueprint) -> str:
         """Enhance ideation prompt with Show Blueprint context.
 
         Args:
@@ -64,12 +62,12 @@ class PromptEnhancer:
             FileNotFoundError: If ideation template not found
         """
         template = self.env.get_template("ideation.j2")
-        
+
         # Get covered concepts, handling None case defensively
         covered_concepts = []
         if show_blueprint.concepts_history is not None:
             covered_concepts = show_blueprint.concepts_history.concepts
-        
+
         return template.render(
             topic=topic,
             show=show_blueprint.show,
