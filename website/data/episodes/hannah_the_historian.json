@@ -1,0 +1,38 @@
+{
+  "show_id": "hannah_the_historian",
+  "show_title": "Hannah the Historian",
+  "episodes": [
+    {
+      "id": "ep_001",
+      "title": "The Mystery of Ancient Egypt",
+      "description": "Join Hannah as she explores the mysteries of the pyramids and meets the pharaohs of ancient Egypt! Discover how these amazing structures were built and what life was like thousands of years ago.",
+      "duration": "8:45",
+      "duration_seconds": 525,
+      "publish_date": "2025-12-24T10:00:00Z",
+      "audio_url": "https://cdn.kidscuriosityclub.com/hannah_the_historian/ep_001.mp3",
+      "artwork_url": "../../assets/shows/hannah_the_historian/Hannah_the_historian.jpg",
+      "show_notes_html": "<p>In this episode, Hannah travels back to ancient Egypt to uncover the secrets of the pyramids!</p><h3>Learning Objectives</h3><ul><li>Understand how the pyramids were constructed</li><li>Learn about ancient Egyptian culture and pharaohs</li><li>Discover the importance of the Nile River</li></ul><h3>Key Concepts</h3><ul><li>Ancient civilizations</li><li>Architecture and engineering</li><li>Historical archaeology</li></ul>",
+      "show_notes_text": "In this episode, Hannah travels back to ancient Egypt to uncover the secrets of the pyramids! Learning Objectives: Understand how the pyramids were constructed, Learn about ancient Egyptian culture and pharaohs, Discover the importance of the Nile River. Key Concepts: Ancient civilizations, Architecture and engineering, Historical archaeology.",
+      "tags": ["History", "Ancient Egypt", "Architecture", "Culture"],
+      "concepts": ["pyramids", "pharaohs", "Nile River", "ancient civilizations"],
+      "file_size": 7000000,
+      "explicit": false
+    },
+    {
+      "id": "ep_002",
+      "title": "The Great Explorers",
+      "description": "Hannah introduces us to famous explorers who changed the world! From Marco Polo to Christopher Columbus, discover the brave adventurers who mapped our planet.",
+      "duration": "9:12",
+      "duration_seconds": 552,
+      "publish_date": "2025-12-31T10:00:00Z",
+      "audio_url": "https://cdn.kidscuriosityclub.com/hannah_the_historian/ep_002.mp3",
+      "artwork_url": "../../assets/shows/hannah_the_historian/Hannah_the_historian.jpg",
+      "show_notes_html": "<p>Join Hannah as she tells the exciting stories of history's greatest explorers!</p><h3>Learning Objectives</h3><ul><li>Learn about famous explorers and their journeys</li><li>Understand the Age of Exploration</li><li>Discover how maps were created</li></ul><h3>Key Concepts</h3><ul><li>Navigation and cartography</li><li>Cultural exchange</li><li>Historical geography</li></ul>",
+      "show_notes_text": "Join Hannah as she tells the exciting stories of history's greatest explorers! Learning Objectives: Learn about famous explorers and their journeys, Understand the Age of Exploration, Discover how maps were created. Key Concepts: Navigation and cartography, Cultural exchange, Historical geography.",
+      "tags": ["History", "Exploration", "Geography", "Adventure"],
+      "concepts": ["explorers", "navigation", "maps", "discovery"],
+      "file_size": 7360000,
+      "explicit": false
+    }
+  ]
+}

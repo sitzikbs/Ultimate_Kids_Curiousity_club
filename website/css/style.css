@@ -389,3 +389,115 @@ footer {
 footer a {
     color: var(--primary-color);
 }
+
+/* Episode Cards */
+.episode-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(102,204,255,0.15);
+    transition: all 0.3s ease;
+}
+
+.episode-card:hover {
+    box-shadow: 0 6px 20px rgba(102,204,255,0.25);
+}
+
+.episode-card .card-title {
+    color: var(--text-color);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.episode-card .card-text {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.episode-card .badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+.episode-card .badge.bg-secondary {
+    background-color: var(--success-color) !important;
+}
+
+.episode-card .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.episode-card .btn-outline-secondary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.episode-card .btn-outline-secondary:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.episode-card .progress {
+    background-color: rgba(102,204,255,0.2);
+}
+
+.episode-card .progress-bar {
+    background-color: var(--accent-color);
+}
+
+/* Show Notes */
+.show-notes {
+    background-color: rgba(102,204,255,0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.show-notes h3 {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.show-notes ul {
+    padding-left: 1.5rem;
+}
+
+.show-notes p, .show-notes li {
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Show Header */
+.show-header {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    min-height: 300px;
+}
+
+.show-header .overlay {
+    background: rgba(0,0,0,0.6) !important;
+    backdrop-filter: blur(2px);
+}
+
+/* Responsive Episode Cards */
+@media (max-width: 768px) {
+    .episode-card .row {
+        flex-direction: column;
+    }
+    
+    .episode-card .col-md-3,
+    .episode-card .col-md-9 {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+    
+    .episode-card img {
+        margin-bottom: 1rem;
+    }
+}
+
