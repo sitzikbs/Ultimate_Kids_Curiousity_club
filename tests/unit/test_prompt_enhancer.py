@@ -1,6 +1,9 @@
 """Unit tests for PromptEnhancer."""
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 88d8b08e49146c77fb31ea4491b8fc32c256a29f
 import pytest
 
 from models import (
@@ -192,9 +195,13 @@ class TestPromptEnhancerInit:
 class TestEnhanceIdeationPrompt:
     """Tests for enhance_ideation_prompt method."""
 
+<<<<<<< HEAD
     def test_enhance_ideation_basic(
         self, prompt_enhancer, test_show_blueprint
     ):
+=======
+    def test_enhance_ideation_basic(self, prompt_enhancer, test_show_blueprint):
+>>>>>>> 88d8b08e49146c77fb31ea4491b8fc32c256a29f
         """Test basic ideation prompt enhancement."""
         result = prompt_enhancer.enhance_ideation_prompt(
             topic="How gravity works",
@@ -261,9 +268,13 @@ class TestEnhanceIdeationPrompt:
 class TestEnhanceOutlinePrompt:
     """Tests for enhance_outline_prompt method."""
 
+<<<<<<< HEAD
     def test_enhance_outline_basic(
         self, prompt_enhancer, test_show_blueprint
     ):
+=======
+    def test_enhance_outline_basic(self, prompt_enhancer, test_show_blueprint):
+>>>>>>> 88d8b08e49146c77fb31ea4491b8fc32c256a29f
         """Test basic outline prompt enhancement."""
         concept = "Oliver discovers how gravity pulls objects toward Earth"
         result = prompt_enhancer.enhance_outline_prompt(

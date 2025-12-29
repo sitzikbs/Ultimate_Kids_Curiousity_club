@@ -10,6 +10,7 @@ dependencies = [
     "pydantic-settings>=2.1.0",
     "python-dotenv>=1.0.0",
     "Pillow>=10.0.0",
+    "pydub>=0.25.1",
     "jinja2>=3.1.0",
 ]
 authors = [
@@ -27,6 +28,11 @@ dev = [
     "ruff>=0.3.0",
     "mypy>=1.5.0",
     "pre-commit>=3.3.0",
+]
+tts = [
+    "elevenlabs>=0.2.0",
+    "google-cloud-texttospeech>=2.16.0",
+    "openai>=1.12.0",
 ]
 
 [build-system]
@@ -49,11 +55,14 @@ ignore = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
+mypy_path = "src"
+explicit_package_bases = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -68,4 +77,8 @@ strict_optional = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
 

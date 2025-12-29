@@ -56,9 +56,7 @@ def test_episode_artwork_generation_pipeline(tmp_path):
 
     # Test with custom image
     artwork = generator.generate_artwork(
-        "How Airplanes Fly",
-        custom_image=custom_path,
-        add_text_overlay=True
+        "How Airplanes Fly", custom_image=custom_path, add_text_overlay=True
     )
 
     assert artwork.size == (1400, 1400)
@@ -71,8 +69,7 @@ def test_episode_artwork_generation_pipeline(tmp_path):
 
     # Generate YouTube thumbnail
     thumbnail = generator.generate_youtube_thumbnail(
-        "How Airplanes Fly",
-        custom_image=custom_path
+        "How Airplanes Fly", custom_image=custom_path
     )
 
     assert thumbnail.size == (1280, 720)
@@ -96,18 +93,14 @@ def test_character_composition_pipeline(tmp_path):
     # Compose characters
     compositor = ImageCompositor()
     composed = compositor.compose_characters(
-        [oliver_path, hannah_path],
-        background_color=(255, 255, 255)
+        [oliver_path, hannah_path], background_color=(255, 255, 255)
     )
 
     assert composed.size == (1400, 1400)
 
     # Add title banner
     with_banner = compositor.add_title_banner(
-        composed,
-        "Oliver and Hannah",
-        subtitle="Episode 1",
-        position="bottom"
+        composed, "Oliver and Hannah", subtitle="Episode 1", position="bottom"
     )
 
     assert isinstance(with_banner, Image.Image)

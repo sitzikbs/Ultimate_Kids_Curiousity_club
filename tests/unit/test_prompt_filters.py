@@ -1,6 +1,9 @@
 """Unit tests for custom Jinja2 filters."""
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 88d8b08e49146c77fb31ea4491b8fc32c256a29f
 from modules.prompts.filters import (
     capitalize_speaker,
     format_list,
