@@ -1,5 +1,6 @@
 """Unit tests for ImageCompositor."""
 
+
 import pytest
 from PIL import Image
 
@@ -66,7 +67,10 @@ def test_compose_characters_multiple(compositor, character_images):
 @pytest.mark.unit
 def test_compose_characters_custom_size(compositor, character_images):
     """Test composing with custom output size."""
-    img = compositor.compose_characters(character_images, output_size=(1920, 1080))
+    img = compositor.compose_characters(
+        character_images,
+        output_size=(1920, 1080)
+    )
 
     assert img.size == (1920, 1080)
 
@@ -75,7 +79,8 @@ def test_compose_characters_custom_size(compositor, character_images):
 def test_compose_characters_custom_background(compositor, character_images):
     """Test composing with custom background color."""
     img = compositor.compose_characters(
-        [character_images[0]], background_color=(255, 255, 0)
+        [character_images[0]],
+        background_color=(255, 255, 0)
     )
 
     assert isinstance(img, Image.Image)
@@ -137,7 +142,10 @@ def test_add_title_banner_with_subtitle(compositor):
     img = Image.new("RGB", (1400, 1400), color=(100, 100, 100))
 
     result = compositor.add_title_banner(
-        img, "Episode Title", subtitle="Subtitle Text", position="top"
+        img,
+        "Episode Title",
+        subtitle="Subtitle Text",
+        position="top"
     )
 
     assert isinstance(result, Image.Image)
