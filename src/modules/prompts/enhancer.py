@@ -48,9 +48,7 @@ class PromptEnhancer:
 
         return env
 
-    def enhance_ideation_prompt(
-        self, topic: str, show_blueprint: ShowBlueprint
-    ) -> str:
+    def enhance_ideation_prompt(self, topic: str, show_blueprint: ShowBlueprint) -> str:
         """Enhance ideation prompt with Show Blueprint context.
 
         Args:

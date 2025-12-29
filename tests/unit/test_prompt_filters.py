@@ -1,6 +1,5 @@
 """Unit tests for custom Jinja2 filters."""
 
-
 from modules.prompts.filters import (
     capitalize_speaker,
     format_list,
