@@ -135,7 +135,6 @@ class ShowBlueprintManager:
             voice_config=voice_config,
         )
 
-
         # Create WorldDescription model
         world = WorldDescription(
             setting=world_data.get("description", ""),
