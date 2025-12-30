@@ -25,6 +25,7 @@ class TestSettings:
             "USE_MOCK_SERVICES",
             "OPENAI_API_KEY",
             "ANTHROPIC_API_KEY",
+            "GEMINI_API_KEY",
             "ELEVENLABS_API_KEY",
         ]:
             monkeypatch.delenv(key, raising=False)
@@ -37,6 +38,7 @@ class TestSettings:
         # API keys default to None
         assert settings.OPENAI_API_KEY is None
         assert settings.ANTHROPIC_API_KEY is None
+        assert settings.GEMINI_API_KEY is None
         assert settings.ELEVENLABS_API_KEY is None
 
         # Provider defaults
@@ -55,7 +57,12 @@ class TestSettings:
         """Test that API keys are not required in mock mode."""
         monkeypatch.setenv("USE_MOCK_SERVICES", "true")
         # Clear API key environment variables
-        for key in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "ELEVENLABS_API_KEY"]:
+        for key in [
+            "OPENAI_API_KEY",
+            "ANTHROPIC_API_KEY",
+            "GEMINI_API_KEY",
+            "ELEVENLABS_API_KEY",
+        ]:
             monkeypatch.delenv(key, raising=False)
 
         # Should not raise an error
@@ -67,7 +74,12 @@ class TestSettings:
         """Test that API keys are required when not using mocks."""
         monkeypatch.setenv("USE_MOCK_SERVICES", "false")
         # Clear API key environment variables
-        for key in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "ELEVENLABS_API_KEY"]:
+        for key in [
+            "OPENAI_API_KEY",
+            "ANTHROPIC_API_KEY",
+            "GEMINI_API_KEY",
+            "ELEVENLABS_API_KEY",
+        ]:
             monkeypatch.delenv(key, raising=False)
 
         # Should raise validation error for missing API keys
@@ -79,12 +91,14 @@ class TestSettings:
         monkeypatch.setenv("USE_MOCK_SERVICES", "false")
         monkeypatch.setenv("OPENAI_API_KEY", "sk-test-key")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-key")
+        monkeypatch.setenv("GEMINI_API_KEY", "test-gemini-key")
         monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
 
         settings = Settings()
         assert settings.USE_MOCK_SERVICES is False
         assert settings.OPENAI_API_KEY == "sk-test-key"
         assert settings.ANTHROPIC_API_KEY == "sk-ant-test-key"
+        assert settings.GEMINI_API_KEY == "test-gemini-key"
         assert settings.ELEVENLABS_API_KEY == "test-key"
 
     def test_environment_variable_override(self, monkeypatch):
@@ -168,6 +182,7 @@ class TestSettingsValidation:
         monkeypatch.setenv("USE_MOCK_SERVICES", "false")
         monkeypatch.setenv("OPENAI_API_KEY", "test-key")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        monkeypatch.setenv("GEMINI_API_KEY", "test-key")
         monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
 
         settings = Settings()
