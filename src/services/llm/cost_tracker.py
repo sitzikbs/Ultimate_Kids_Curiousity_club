@@ -1,7 +1,10 @@
 """Cost tracking for LLM API calls."""
 
+import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -66,9 +69,10 @@ class CostTracker:
             total_cost = self.get_episode_cost()
             if total_cost >= self.budget_limit * 0.8:  # 80% threshold
                 remaining = self.budget_limit - total_cost
-                print(
-                    f"⚠️  Budget Warning: ${total_cost:.4f} of ${self.budget_limit:.2f} "
-                    f"used ({(total_cost/self.budget_limit)*100:.1f}%). "
+                logger.warning(
+                    f"Budget Warning: ${total_cost:.4f} of "
+                    f"${self.budget_limit:.2f} used "
+                    f"({(total_cost/self.budget_limit)*100:.1f}%). "
                     f"Remaining: ${remaining:.4f}"
                 )
 

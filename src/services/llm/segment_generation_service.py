@@ -72,13 +72,13 @@ class SegmentGenerationService:
         # Enhance prompt with Show Blueprint context
         enhanced_prompt = self.enhancer.enhance_segment_prompt(outline, show_blueprint)
 
-        # Track time and tokens
+        # Track time
         start_time = time()
 
         # Generate segments with retry logic
         for attempt in range(max_retries):
             try:
-                # Count prompt tokens
+                # Count tokens (may change if prompt is adjusted in retry)
                 prompt_tokens = self.provider.count_tokens(enhanced_prompt)
 
                 # Generate segments using LLM

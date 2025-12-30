@@ -177,6 +177,10 @@ class ScriptGenerationService:
     ) -> list[Script]:
         """Organize script blocks into scripts by segment.
 
+        Divides script blocks evenly among segments. If blocks don't divide evenly,
+        extra blocks are distributed to earlier segments to ensure all content
+        is included.
+
         Args:
             script_blocks: List of all script blocks
             segments: List of story segments

@@ -1,6 +1,7 @@
 """Mock LLM provider for cost-free testing."""
 
 import json
+import re
 from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import Any
@@ -73,8 +74,8 @@ class MockLLMProvider(BaseLLMProvider):
         prompt_lower = prompt.lower()
 
         # Segment: Generate detailed segments (check first - more specific)
-        if ("detailed story segments" in prompt_lower or 
-            ("segment" in prompt_lower and "expand" in prompt_lower)):
+        if ("detailed story segments" in prompt_lower or
+                ("segment" in prompt_lower and "expand" in prompt_lower)):
             return self._generate_segments(prompt)
 
         # Script: Generate dialogue (check second - more specific)
@@ -213,50 +214,60 @@ story_beats:
     def _generate_segments(self, prompt: str) -> str:
         """Generate detailed story segments."""
         # Extract number of beats from prompt if possible
-        import re
         beat_matches = re.findall(r'(\d+)\.\s+[A-Z]', prompt)
         num_beats = len(beat_matches) if beat_matches else 2
-        
+
         # Generate segments for each beat
         segments = []
         segment_num = 1
         for beat_num in range(1, num_beats + 1):
             # Generate 1-2 segments per beat
             for i in range(2):
+                action = "observes carefully" if i == 0 else "tests his understanding"
                 segments.append({
                     "segment_number": segment_num,
                     "beat_number": beat_num,
-                    "description": f"Oliver is exploring and learning about the topic. In this segment, he {'observes carefully' if i == 0 else 'tests his understanding'} related to beat {beat_num}.",
+                    "description": (
+                        f"Oliver is exploring and learning about the topic. "
+                        f"In this segment, he {action} related to beat {beat_num}."
+                    ),
                     "characters_involved": ["Oliver"],
                     "setting": "Oliver's Workshop",
-                    "educational_content": f"Key educational concept for beat {beat_num}, segment {i+1}"
+                    "educational_content": (
+                        f"Key educational concept for beat {beat_num}, "
+                        f"segment {i+1}"
+                    )
                 })
                 segment_num += 1
-        
-        import json
+
         return json.dumps(segments)
 
     def _generate_script(self, prompt: str) -> str:
         """Generate script with dialogue."""
         # Extract number of segments from prompt if possible
-        import re
         segment_matches = re.findall(r'Segment\s+(\d+):', prompt)
         num_segments = len(segment_matches) if segment_matches else 2
-        
+
         # Generate script blocks for all segments
         blocks = []
         for seg_num in range(1, num_segments + 1):
             # Add narrator intro
             blocks.append({
                 "speaker": "NARRATOR",
-                "text": f"In this part of our story, Oliver continues his investigation with segment {seg_num}.",
+                "text": (
+                    f"In this part of our story, Oliver continues his "
+                    f"investigation with segment {seg_num}."
+                ),
                 "speaker_voice_id": "narrator_voice",
                 "duration_estimate": 4.5
             })
             # Add character dialogue
             blocks.append({
                 "speaker": "OLIVER",
-                "text": f"Wow! I'm learning so much in segment {seg_num}. Let me investigate further!",
+                "text": (
+                    f"Wow! I'm learning so much in segment {seg_num}. "
+                    f"Let me investigate further!"
+                ),
                 "speaker_voice_id": "oliver_voice",
                 "duration_estimate": 3.2
             })
@@ -267,8 +278,7 @@ story_beats:
                 "speaker_voice_id": "narrator_voice",
                 "duration_estimate": 3.8
             })
-        
-        import json
+
         return json.dumps(blocks)
 
     def _generate_generic_response(self, prompt: str) -> str:

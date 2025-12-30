@@ -102,23 +102,27 @@ class LLMResponseParser:
             logger.error(f"JSON parsing failed: {e}")
             raise ValueError(f"Invalid JSON: {e}") from e
 
-    def validate_model(self, data: Any, model_class: type[T]) -> T:
+    def validate_model(self, data: Any, model_class: type[T]) -> T | list[T]:
         """Validate data against Pydantic model.
 
         Args:
-            data: Data to validate
+            data: Data to validate (dict or list of dicts)
             model_class: Pydantic model class
 
         Returns:
-            Validated model instance
+            Validated model instance or list of instances
 
         Raises:
             ValueError: If validation fails
         """
         try:
             if isinstance(data, list):
-                # Handle list of models
-                return [model_class.model_validate(item) for item in data]  # type: ignore
+                # Handle list of models - return type is list[T]
+                # Type checker can't infer this without runtime inspection
+                validated: list[T] = [
+                    model_class.model_validate(item) for item in data
+                ]
+                return validated
             else:
                 return model_class.model_validate(data)
         except ValidationError as e:

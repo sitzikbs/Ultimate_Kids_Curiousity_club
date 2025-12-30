@@ -211,23 +211,25 @@ class TestCostTracker:
         assert len(tracker.calls) == 0
         assert tracker.get_episode_cost() == 0.0
 
-    def test_budget_warning(self, capsys):
+    def test_budget_warning(self, caplog):
         """Test budget warning when approaching limit."""
+        import logging
+        
         tracker = CostTracker(budget_limit=1.0)
 
         # Log call that exceeds 80% of budget
-        tracker.log_call(
-            stage="ideation",
-            prompt_tokens=1000,
-            completion_tokens=2000,
-            cost=0.85,
-            duration=5.0,
-            provider="openai",
-            model="gpt-4",
-        )
+        with caplog.at_level(logging.WARNING):
+            tracker.log_call(
+                stage="ideation",
+                prompt_tokens=1000,
+                completion_tokens=2000,
+                cost=0.85,
+                duration=5.0,
+                provider="openai",
+                model="gpt-4",
+            )
 
-        captured = capsys.readouterr()
-        assert "Budget Warning" in captured.out
+        assert "Budget Warning" in caplog.text
 
     def test_set_budget_limit(self):
         """Test setting budget limit."""
@@ -237,20 +239,22 @@ class TestCostTracker:
         tracker.set_budget_limit(2.0)
         assert tracker.budget_limit == 2.0
 
-    def test_no_budget_warning_below_threshold(self, capsys):
+    def test_no_budget_warning_below_threshold(self, caplog):
         """Test no warning when below threshold."""
+        import logging
+        
         tracker = CostTracker(budget_limit=1.0)
 
         # Log call under 80% of budget
-        tracker.log_call(
-            stage="ideation",
-            prompt_tokens=100,
-            completion_tokens=200,
-            cost=0.50,
-            duration=2.5,
-            provider="openai",
-            model="gpt-4",
-        )
+        with caplog.at_level(logging.WARNING):
+            tracker.log_call(
+                stage="ideation",
+                prompt_tokens=100,
+                completion_tokens=200,
+                cost=0.50,
+                duration=2.5,
+                provider="openai",
+                model="gpt-4",
+            )
 
-        captured = capsys.readouterr()
-        assert "Budget Warning" not in captured.out
+        assert "Budget Warning" not in caplog.text
