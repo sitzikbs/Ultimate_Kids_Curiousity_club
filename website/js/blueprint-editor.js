@@ -24,8 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Initialize character modal
-    characterModal = new bootstrap.Modal(document.getElementById('characterModal'));
+    // Initialize character modal (wait for Bootstrap to load)
+    if (typeof bootstrap !== 'undefined') {
+        characterModal = new bootstrap.Modal(document.getElementById('characterModal'));
+    }
     
     // Load blueprint data
     loadBlueprint();
@@ -81,11 +83,11 @@ function updateShowHeader(show) {
 function populateProtagonistForm(protagonist) {
     document.getElementById('protagonist-name').value = protagonist.name || '';
     document.getElementById('protagonist-age').value = protagonist.age || '';
-    document.getElementById('protagonist-description').value = protagonist.physical_description || '';
-    document.getElementById('protagonist-backstory').value = protagonist.core_motivation || '';
+    document.getElementById('protagonist-description').value = protagonist.description || protagonist.physical_description || '';
+    document.getElementById('protagonist-backstory').value = protagonist.backstory || protagonist.core_motivation || '';
     
-    // Populate personality traits
-    populateListItems('protagonist-traits-list', protagonist.personality_traits || [], 'trait');
+    // Populate personality traits (handle both 'values' and 'personality_traits')
+    populateListItems('protagonist-traits-list', protagonist.values || protagonist.personality_traits || [], 'trait');
     
     // Populate catchphrases
     populateListItems('protagonist-catchphrases-list', protagonist.catchphrases || [], 'catchphrase');
@@ -106,14 +108,14 @@ function populateProtagonistForm(protagonist) {
  */
 function populateWorldForm(world) {
     document.getElementById('world-name').value = world.world_name || '';
-    document.getElementById('world-setting').value = world.description || '';
-    document.getElementById('world-atmosphere').value = world.era_or_style || '';
+    document.getElementById('world-setting').value = world.setting || world.description || '';
+    document.getElementById('world-atmosphere').value = world.atmosphere || world.era_or_style || '';
     
-    // Populate world rules
-    populateListItems('world-rules-list', world.world_rules || [], 'rule');
+    // Populate world rules (handle both 'rules' and 'world_rules')
+    populateListItems('world-rules-list', world.rules || world.world_rules || [], 'rule');
     
-    // Populate locations
-    populateLocations(world.key_locations || []);
+    // Populate locations (handle both 'locations' and 'key_locations')
+    populateLocations(world.locations || world.key_locations || []);
 }
 
 /**
@@ -212,9 +214,9 @@ async function saveProtagonist() {
         const protagonist = {
             name: document.getElementById('protagonist-name').value,
             age: parseInt(document.getElementById('protagonist-age').value),
-            physical_description: document.getElementById('protagonist-description').value,
-            core_motivation: document.getElementById('protagonist-backstory').value,
-            personality_traits: getListItems('protagonist-traits-list'),
+            description: document.getElementById('protagonist-description').value,
+            backstory: document.getElementById('protagonist-backstory').value,
+            values: getListItems('protagonist-traits-list'),
             catchphrases: getListItems('protagonist-catchphrases-list'),
             voice_config: {
                 provider: document.getElementById('protagonist-voice-provider').value || null,
@@ -253,11 +255,10 @@ async function saveWorld() {
     
     try {
         const world = {
-            world_name: document.getElementById('world-name').value,
-            description: document.getElementById('world-setting').value,
-            era_or_style: document.getElementById('world-atmosphere').value,
-            world_rules: getListItems('world-rules-list'),
-            key_locations: getLocations()
+            setting: document.getElementById('world-setting').value,
+            atmosphere: document.getElementById('world-atmosphere').value,
+            rules: getListItems('world-rules-list'),
+            locations: getLocations()
         };
         
         const response = await fetch(`${API_BASE_URL}/api/shows/${currentShowId}`, {
@@ -287,6 +288,11 @@ async function saveWorld() {
  * Show character modal for add/edit
  */
 function showCharacterModal(index = null) {
+    // Initialize modal if not already initialized
+    if (!characterModal && typeof bootstrap !== 'undefined') {
+        characterModal = new bootstrap.Modal(document.getElementById('characterModal'));
+    }
+    
     const form = document.getElementById('character-form');
     form.reset();
     document.getElementById('character-preview').innerHTML = '';
@@ -314,7 +320,9 @@ function showCharacterModal(index = null) {
         document.getElementById('character-index').value = '';
     }
     
-    characterModal.show();
+    if (characterModal) {
+        characterModal.show();
+    }
 }
 
 /**
@@ -355,7 +363,9 @@ async function saveCharacter() {
     populateCharactersList(blueprintData.characters);
     
     // Close modal
-    characterModal.hide();
+    if (characterModal) {
+        characterModal.hide();
+    }
 }
 
 /**
@@ -605,11 +615,20 @@ function showToast(message, type = 'info') {
     
     toastContainer.appendChild(toast);
     
-    const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
-    bsToast.show();
-    
-    // Remove toast from DOM after it's hidden
-    toast.addEventListener('hidden.bs.toast', () => {
-        toast.remove();
-    });
+    // Use Bootstrap Toast if available
+    if (typeof bootstrap !== 'undefined') {
+        const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
+        bsToast.show();
+        
+        // Remove toast from DOM after it's hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    } else {
+        // Fallback: just show the toast and remove after delay
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
 }
