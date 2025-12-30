@@ -12,10 +12,11 @@ dependencies = [
     "Pillow>=10.0.0",
     "pydub>=0.25.1",
     "jinja2>=3.1.0",
+    "pyyaml>=6.0.0",
+    "tenacity>=8.2.0",
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
     "websockets>=12.0",
-    "pyyaml>=6.0",
 ]
 authors = [
     { name = "Kids Curiosity Club Team" }
@@ -38,6 +39,12 @@ tts = [
     "elevenlabs>=0.2.0",
     "google-cloud-texttospeech>=2.16.0",
     "openai>=1.12.0",
+]
+llm = [
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+    "google-generativeai>=0.3.0",
+    "tiktoken>=0.6.0",
 ]
 
 [build-system]
