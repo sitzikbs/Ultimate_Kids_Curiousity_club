@@ -23,10 +23,11 @@ class Settings(BaseSettings):
     # API Keys (optional when using mocks)
     OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
     ELEVENLABS_API_KEY: str | None = None
 
     # Provider selection
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, mock
+    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, mock
     TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, mock
     IMAGE_PROVIDER: str = "flux"  # flux, dalle, mock
 
@@ -46,6 +47,7 @@ class Settings(BaseSettings):
     @field_validator(
         "OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
+        "GEMINI_API_KEY",
         "ELEVENLABS_API_KEY",
         mode="after",
     )
