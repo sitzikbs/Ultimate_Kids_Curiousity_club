@@ -246,7 +246,9 @@ async def main():
         print("=" * 80)
 
         print("\n💡 Next Steps:")
-        print("  1. Try with real OpenAI/Anthropic providers (requires API keys)")
+        print(
+            "  1. Try with real OpenAI/Anthropic/Gemini providers (requires API keys)"
+        )
         print("  2. Extend to WP2b: Segment & Script Generation")
         print("  3. Integrate with WP6: Orchestrator for full pipeline")
 

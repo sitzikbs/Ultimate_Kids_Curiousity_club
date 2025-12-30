@@ -137,6 +137,35 @@ class TestLLMProviderFactory:
             # Skip test if anthropic package not installed
             pytest.skip(f"Anthropic package not installed: {e}")
 
+    def test_create_gemini_provider_without_key(self):
+        """Test that Gemini provider requires API key."""
+        with pytest.raises(ValueError, match="API key is required"):
+            LLMProviderFactory.create_provider("gemini")
+
+    def test_create_gemini_provider_with_key(self):
+        """Test creating Gemini provider with API key."""
+        try:
+            provider = LLMProviderFactory.create_provider(
+                "gemini", api_key="test-key-123"
+            )
+            assert isinstance(provider, BaseLLMProvider)
+            assert provider.model_name == "gemini-1.5-pro"
+        except ImportError as e:
+            # Skip test if google-generativeai package not installed
+            pytest.skip(f"Google GenerativeAI package not installed: {e}")
+
+    def test_create_gemini_provider_custom_model(self):
+        """Test creating Gemini provider with custom model."""
+        try:
+            provider = LLMProviderFactory.create_provider(
+                "gemini", api_key="test-key-123", model="gemini-1.5-flash"
+            )
+            assert isinstance(provider, BaseLLMProvider)
+            assert provider.model_name == "gemini-1.5-flash"
+        except ImportError as e:
+            # Skip test if google-generativeai package not installed
+            pytest.skip(f"Google GenerativeAI package not installed: {e}")
+
     def test_invalid_provider_type(self):
         """Test that invalid provider type raises error."""
         with pytest.raises(ValueError, match="Invalid provider type"):
@@ -196,6 +225,30 @@ class TestAnthropicProviderIntegration:
 
         result = await provider.generate(
             "Write a one-sentence story about a dog.", max_tokens=50
+        )
+
+        assert result
+        assert len(result) > 0
+
+
+@pytest.mark.skipif(
+    not os.getenv("GEMINI_API_KEY"),
+    reason="Requires Gemini API key - set GEMINI_API_KEY to run",
+)
+class TestGeminiProviderIntegration:
+    """Integration tests for Gemini provider (requires API key)."""
+
+    @pytest.mark.asyncio
+    async def test_gemini_generate(self):
+        """Test Gemini generation."""
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            pytest.skip("GEMINI_API_KEY not set")
+
+        provider = LLMProviderFactory.create_provider("gemini", api_key=api_key)
+
+        result = await provider.generate(
+            "Write a one-sentence story about a bird.", max_tokens=50
         )
 
         assert result
