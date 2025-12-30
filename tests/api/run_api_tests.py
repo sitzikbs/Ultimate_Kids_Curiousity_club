@@ -26,7 +26,6 @@ from models.show import (
     ShowBlueprint,
     WorldDescription,
 )
-from models.story import StoryOutline
 from modules.episode_storage import EpisodeStorage
 from modules.show_blueprint_manager import ShowBlueprintManager
 
@@ -93,19 +92,19 @@ def test_health_endpoint(client):
 def test_shows_endpoints(client):
     """Test show endpoints."""
     print("  Testing show endpoints...")
-    
+
     # Test list shows
     response = client.get("/api/shows")
     assert response.status_code == 200
     print("    ✓ GET /api/shows passed")
-    
+
     # Test get show
     response = client.get("/api/shows/test_show")
     assert response.status_code == 200
     data = response.json()
     assert data["show"]["show_id"] == "test_show"
     print("    ✓ GET /api/shows/{show_id} passed")
-    
+
     # Test update show
     update_data = {
         "protagonist": {
@@ -126,19 +125,19 @@ def test_shows_endpoints(client):
 def test_episode_endpoints(client):
     """Test episode endpoints."""
     print("  Testing episode endpoints...")
-    
+
     # Test list episodes
     response = client.get("/api/shows/test_show/episodes")
     assert response.status_code == 200
     print("    ✓ GET /api/shows/{show_id}/episodes passed")
-    
+
     # Test get episode
     response = client.get("/api/episodes/test_episode")
     assert response.status_code == 200
     data = response.json()
     assert data["episode_id"] == "test_episode"
     print("    ✓ GET /api/episodes/{episode_id} passed")
-    
+
     # Test update outline (note: outline structure matches StoryOutline model)
     outline_data = {
         "outline": {
@@ -147,13 +146,15 @@ def test_episode_endpoints(client):
             "topic": "Test Topic",
             "title": "Test Episode",
             "educational_concept": "Test Concept",
-            "story_beats": []
+            "story_beats": [],
         }
     }
     response = client.put("/api/episodes/test_episode/outline", json=outline_data)
-    assert response.status_code == 200, f"Expected 200 but got {response.status_code}: {response.text}"
+    assert response.status_code == 200, (
+        f"Expected 200 but got {response.status_code}: {response.text}"
+    )
     print("    ✓ PUT /api/episodes/{episode_id}/outline passed")
-    
+
     # Test approve episode
     approval_data = {"approved": True, "feedback": "Looks great!"}
     response = client.post("/api/episodes/test_episode/approve", json=approval_data)
@@ -166,15 +167,15 @@ def test_episode_endpoints(client):
 def test_api_documentation(client):
     """Test API documentation endpoints."""
     print("  Testing API documentation...")
-    
+
     response = client.get("/docs")
     assert response.status_code == 200
     print("    ✓ GET /docs passed")
-    
+
     response = client.get("/redoc")
     assert response.status_code == 200
     print("    ✓ GET /redoc passed")
-    
+
     response = client.get("/openapi.json")
     assert response.status_code == 200
     data = response.json()
@@ -188,40 +189,39 @@ def main():
     print("API Tests - Standalone Execution")
     print("=" * 60)
     print()
-    
+
     # Create temporary directory for test data
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        
+
         # Override settings
         reset_settings()
         settings = get_settings()
         original_shows_dir = settings.SHOWS_DIR
         settings.SHOWS_DIR = temp_path
-        
+
         try:
             # Setup test data
             print("Setting up test data...")
             blueprint, episode = setup_test_data(temp_path)
             print("  ✓ Test data created")
             print()
-            
+
             # Create test client
             client = TestClient(app)
-            
+
             # Run tests
             print("Running API tests...")
             test_health_endpoint(client)
             test_shows_endpoints(client)
             test_episode_endpoints(client)
             test_api_documentation(client)
-            
+
             print()
             print("=" * 60)
             print("✓ All API tests passed!")
             print("=" * 60)
             return 0
-            
         except AssertionError as e:
             print()
             print("=" * 60)

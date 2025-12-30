@@ -1,8 +1,6 @@
 """Tests for WebSocket functionality."""
 
-import asyncio
 import json
-from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient

@@ -10,14 +10,12 @@ from api.main import app
 from config import get_settings
 from models.episode import Episode, PipelineStage
 from models.show import (
-    Character,
     ConceptsHistory,
     Protagonist,
     Show,
     ShowBlueprint,
     WorldDescription,
 )
-from models.story import StoryOutline
 from modules.episode_storage import EpisodeStorage
 from modules.show_blueprint_manager import ShowBlueprintManager
 
@@ -200,9 +198,7 @@ class TestEpisodeEndpoints:
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_list_episodes(
-        self, client: TestClient, sample_episode: Episode
-    ) -> None:
+    def test_list_episodes(self, client: TestClient, sample_episode: Episode) -> None:
         """Test listing episodes."""
         response = client.get("/api/shows/test_show/episodes")
         assert response.status_code == 200
@@ -227,9 +223,7 @@ class TestEpisodeEndpoints:
         response = client.get("/api/episodes/nonexistent")
         assert response.status_code == 404
 
-    def test_update_outline(
-        self, client: TestClient, sample_episode: Episode
-    ) -> None:
+    def test_update_outline(self, client: TestClient, sample_episode: Episode) -> None:
         """Test updating episode outline."""
         outline_data = {
             "outline": {
@@ -251,9 +245,7 @@ class TestEpisodeEndpoints:
         assert data["outline"]["hook"] == "Test hook"
         assert data["outline"]["discovery"] == "Test discovery"
 
-    def test_approve_episode(
-        self, client: TestClient, sample_episode: Episode
-    ) -> None:
+    def test_approve_episode(self, client: TestClient, sample_episode: Episode) -> None:
         """Test approving episode."""
         approval_data = {"approved": True, "feedback": "Looks great!"}
 
@@ -265,13 +257,13 @@ class TestEpisodeEndpoints:
         assert data["approval_feedback"] == "Looks great!"
         assert data["current_stage"] == "APPROVED"
 
-    def test_reject_episode(
-        self, client: TestClient, sample_episode: Episode
-    ) -> None:
+    def test_reject_episode(self, client: TestClient, sample_episode: Episode) -> None:
         """Test rejecting episode."""
         rejection_data = {"approved": False, "feedback": "Needs work"}
 
-        response = client.post("/api/episodes/test_episode/approve", json=rejection_data)
+        response = client.post(
+            "/api/episodes/test_episode/approve", json=rejection_data
+        )
         assert response.status_code == 200
 
         data = response.json()
