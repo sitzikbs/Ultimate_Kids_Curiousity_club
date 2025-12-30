@@ -107,7 +107,6 @@ function populateProtagonistForm(protagonist) {
  * Populate world form with data
  */
 function populateWorldForm(world) {
-    document.getElementById('world-name').value = world.world_name || '';
     document.getElementById('world-setting').value = world.setting || world.description || '';
     document.getElementById('world-atmosphere').value = world.atmosphere || world.era_or_style || '';
     
@@ -391,11 +390,13 @@ async function deleteCharacter(index) {
 
 /**
  * Save all characters (workaround since API doesn't have character-specific endpoint)
+ * NOTE: Character changes are currently only saved locally and not persisted to backend.
+ * A dedicated character management API endpoint needs to be implemented in WP9a.
  */
 async function saveAllCharacters() {
-    // For now, we'll just update the local state
-    // In a real implementation, you'd need a dedicated endpoint
-    showToast('Characters updated (local only - backend save not implemented)', 'warning');
+    // TODO: Implement proper backend save when character API endpoint is available
+    // For now, changes are only stored in local blueprintData state
+    showToast('Characters updated (local only - backend endpoint needed)', 'warning');
 }
 
 /**
