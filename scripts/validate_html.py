@@ -2,8 +2,8 @@
 """Simple HTML validation script for website pages."""
 
 import sys
-from pathlib import Path
 from html.parser import HTMLParser
+from pathlib import Path
 
 
 class HTMLValidator(HTMLParser):
@@ -137,7 +137,7 @@ def main() -> int:
             total_errors += len(errors)
             all_valid = False
 
-    print(f"\n📊 Summary:")
+    print("\n📊 Summary:")
     print(f"   Files checked: {len(html_files)}")
     print(f"   Errors: {total_errors}")
     print(f"   Warnings: {total_warnings}")

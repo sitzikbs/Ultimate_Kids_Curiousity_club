@@ -8,7 +8,6 @@ This example demonstrates:
 """
 
 import asyncio
-from pathlib import Path
 
 from models import (
     ConceptsHistory,
@@ -36,7 +35,10 @@ def create_example_show_blueprint() -> ShowBlueprint:
     protagonist = Protagonist(
         name="Oliver",
         age=10,
-        description="A curious young inventor with a passion for understanding how things work",
+        description=(
+            "A curious young inventor with a passion for "
+            "understanding how things work"
+        ),
         values=["curiosity", "creativity", "perseverance", "teamwork"],
         catchphrases=["Let's find out!", "Amazing!", "I wonder why..."],
         backstory="Oliver loves taking things apart and building new inventions",
@@ -158,7 +160,7 @@ async def demo_outline_service():
         concept=concept, show_blueprint=blueprint, episode_id="ep_volcano_001"
     )
 
-    print(f"\n✓ Generated outline:")
+    print("\n✓ Generated outline:")
     print(f"  Episode ID: {outline.episode_id}")
     print(f"  Title: {outline.title}")
     print(f"  Topic: {outline.topic}")
@@ -172,7 +174,7 @@ async def demo_outline_service():
         print(f"  Description: {beat.description}")
         print(f"  Educational Focus: {beat.educational_focus}")
         if beat.key_moments:
-            print(f"  Key Moments:")
+            print("  Key Moments:")
             for moment in beat.key_moments:
                 print(f"    - {moment}")
     print("-" * 80)
@@ -208,8 +210,8 @@ async def demo_full_pipeline():
         concept=concept, show_blueprint=blueprint, episode_id="ep_photosynthesis_001"
     )
 
-    print(f"✓ Outline generated")
-    print(f"\n📊 Results:")
+    print("✓ Outline generated")
+    print("\n📊 Results:")
     print(f"  Title: {outline.title}")
     print(f"  Educational Concept: {outline.educational_concept}")
     print(f"  Story Beats: {len(outline.story_beats)}")
