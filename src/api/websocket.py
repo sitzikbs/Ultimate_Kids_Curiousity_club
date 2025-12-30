@@ -138,7 +138,10 @@ class ConnectionManager:
                 try:
                     # Send ping
                     await connection.send_json(
-                        {"event_type": "ping", "timestamp": datetime.now(UTC).isoformat()}
+                        {
+                            "event_type": "ping",
+                            "timestamp": datetime.now(UTC).isoformat(),
+                        }
                     )
                 except Exception:
                     disconnected.append(connection)

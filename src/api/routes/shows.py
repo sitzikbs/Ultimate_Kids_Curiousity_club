@@ -1,7 +1,5 @@
 """API routes for show management."""
 
-from datetime import UTC, datetime
-
 from fastapi import APIRouter, HTTPException
 
 from api.models import ShowBlueprintResponse, ShowResponse, UpdateShowBlueprintRequest
