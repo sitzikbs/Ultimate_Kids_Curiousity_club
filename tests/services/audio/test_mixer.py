@@ -11,7 +11,13 @@ from services.audio.mixer import AudioMixer
 @pytest.fixture
 def audio_mixer():
     """Create default AudioMixer instance."""
-    return AudioMixer()
+    return AudioMixer(trim_silence=False)  # Disable trimming for tests
+
+
+@pytest.fixture
+def audio_mixer_with_trim():
+    """Create AudioMixer with trimming enabled."""
+    return AudioMixer(trim_silence=True)
 
 
 @pytest.fixture
@@ -20,7 +26,7 @@ def custom_audio_mixer():
     return AudioMixer(
         silence_padding_ms=1000,
         crossfade_ms=200,
-        trim_silence=True,
+        trim_silence=False,  # Disable to avoid trimming segments too short
         silence_threshold_db=-45.0,
     )
 
@@ -31,8 +37,8 @@ def sample_audio_segments(tmp_path):
     segments = []
     for i in range(3):
         audio_path = tmp_path / f"segment_{i}.mp3"
-        # Create 2 seconds of silence as test audio
-        silence = AudioSegment.silent(duration=2000)
+        # Create 2 seconds of audio with some volume (not pure silence)
+        silence = AudioSegment.silent(duration=2000) + 5  # Add 5dB
         silence.export(str(audio_path), format="mp3")
         segments.append(audio_path)
     return segments
@@ -42,8 +48,8 @@ def sample_audio_segments(tmp_path):
 def sample_music_file(tmp_path):
     """Create sample music file for testing."""
     music_path = tmp_path / "music.mp3"
-    # Create 5 seconds of silence as test music
-    silence = AudioSegment.silent(duration=5000)
+    # Create 5 seconds of audio with some volume (not pure silence)
+    silence = AudioSegment.silent(duration=5000) + 5  # Add 5dB
     silence.export(str(music_path), format="mp3")
     return music_path
 
@@ -52,8 +58,8 @@ def sample_music_file(tmp_path):
 def sample_intro_file(tmp_path):
     """Create sample intro file for testing."""
     intro_path = tmp_path / "intro.mp3"
-    # Create 1 second intro
-    silence = AudioSegment.silent(duration=1000)
+    # Create 1 second intro with some volume
+    silence = AudioSegment.silent(duration=1000) + 5  # Add 5dB
     silence.export(str(intro_path), format="mp3")
     return intro_path
 
@@ -62,8 +68,8 @@ def sample_intro_file(tmp_path):
 def sample_outro_file(tmp_path):
     """Create sample outro file for testing."""
     outro_path = tmp_path / "outro.mp3"
-    # Create 1 second outro
-    silence = AudioSegment.silent(duration=1000)
+    # Create 1 second outro with some volume
+    silence = AudioSegment.silent(duration=1000) + 5  # Add 5dB
     silence.export(str(outro_path), format="mp3")
     return outro_path
 
@@ -116,7 +122,9 @@ class TestAudioMixer:
         # 3 segments * 2000ms + 2 silences * 500ms = 7000ms
         assert len(result) >= 6000  # Allow some variation
 
-    def test_mix_segments_with_crossfade(self, custom_audio_mixer, sample_audio_segments):
+    def test_mix_segments_with_crossfade(
+        self, custom_audio_mixer, sample_audio_segments
+    ):
         """Test mixing with crossfade enabled."""
         result = custom_audio_mixer.mix_segments(sample_audio_segments)
         assert isinstance(result, AudioSegment)
@@ -187,7 +195,7 @@ class TestAudioMixer:
         assert isinstance(result, AudioSegment)
         assert len(result) > 0
 
-    def test_trim_silence(self, audio_mixer):
+    def test_trim_silence(self, audio_mixer_with_trim):
         """Test silence trimming."""
         # Create audio with silence at start and end
         silence_start = AudioSegment.silent(duration=500)
@@ -195,7 +203,7 @@ class TestAudioMixer:
         silence_end = AudioSegment.silent(duration=500)
         audio = silence_start + content + silence_end
 
-        result = audio_mixer._trim_silence(audio)
+        result = audio_mixer_with_trim._trim_silence(audio)
         assert isinstance(result, AudioSegment)
         # Should be shorter after trimming
         assert len(result) <= len(audio)

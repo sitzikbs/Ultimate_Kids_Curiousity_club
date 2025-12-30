@@ -1,6 +1,5 @@
 """Unit tests for MP3Exporter."""
 
-from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -100,18 +99,19 @@ class TestMP3Exporter:
         """Test audio export with album art."""
         output_path = tmp_path / "test_output.mp3"
         exporter.export(
-            sample_audio, output_path, metadata={"title": "Test"}, album_art_path=sample_album_art
+            sample_audio,
+            output_path,
+            metadata={"title": "Test"},
+            album_art_path=sample_album_art,
         )
 
         assert output_path.exists()
 
         # Verify album art is embedded
         audio_file = ID3(str(output_path))
-        assert "APIC" in audio_file
+        assert "APIC:Cover" in audio_file or "APIC" in audio_file
 
-    def test_export_with_generation_metadata(
-        self, exporter, sample_audio, tmp_path
-    ):
+    def test_export_with_generation_metadata(self, exporter, sample_audio, tmp_path):
         """Test export with generation metadata in comment."""
         metadata = {
             "title": "Test Episode",
@@ -127,9 +127,17 @@ class TestMP3Exporter:
         assert output_path.exists()
 
         # Verify comment contains generation metadata
-        audio_file = EasyID3(str(output_path))
-        assert "comment" in audio_file
-        comment = audio_file["comment"][0]
+        audio_file = ID3(str(output_path))
+        assert "COMM" in audio_file or "COMM:" in str(audio_file.keys())
+        # Get comment text
+        if "COMM" in audio_file:
+            comment = str(audio_file["COMM"].text[0])
+        else:
+            comment = ""
+            for key in audio_file.keys():
+                if key.startswith("COMM"):
+                    comment = str(audio_file[key].text[0])
+                    break
         assert "Generated" in comment
         assert "Cost" in comment
         assert "Models" in comment
@@ -142,9 +150,7 @@ class TestMP3Exporter:
         assert output_path.exists()
         assert output_path.parent.exists()
 
-    def test_add_album_art_nonexistent_file(
-        self, exporter, sample_audio, tmp_path
-    ):
+    def test_add_album_art_nonexistent_file(self, exporter, sample_audio, tmp_path):
         """Test adding album art with nonexistent file raises error."""
         output_path = tmp_path / "test_output.mp3"
         exporter.export(sample_audio, output_path)
@@ -161,9 +167,7 @@ class TestMP3Exporter:
         assert exporter._get_mime_type(Path("test.bmp")) == "image/bmp"
         assert exporter._get_mime_type(Path("test.unknown")) == "image/jpeg"  # default
 
-    def test_export_with_custom_bitrate(
-        self, custom_exporter, sample_audio, tmp_path
-    ):
+    def test_export_with_custom_bitrate(self, custom_exporter, sample_audio, tmp_path):
         """Test export with custom bitrate."""
         output_path = tmp_path / "test_output.mp3"
         custom_exporter.export(sample_audio, output_path)

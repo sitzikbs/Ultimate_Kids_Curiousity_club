@@ -28,9 +28,7 @@ class AudioMixer:
         self.trim_silence = trim_silence
         self.silence_threshold = silence_threshold_db
 
-    def mix_segments(
-        self, segment_paths: list[Path | str]
-    ) -> AudioSegment:
+    def mix_segments(self, segment_paths: list[Path | str]) -> AudioSegment:
         """Combine audio segments into a single track.
 
         Args:

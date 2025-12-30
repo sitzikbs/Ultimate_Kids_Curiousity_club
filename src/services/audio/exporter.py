@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import APIC, ID3
+from mutagen.id3 import APIC, COMM, ID3
 from pydub import AudioSegment
 
 logger = logging.getLogger(__name__)
@@ -105,8 +105,9 @@ class MP3Exporter:
             audio_file["date"] = str(datetime.now().year)
 
         # Add comment with generation metadata
+        comment_text = None
         if "comment" in metadata:
-            audio_file["comment"] = metadata["comment"]
+            comment_text = metadata["comment"]
         elif "generation_metadata" in metadata:
             # Format generation metadata as comment
             gen_meta = metadata["generation_metadata"]
@@ -118,14 +119,27 @@ class MP3Exporter:
             if "models" in gen_meta:
                 comment_parts.append(f"Models: {', '.join(gen_meta['models'])}")
             if comment_parts:
-                audio_file["comment"] = " | ".join(comment_parts)
+                comment_text = " | ".join(comment_parts)
 
         audio_file.save(str(audio_path))
+
+        # Add comment using standard ID3 interface (not EasyID3)
+        if comment_text:
+            try:
+                id3_file = ID3(str(audio_path))
+                id3_file["COMM"] = COMM(
+                    encoding=3,  # UTF-8
+                    lang="eng",
+                    desc="",
+                    text=comment_text,
+                )
+                id3_file.save(str(audio_path))
+            except Exception as e:
+                logger.warning(f"Failed to add comment: {e}")
+
         logger.info(f"Added ID3 tags to {audio_path}")
 
-    def _add_album_art(
-        self, audio_path: Path, album_art_path: Path | str
-    ) -> None:
+    def _add_album_art(self, audio_path: Path, album_art_path: Path | str) -> None:
         """Add album art to MP3 file.
 
         Args:

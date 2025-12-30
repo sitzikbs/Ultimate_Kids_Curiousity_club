@@ -80,8 +80,9 @@ class AudioEffects:
 
         # Change frame rate to adjust speed
         # Higher frame rate = faster playback
+        new_frame_rate = int(audio.frame_rate * speed_factor)
         sound_with_altered_frame_rate = audio._spawn(
-            audio.raw_data, overrides={"frame_rate": int(audio.frame_rate * speed_factor)}
+            audio.raw_data, overrides={"frame_rate": new_frame_rate}
         )
 
         # Convert back to original sample rate to maintain pitch
@@ -179,5 +180,7 @@ class AudioEffects:
         """
         change_in_db = target_db - audio.dBFS
         normalized = audio + change_in_db
-        logger.info(f"Normalized volume to {target_db} dB (change: {change_in_db:.2f} dB)")
+        logger.info(
+            f"Normalized volume to {target_db} dB (change: {change_in_db:.2f} dB)"
+        )
         return normalized
