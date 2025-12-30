@@ -35,6 +35,7 @@ class VocabularyLevel(str, Enum):
 # File Path Validators
 # ---------------------
 
+
 def validate_file_exists(path: str | Path) -> Path:
     """Validate that a file exists.
 
@@ -136,6 +137,7 @@ def validate_audio_path(path: str | Path | None) -> Path | None:
 # URL Validators
 # --------------
 
+
 def validate_url_format(url: str) -> bool:
     """Validate URL has proper format.
 
@@ -176,14 +178,26 @@ def validate_image_url(url: str) -> bool:
 
 # Basic profanity word list (simplified for demonstration)
 PROFANITY_LIST = {
-    "damn", "hell", "crap", "stupid", "dumb", "idiot", "shut up",
+    "damn",
+    "hell",
+    "crap",
+    "stupid",
+    "dumb",
+    "idiot",
+    "shut up",
     # Add more as needed
 }
 
 # Scary/violent keywords for age-appropriate filtering
 SCARY_KEYWORDS = [
-    "blood", "kill", "murder", "weapon",
-    "gun", "knife", "terror", "horror"
+    "blood",
+    "kill",
+    "murder",
+    "weapon",
+    "gun",
+    "knife",
+    "terror",
+    "horror",
 ]
 
 # Vowels for syllable counting
@@ -202,11 +216,11 @@ def check_profanity(text: str) -> bool:
     text_lower = text.lower()
 
     # Remove punctuation for better matching
-    text_normalized = re.sub(r'[^\w\s]', ' ', text_lower)
+    text_normalized = re.sub(r"[^\w\s]", " ", text_lower)
 
     for word in PROFANITY_LIST:
         # Check for whole word matches
-        pattern = r'\b' + re.escape(word) + r'\b'
+        pattern = r"\b" + re.escape(word) + r"\b"
         if re.search(pattern, text_normalized):
             return False
 
@@ -223,7 +237,7 @@ def count_syllables(word: str) -> int:
         Estimated syllable count
     """
     # Remove punctuation and convert to lowercase
-    word = re.sub(r'[^\w]', '', word).lower().strip()
+    word = re.sub(r"[^\w]", "", word).lower().strip()
     if not word:
         return 0
 
@@ -254,14 +268,14 @@ def estimate_reading_level(text: str) -> float:
         Estimated grade level (0-12, clamped)
     """
     # Count sentences
-    sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+    sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
     sentence_count = len(sentences)
 
     if sentence_count == 0:
         return 0.0
 
     # Count words (remove punctuation for accurate count)
-    words = [w for w in re.findall(r'\b\w+\b', text) if w]
+    words = [w for w in re.findall(r"\b\w+\b", text) if w]
     word_count = len(words)
 
     if word_count == 0:
@@ -304,7 +318,7 @@ def validate_age_appropriate(text: str, max_grade_level: float = 7.0) -> bool:
     # Check for scary/violent keywords (basic filter)
     text_lower = text.lower()
     for keyword in SCARY_KEYWORDS:
-        if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
+        if re.search(r"\b" + re.escape(keyword) + r"\b", text_lower):
             return False
 
     return True

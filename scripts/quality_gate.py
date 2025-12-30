@@ -12,20 +12,20 @@ from pathlib import Path
 
 def run_command(cmd: list[str], description: str) -> bool:
     """Run a command and return True if successful.
-    
+
     Args:
         cmd: Command to run as list of strings
         description: Description of what the command does
-        
+
     Returns:
         True if command succeeded, False otherwise
     """
     print(f"\n{'=' * 60}")
     print(f"🔍 {description}")
     print(f"{'=' * 60}")
-    
+
     result = subprocess.run(cmd, capture_output=False)
-    
+
     if result.returncode == 0:
         print(f"✅ {description} passed")
         return True
@@ -36,16 +36,16 @@ def run_command(cmd: list[str], description: str) -> bool:
 
 def main() -> int:
     """Run all quality checks.
-    
+
     Returns:
         0 if all checks pass, 1 if any check fails
     """
     project_root = Path(__file__).parent.parent
-    
+
     print("=" * 60)
     print("🚀 Running Quality Gate Checks")
     print("=" * 60)
-    
+
     checks = [
         (
             ["ruff", "check", "src/", "tests/"],
@@ -64,26 +64,26 @@ def main() -> int:
             "Running tests",
         ),
     ]
-    
+
     results = []
     for cmd, description in checks:
         success = run_command(cmd, description)
         results.append((description, success))
-    
+
     # Print summary
     print("\n" + "=" * 60)
     print("📊 QUALITY GATE SUMMARY")
     print("=" * 60)
-    
+
     all_passed = True
     for description, success in results:
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status}: {description}")
         if not success:
             all_passed = False
-    
+
     print("=" * 60)
-    
+
     if all_passed:
         print("🎉 All quality checks passed!")
         return 0

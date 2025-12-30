@@ -18,9 +18,7 @@ def generate_sitemap(base_url: str = "https://kidscuriosityclub.com") -> str:
         XML content as string
     """
     # Create root element
-    urlset = ET.Element(
-        "urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-    )
+    urlset = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
 
     # Static pages with priorities
     static_pages = [

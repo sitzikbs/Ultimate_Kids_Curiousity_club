@@ -78,7 +78,7 @@ def verify_episodes() -> bool:
             if episode_count > 0:
                 print(f"   ✅ {episode_count} episodes found")
             else:
-                print(f"   ⚠️  No episodes in file")
+                print("   ⚠️  No episodes in file")
 
     return all_valid
 
@@ -89,7 +89,10 @@ def verify_html_pages() -> bool:
 
     pages = [
         ("Homepage", website_dir / "index.html"),
-        ("Hannah's Show", website_dir / "pages" / "shows" / "hannah-the-historian.html"),
+        (
+            "Hannah's Show",
+            website_dir / "pages" / "shows" / "hannah-the-historian.html",
+        ),
         ("Oliver's Show", website_dir / "pages" / "shows" / "oliver-the-inventor.html"),
         ("Subscribe Page", website_dir / "pages" / "subscribe.html"),
     ]

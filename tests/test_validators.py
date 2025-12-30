@@ -1,6 +1,5 @@
 """Test suite for validation utilities."""
 
-
 import pytest
 
 from utils.validators import (
