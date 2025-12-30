@@ -75,7 +75,6 @@ class AudioMixer:
         music_path: Path | str,
         volume_db: float = -20.0,
         fade_duration_ms: int = 2000,
-        duck_during_speech: bool = True,
     ) -> AudioSegment:
         """Add background music to audio with ducking and fading.
 
@@ -83,14 +82,18 @@ class AudioMixer:
             audio: Main audio segment (dialogue/speech)
             music_path: Path to background music file
             volume_db: Volume reduction in dB (negative = quieter, default -20)
+                This acts as simple ducking - music plays at reduced volume under speech
             fade_duration_ms: Duration of fade in/out in milliseconds (default 2000)
-            duck_during_speech: Whether to duck music under speech (default True)
 
         Returns:
             Audio with background music overlaid
 
         Raises:
             ValueError: If music file doesn't exist
+
+        Note:
+            The volume_db parameter provides simple global ducking. For more advanced
+            ducking that detects speech regions, use AudioEffects.duck_audio().
         """
         music_path = Path(music_path)
         if not music_path.exists():

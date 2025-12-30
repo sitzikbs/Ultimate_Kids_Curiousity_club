@@ -31,16 +31,34 @@ class LoudnessNormalizer:
 
         Returns:
             Normalized audio segment
+
+        Note:
+            If the audio sample rate differs from the configured sample rate,
+            it will be resampled before normalization and then restored.
         """
+        # Check if sample rate matches
+        original_sample_rate = audio.frame_rate
+        if original_sample_rate != self.sample_rate:
+            logger.info(
+                f"Resampling audio from {original_sample_rate}Hz "
+                f"to {self.sample_rate}Hz for loudness measurement"
+            )
+            # Resample to the meter's sample rate
+            audio_for_measurement = audio.set_frame_rate(self.sample_rate)
+        else:
+            audio_for_measurement = audio
+
         # Convert to numpy array for loudness measurement
-        samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+        samples = np.array(
+            audio_for_measurement.get_array_of_samples(), dtype=np.float32
+        )
 
         # Handle stereo audio
-        if audio.channels == 2:
+        if audio_for_measurement.channels == 2:
             samples = samples.reshape((-1, 2))
 
         # Normalize to -1 to 1 range
-        samples = samples / (2 ** (audio.sample_width * 8 - 1))
+        samples = samples / (2 ** (audio_for_measurement.sample_width * 8 - 1))
 
         # Measure loudness
         try:
@@ -73,7 +91,15 @@ class LoudnessNormalizer:
 
         Returns:
             Loudness in LUFS
+
+        Note:
+            If the audio sample rate differs from the configured sample rate,
+            it will be resampled before measurement.
         """
+        # Check if sample rate matches
+        if audio.frame_rate != self.sample_rate:
+            audio = audio.set_frame_rate(self.sample_rate)
+
         samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
 
         # Handle stereo audio
