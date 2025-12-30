@@ -116,24 +116,28 @@ class SegmentGenerationService:
                     )
 
                 logger.info(
-                    f"Generated {len(segments)} segments for {len(outline.story_beats)} beats"
+                    f"Generated {len(segments)} segments for "
+                    f"{len(outline.story_beats)} beats"
                 )
                 return segments
 
             except ValueError as e:
                 if attempt < max_retries - 1:
                     logger.warning(
-                        f"Segment generation attempt {attempt + 1} failed: {e}. Retrying..."
+                        f"Segment generation attempt {attempt + 1} failed: "
+                        f"{e}. Retrying..."
                     )
                     # Adjust prompt for retry with error feedback
+                    prev_response = response if "response" in locals() else ""
                     enhanced_prompt = self.parser.create_retry_prompt(
-                        enhanced_prompt, str(e), response if "response" in locals() else ""
+                        enhanced_prompt, str(e), prev_response
                     )
                     # Reduce temperature for more deterministic output
                     temperature = max(0.3, temperature - 0.2)
                 else:
                     logger.error(
-                        f"Segment generation failed after {max_retries} attempts: {e}"
+                        f"Segment generation failed after {max_retries} "
+                        f"attempts: {e}"
                     )
                     raise
 

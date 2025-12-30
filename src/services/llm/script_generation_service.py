@@ -133,23 +133,28 @@ class ScriptGenerationService:
             except ValueError as e:
                 if attempt < max_retries - 1:
                     logger.warning(
-                        f"Script generation attempt {attempt + 1} failed: {e}. Retrying..."
+                        f"Script generation attempt {attempt + 1} failed: "
+                        f"{e}. Retrying..."
                     )
                     # Adjust prompt for retry with error feedback
+                    prev_response = response if "response" in locals() else ""
                     enhanced_prompt = self.parser.create_retry_prompt(
-                        enhanced_prompt, str(e), response if "response" in locals() else ""
+                        enhanced_prompt, str(e), prev_response
                     )
                     # Reduce temperature for more deterministic output
                     temperature = max(0.3, temperature - 0.2)
                 else:
                     logger.error(
-                        f"Script generation failed after {max_retries} attempts: {e}"
+                        f"Script generation failed after {max_retries} "
+                        f"attempts: {e}"
                     )
                     raise
 
         raise ValueError(f"Failed to generate scripts after {max_retries} attempts")
 
-    def _estimate_durations(self, script_blocks: list[ScriptBlock]) -> list[ScriptBlock]:
+    def _estimate_durations(
+        self, script_blocks: list[ScriptBlock]
+    ) -> list[ScriptBlock]:
         """Estimate duration for script blocks that don't have it.
 
         Args:
@@ -196,7 +201,10 @@ class ScriptGenerationService:
             current_index += num_blocks
 
             # Create script
-            script = Script(segment_number=segment.segment_number, script_blocks=segment_blocks)
+            script = Script(
+                segment_number=segment.segment_number,
+                script_blocks=segment_blocks,
+            )
             scripts.append(script)
 
         return scripts
