@@ -98,6 +98,10 @@ class LoudnessNormalizer:
         """
         # Check if sample rate matches
         if audio.frame_rate != self.sample_rate:
+            logger.info(
+                f"Resampling audio from {audio.frame_rate}Hz "
+                f"to {self.sample_rate}Hz for loudness measurement"
+            )
             audio = audio.set_frame_rate(self.sample_rate)
 
         samples = np.array(audio.get_array_of_samples(), dtype=np.float32)

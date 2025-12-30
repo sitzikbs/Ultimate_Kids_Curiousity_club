@@ -6,6 +6,14 @@ from pydub import AudioSegment
 from services.audio.effects import AudioEffects
 
 
+def is_valid_dbfs(dbfs: float) -> bool:
+    """Check if dBFS value is valid (not -inf or inf).
+
+    Helper function for testing audio with potential silence.
+    """
+    return dbfs != float("-inf") and dbfs != float("inf")
+
+
 @pytest.fixture
 def effects():
     """Create AudioEffects instance."""
@@ -111,8 +119,7 @@ class TestAudioEffects:
         result = effects.duck_audio(background, foreground, duck_db=-15.0)
         assert isinstance(result, AudioSegment)
         # Should be quieter than original background
-        # Handle -inf case for silent audio
-        if background.dBFS != float("-inf"):
+        if is_valid_dbfs(background.dBFS):
             assert result.dBFS < background.dBFS
 
     def test_add_silence_end(self, effects, sample_audio):
@@ -137,6 +144,5 @@ class TestAudioEffects:
         result = effects.normalize_volume(sample_audio, target_db=-20.0)
         assert isinstance(result, AudioSegment)
         # Volume should be close to target
-        # Handle -inf case for silent audio
-        if result.dBFS != float("-inf") and result.dBFS != float("inf"):
+        if is_valid_dbfs(result.dBFS):
             assert abs(result.dBFS - (-20.0)) < 1.0

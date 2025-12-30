@@ -10,6 +10,28 @@ from pydub import AudioSegment
 from services.audio.exporter import MP3Exporter
 
 
+def get_comment_from_id3(audio_path: Path) -> str:
+    """Extract comment text from ID3 tags.
+
+    Helper function to handle the complexity of comment extraction.
+
+    Args:
+        audio_path: Path to MP3 file
+
+    Returns:
+        Comment text, or empty string if not found
+    """
+    audio_file = ID3(str(audio_path))
+    # Try direct COMM key first
+    if "COMM" in audio_file:
+        return str(audio_file["COMM"].text[0])
+    # Otherwise search for COMM: prefixed keys
+    for key in audio_file.keys():
+        if key.startswith("COMM"):
+            return str(audio_file[key].text[0])
+    return ""
+
+
 @pytest.fixture
 def exporter():
     """Create default MP3Exporter instance."""
@@ -127,17 +149,8 @@ class TestMP3Exporter:
         assert output_path.exists()
 
         # Verify comment contains generation metadata
-        audio_file = ID3(str(output_path))
-        assert "COMM" in audio_file or "COMM:" in str(audio_file.keys())
-        # Get comment text
-        if "COMM" in audio_file:
-            comment = str(audio_file["COMM"].text[0])
-        else:
-            comment = ""
-            for key in audio_file.keys():
-                if key.startswith("COMM"):
-                    comment = str(audio_file[key].text[0])
-                    break
+        comment = get_comment_from_id3(output_path)
+        assert comment  # Comment should not be empty
         assert "Generated" in comment
         assert "Cost" in comment
         assert "Models" in comment
