@@ -22,9 +22,7 @@ class APISettings(BaseSettings):
     CORS_CREDENTIALS: bool = Field(
         default=True, description="Allow credentials in CORS"
     )
-    CORS_METHODS: list[str] = Field(
-        default=["*"], description="Allowed HTTP methods"
-    )
+    CORS_METHODS: list[str] = Field(default=["*"], description="Allowed HTTP methods")
     CORS_HEADERS: list[str] = Field(default=["*"], description="Allowed HTTP headers")
 
     # Static files configuration

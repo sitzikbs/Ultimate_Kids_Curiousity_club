@@ -145,8 +145,7 @@ class ScriptGenerationService:
                     temperature = max(0.3, temperature - 0.2)
                 else:
                     logger.error(
-                        f"Script generation failed after {max_retries} "
-                        f"attempts: {e}"
+                        f"Script generation failed after {max_retries} attempts: {e}"
                     )
                     raise
 
@@ -229,9 +228,7 @@ class ScriptGenerationService:
             raise ValueError("No scripts generated")
 
         if len(scripts) != len(segments):
-            raise ValueError(
-                f"Expected {len(segments)} scripts, got {len(scripts)}"
-            )
+            raise ValueError(f"Expected {len(segments)} scripts, got {len(scripts)}")
 
         # Validate each script
         for i, script in enumerate(scripts, 1):
@@ -240,7 +237,8 @@ class ScriptGenerationService:
 
             # Check that at least one narrator block exists
             narrator_blocks = [
-                b for b in script.script_blocks
+                b
+                for b in script.script_blocks
                 if b.speaker.upper() in ("NARRATOR", "NARRATION")
             ]
 

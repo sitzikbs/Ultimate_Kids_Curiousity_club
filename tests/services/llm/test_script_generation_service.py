@@ -71,9 +71,7 @@ class TestScriptGenerationService:
     """Tests for ScriptGenerationService."""
 
     @pytest.mark.asyncio
-    async def test_generate_scripts_basic(
-        self, sample_segments, mock_show_blueprint
-    ):
+    async def test_generate_scripts_basic(self, sample_segments, mock_show_blueprint):
         """Test basic script generation."""
         provider = MockLLMProvider()
         enhancer = PromptEnhancer()
@@ -317,9 +315,7 @@ class TestScriptGenerationServiceIntegration:
         assert "script" in report["stage_breakdown"]
 
     @pytest.mark.asyncio
-    async def test_script_total_duration(
-        self, sample_segments, mock_show_blueprint
-    ):
+    async def test_script_total_duration(self, sample_segments, mock_show_blueprint):
         """Test that scripts have reasonable total duration."""
         provider = MockLLMProvider()
         service = ScriptGenerationService(provider)

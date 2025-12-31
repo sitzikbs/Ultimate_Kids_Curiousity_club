@@ -119,9 +119,7 @@ class LLMResponseParser:
             if isinstance(data, list):
                 # Handle list of models - return type is list[T]
                 # Type checker can't infer this without runtime inspection
-                validated: list[T] = [
-                    model_class.model_validate(item) for item in data
-                ]
+                validated: list[T] = [model_class.model_validate(item) for item in data]
                 return validated
             else:
                 return model_class.model_validate(data)
@@ -131,9 +129,7 @@ class LLMResponseParser:
                 f"Validation failed for {model_class.__name__}: {e}"
             ) from e
 
-    def parse_and_validate(
-        self, response: str, model_class: type[T]
-    ) -> T | list[T]:
+    def parse_and_validate(self, response: str, model_class: type[T]) -> T | list[T]:
         """Parse JSON response and validate against Pydantic model.
 
         Args:

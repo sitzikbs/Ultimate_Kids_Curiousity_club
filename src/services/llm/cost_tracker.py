@@ -72,7 +72,7 @@ class CostTracker:
                 logger.warning(
                     f"Budget Warning: ${total_cost:.4f} of "
                     f"${self.budget_limit:.2f} used "
-                    f"({(total_cost/self.budget_limit)*100:.1f}%). "
+                    f"({(total_cost / self.budget_limit) * 100:.1f}%). "
                     f"Remaining: ${remaining:.4f}"
                 )
 

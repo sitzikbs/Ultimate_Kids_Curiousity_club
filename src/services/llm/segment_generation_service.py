@@ -136,8 +136,7 @@ class SegmentGenerationService:
                     temperature = max(0.3, temperature - 0.2)
                 else:
                     logger.error(
-                        f"Segment generation failed after {max_retries} "
-                        f"attempts: {e}"
+                        f"Segment generation failed after {max_retries} attempts: {e}"
                     )
                     raise
 
@@ -180,8 +179,6 @@ class SegmentGenerationService:
         # Check segment numbering is sequential
         segment_numbers = [seg.segment_number for seg in segments]
         if segment_numbers != list(range(1, len(segments) + 1)):
-            logger.warning(
-                "Segment numbers are not sequential, renumbering segments"
-            )
+            logger.warning("Segment numbers are not sequential, renumbering segments")
             for i, segment in enumerate(segments, 1):
                 segment.segment_number = i

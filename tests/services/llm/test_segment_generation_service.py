@@ -76,9 +76,7 @@ class TestSegmentGenerationService:
     """Tests for SegmentGenerationService."""
 
     @pytest.mark.asyncio
-    async def test_generate_segments_basic(
-        self, sample_outline, mock_show_blueprint
-    ):
+    async def test_generate_segments_basic(self, sample_outline, mock_show_blueprint):
         """Test basic segment generation."""
         provider = MockLLMProvider()
         enhancer = PromptEnhancer()
