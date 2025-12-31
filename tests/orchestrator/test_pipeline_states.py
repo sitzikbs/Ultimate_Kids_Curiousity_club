@@ -175,7 +175,7 @@ class TestGenerateEpisode:
         """Test that generate_episode creates and saves new episode."""
         result = await orchestrator.generate_episode(
             show_id="test_show",
-            topic="testing",
+            topic="testing"
             
         )
 
@@ -192,7 +192,7 @@ class TestGenerateEpisode:
         """Test that episode ID is generated from topic."""
         result = await orchestrator.generate_episode(
             show_id="test_show",
-            topic="how rockets work",
+            topic="how rockets work"
             
         )
 
@@ -206,7 +206,7 @@ class TestGenerateEpisode:
         """Test that episode title is generated from topic."""
         result = await orchestrator.generate_episode(
             show_id="test_show",
-            topic="how rockets work",
+            topic="how rockets work"
             
         )
 
@@ -217,12 +217,12 @@ class TestGenerateEpisode:
         self,
         orchestrator,
         mock_ideation_service,
-        mock_outline_service,
+        mock_outline_service
     ):
         """Test that generate_episode calls ideation and outline services."""
         await orchestrator.generate_episode(
             show_id="test_show",
-            topic="testing",
+            topic="testing"
             
         )
 
@@ -240,7 +240,7 @@ class TestShowBlueprintIntegration:
         """Test that Show Blueprint is loaded at pipeline start."""
         await orchestrator.generate_episode(
             show_id="test_show",
-            topic="testing",
+            topic="testing"
         )
 
         mock_show_manager.load_show.assert_called_with("test_show")
@@ -250,12 +250,12 @@ class TestShowBlueprintIntegration:
         self,
         orchestrator,
         mock_ideation_service,
-        test_show_blueprint,
+        test_show_blueprint
     ):
         """Test that Show Blueprint is passed to ideation service."""
         await orchestrator.generate_episode(
             show_id="test_show",
-            topic="testing",
+            topic="testing"
         )
 
         call_args = mock_ideation_service.generate_concept.call_args
@@ -266,12 +266,12 @@ class TestShowBlueprintIntegration:
         self,
         orchestrator,
         mock_outline_service,
-        test_show_blueprint,
+        test_show_blueprint
     ):
         """Test that Show Blueprint is passed to outline service."""
         await orchestrator.generate_episode(
             show_id="test_show",
-            topic="testing",
+            topic="testing"
         )
 
         call_args = mock_outline_service.generate_outline.call_args
