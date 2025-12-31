@@ -130,7 +130,6 @@ class PipelineOrchestrator:
         self,
         show_id: str,
         topic: str,
-        duration_minutes: int = 15,
     ) -> Episode:
         """Execute full pipeline for new episode up to approval gate.
 
@@ -139,7 +138,6 @@ class PipelineOrchestrator:
         Args:
             show_id: Show identifier
             topic: Episode topic
-            duration_minutes: Target duration in minutes
 
         Returns:
             Episode at AWAITING_APPROVAL stage
@@ -246,13 +244,9 @@ class PipelineOrchestrator:
         )
 
         # Update episode
+        episode.concept = concept
         episode.current_stage = PipelineStage.IDEATION
         episode.updated_at = datetime.now(UTC)
-
-        # Store concept in approval_feedback field temporarily
-        # (until we add a proper concept field to Episode model)
-        if not episode.approval_feedback:
-            episode.approval_feedback = concept
 
         self.storage.save_episode(episode)
 
@@ -282,8 +276,8 @@ class PipelineOrchestrator:
 
         logger.info(f"Executing outlining for episode {episode.episode_id}")
 
-        # Get concept from approval_feedback field
-        concept = episode.approval_feedback or episode.topic
+        # Get concept from concept field
+        concept = episode.concept or episode.topic
 
         # Generate outline
         outline = await self.outline.generate_outline(

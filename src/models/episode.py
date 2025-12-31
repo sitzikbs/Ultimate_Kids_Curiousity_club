@@ -32,6 +32,9 @@ class Episode(BaseModel):
     show_id: str = Field(..., description="Show this episode belongs to")
     topic: str = Field(..., description="Topic of the episode")
     title: str = Field(..., description="Title of the episode")
+    concept: str | None = Field(
+        default=None, description="Story concept from ideation stage"
+    )
     outline: StoryOutline | None = Field(
         default=None, description="Story outline for the episode"
     )

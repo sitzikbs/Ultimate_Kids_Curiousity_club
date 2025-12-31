@@ -104,7 +104,7 @@ class TestPipelineExecution:
         result = await orchestrator.execute_stage(test_episode)
 
         assert result.current_stage == PipelineStage.IDEATION
-        assert result.approval_feedback is not None  # Concept stored here
+        assert result.concept is not None  # Concept stored in concept field
 
     @pytest.mark.asyncio
     async def test_execute_outlining_from_ideation(
@@ -112,7 +112,7 @@ class TestPipelineExecution:
     ):
         """Test executing outlining stage from IDEATION."""
         test_episode.current_stage = PipelineStage.IDEATION
-        test_episode.approval_feedback = "Test concept"
+        test_episode.concept = "Test concept"
 
         # Save episode
         orchestrator.storage.save_episode(test_episode)
@@ -176,7 +176,7 @@ class TestGenerateEpisode:
         result = await orchestrator.generate_episode(
             show_id="test_show",
             topic="testing",
-            duration_minutes=15,
+            
         )
 
         assert result.episode_id is not None
@@ -193,7 +193,7 @@ class TestGenerateEpisode:
         result = await orchestrator.generate_episode(
             show_id="test_show",
             topic="how rockets work",
-            duration_minutes=10,
+            
         )
 
         assert "how_rockets_work" in result.episode_id
@@ -207,7 +207,7 @@ class TestGenerateEpisode:
         result = await orchestrator.generate_episode(
             show_id="test_show",
             topic="how rockets work",
-            duration_minutes=10,
+            
         )
 
         assert result.title == "How Rockets Work"
@@ -223,7 +223,7 @@ class TestGenerateEpisode:
         await orchestrator.generate_episode(
             show_id="test_show",
             topic="testing",
-            duration_minutes=15,
+            
         )
 
         mock_ideation_service.generate_concept.assert_called_once()
