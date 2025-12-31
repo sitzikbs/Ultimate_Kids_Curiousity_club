@@ -175,6 +175,10 @@ async def test_cost_tracking_accuracy(integration_show_blueprint):
     assert cost_tracker.get_episode_cost() >= 0
     assert cost_tracker.get_total_tokens() > 0
 
+    # Verify scripts were generated
+    assert scripts
+    assert len(scripts) == len(segments)
+
     # Check breakdown
     stage_breakdown = cost_tracker.get_stage_breakdown()
     assert "segment" in stage_breakdown

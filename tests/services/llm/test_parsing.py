@@ -55,7 +55,8 @@ Done!"""
         response = '[{"name": "test1", "value": 1}, {"name": "test2", "value": 2}]'
 
         result = parser.extract_json(response)
-        assert result == '[{"name": "test1", "value": 1}, {"name": "test2", "value": 2}]'
+        expected = '[{"name": "test1", "value": 1}, {"name": "test2", "value": 2}]'
+        assert result == expected
 
     def test_extract_json_embedded_in_text(self):
         """Test extracting JSON embedded in text."""
@@ -191,9 +192,9 @@ Done!"""
         """Test extracting JSON with extra whitespace."""
         parser = LLMResponseParser()
         response = """
-        
+
         {"name": "test", "value": 42}
-        
+
         """
 
         result = parser.extract_json(response)

@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-import pytest
-
 from services.llm.cost_tracker import CostTracker, LLMCallMetrics
 
 
@@ -214,7 +212,7 @@ class TestCostTracker:
     def test_budget_warning(self, caplog):
         """Test budget warning when approaching limit."""
         import logging
-        
+
         tracker = CostTracker(budget_limit=1.0)
 
         # Log call that exceeds 80% of budget
@@ -242,7 +240,7 @@ class TestCostTracker:
     def test_no_budget_warning_below_threshold(self, caplog):
         """Test no warning when below threshold."""
         import logging
-        
+
         tracker = CostTracker(budget_limit=1.0)
 
         # Log call under 80% of budget
