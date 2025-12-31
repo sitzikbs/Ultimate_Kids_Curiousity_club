@@ -143,7 +143,7 @@ def cost_tracker():
     Yields a cost tracker that monitors API costs and enforces budget limits.
     Prints a summary at the end of the test session.
     """
-    from tests.utils.cost_tracker import CostTracker
+    from tests.test_helpers.cost_tracker import CostTracker
 
     tracker = CostTracker()
     tracker.set_budget_limit(10.0)  # $10 budget per test session
