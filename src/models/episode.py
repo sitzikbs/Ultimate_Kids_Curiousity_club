@@ -38,6 +38,9 @@ class Episode(BaseModel):
     segments: list[StorySegment] = Field(
         default_factory=list, description="Story segments"
     )
+    concept: str | None = Field(
+        default=None, description="Generated story concept from ideation"
+    )
     scripts: list[Script] = Field(
         default_factory=list, description="Scripts for each segment"
     )
