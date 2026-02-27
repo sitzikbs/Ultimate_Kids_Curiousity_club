@@ -98,6 +98,7 @@ class PipelineOrchestrator:
             episode_storage: Persists episode state
             event_callback: Optional callback for pipeline events
         """
+        # TODO(WP6a): Integrate prompt_enhancer into stage execution
         self.prompt_enhancer = prompt_enhancer
         self.ideation = ideation_service
         self.outline = outline_service
@@ -412,8 +413,8 @@ class PipelineOrchestrator:
                 )
                 segment_audio_paths.append(result.audio_path)
 
-        # Store paths for the mixing stage
-        episode._audio_segment_paths = [str(p) for p in segment_audio_paths]  # type: ignore[attr-defined]
+        # Store paths for the mixing stage (proper model field for persistence)
+        episode.audio_segment_paths = [str(p) for p in segment_audio_paths]
         episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
         self.storage.save_episode(episode)
         await self._emit_event(
@@ -439,7 +440,7 @@ class PipelineOrchestrator:
         await self._emit_event("stage_started", episode)
 
         # Collect audio segment paths
-        segment_paths: list[str] = getattr(episode, "_audio_segment_paths", [])
+        segment_paths: list[str] = episode.audio_segment_paths
         if not segment_paths:
             raise ValueError(
                 f"Episode {episode.episode_id} has no audio segments for mixing"
