@@ -14,7 +14,7 @@ import logging
 import re
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, NoReturn
 
 from models.episode import Episode, PipelineStage
 from models.show import ShowBlueprint
@@ -33,35 +33,35 @@ from utils.errors import ApprovalRequiredError
 logger = logging.getLogger(__name__)
 
 # Valid state transitions map
-VALID_TRANSITIONS: dict[PipelineStage, list[PipelineStage]] = {
-    PipelineStage.PENDING: [PipelineStage.IDEATION],
-    PipelineStage.IDEATION: [PipelineStage.OUTLINING, PipelineStage.FAILED],
-    PipelineStage.OUTLINING: [PipelineStage.AWAITING_APPROVAL, PipelineStage.FAILED],
-    PipelineStage.AWAITING_APPROVAL: [
+VALID_TRANSITIONS: dict[PipelineStage, set[PipelineStage]] = {
+    PipelineStage.PENDING: {PipelineStage.IDEATION},
+    PipelineStage.IDEATION: {PipelineStage.OUTLINING, PipelineStage.FAILED},
+    PipelineStage.OUTLINING: {PipelineStage.AWAITING_APPROVAL, PipelineStage.FAILED},
+    PipelineStage.AWAITING_APPROVAL: {
         PipelineStage.APPROVED,
         PipelineStage.REJECTED,
         PipelineStage.FAILED,
-    ],
-    PipelineStage.APPROVED: [
+    },
+    PipelineStage.APPROVED: {
         PipelineStage.SEGMENT_GENERATION,
         PipelineStage.FAILED,
-    ],
-    PipelineStage.SEGMENT_GENERATION: [
+    },
+    PipelineStage.SEGMENT_GENERATION: {
         PipelineStage.SCRIPT_GENERATION,
         PipelineStage.FAILED,
-    ],
-    PipelineStage.SCRIPT_GENERATION: [
+    },
+    PipelineStage.SCRIPT_GENERATION: {
         PipelineStage.AUDIO_SYNTHESIS,
         PipelineStage.FAILED,
-    ],
-    PipelineStage.AUDIO_SYNTHESIS: [
+    },
+    PipelineStage.AUDIO_SYNTHESIS: {
         PipelineStage.AUDIO_MIXING,
         PipelineStage.FAILED,
-    ],
-    PipelineStage.AUDIO_MIXING: [PipelineStage.COMPLETE, PipelineStage.FAILED],
-    PipelineStage.REJECTED: [PipelineStage.IDEATION],
-    PipelineStage.COMPLETE: [],
-    PipelineStage.FAILED: [PipelineStage.PENDING],
+    },
+    PipelineStage.AUDIO_MIXING: {PipelineStage.COMPLETE, PipelineStage.FAILED},
+    PipelineStage.REJECTED: {PipelineStage.IDEATION},
+    PipelineStage.COMPLETE: set(),
+    PipelineStage.FAILED: {PipelineStage.PENDING},
 }
 
 
@@ -121,7 +121,7 @@ class PipelineOrchestrator:
         show_id: str,
         topic: str,
         title: str | None = None,
-    ) -> Episode:
+    ) -> NoReturn:
         """Start generating a new episode.
 
         Creates the episode, runs IDEATION → OUTLINING, then pauses at
@@ -131,10 +131,6 @@ class PipelineOrchestrator:
             show_id: Identifier of the show
             topic: Topic / educational concept for the episode
             title: Optional explicit title; auto-generated if omitted
-
-        Returns:
-            Episode at AWAITING_APPROVAL stage (only reachable if caller
-            catches the ApprovalRequiredError).
 
         Raises:
             FileNotFoundError: If show_id does not exist
@@ -261,6 +257,107 @@ class PipelineOrchestrator:
 
         return episode
 
+    async def retry_failed_episode(
+        self,
+        show_id: str,
+        episode_id: str,
+    ) -> NoReturn:
+        """Reset a FAILED episode to PENDING and re-run from the start.
+
+        Transitions FAILED → PENDING, then delegates to ``generate_episode``
+        which will run IDEATION → OUTLINING → AWAITING_APPROVAL.
+
+        Args:
+            show_id: Show identifier
+            episode_id: Episode identifier
+
+        Raises:
+            ValueError: If episode is not in FAILED stage
+            ApprovalRequiredError: Always raised at the approval gate
+        """
+        episode = self.storage.load_episode(show_id, episode_id)
+
+        if episode.current_stage != PipelineStage.FAILED:
+            raise ValueError(
+                f"Episode {episode_id} is not in FAILED stage "
+                f"(current: {episode.current_stage.value})"
+            )
+
+        episode = self._transition(episode, PipelineStage.PENDING)
+        self.storage.save_episode(episode)
+        logger.info("Reset FAILED episode %s to PENDING", episode_id)
+
+        # Re-use generate_episode logic on the existing episode
+        show_blueprint = self.show_manager.load_show(show_id)
+
+        try:
+            episode = await self._execute_ideation(episode, show_blueprint)
+            episode = await self._execute_outlining(episode, show_blueprint)
+        except Exception:
+            if self.can_transition_to(episode.current_stage, PipelineStage.FAILED):
+                self._transition(episode, PipelineStage.FAILED)
+                self.storage.save_episode(episode)
+            raise
+
+        episode = self._transition(episode, PipelineStage.AWAITING_APPROVAL)
+        episode.approval_status = "pending"
+        self.storage.save_episode(episode)
+        await self._emit_event(EventType.APPROVAL_REQUIRED, episode)
+
+        raise ApprovalRequiredError(
+            f"Episode {episode.episode_id} awaiting approval (retry)",
+            episode_id=episode.episode_id,
+            show_id=show_id,
+        )
+
+    async def retry_rejected_episode(
+        self,
+        show_id: str,
+        episode_id: str,
+    ) -> NoReturn:
+        """Re-run a REJECTED episode from IDEATION with fresh content.
+
+        Transitions REJECTED → IDEATION and re-generates concept + outline,
+        pausing again at AWAITING_APPROVAL.
+
+        Args:
+            show_id: Show identifier
+            episode_id: Episode identifier
+
+        Raises:
+            ValueError: If episode is not in REJECTED stage
+            ApprovalRequiredError: Always raised at the approval gate
+        """
+        episode = self.storage.load_episode(show_id, episode_id)
+
+        if episode.current_stage != PipelineStage.REJECTED:
+            raise ValueError(
+                f"Episode {episode_id} is not in REJECTED stage "
+                f"(current: {episode.current_stage.value})"
+            )
+
+        show_blueprint = self.show_manager.load_show(show_id)
+
+        try:
+            episode = await self._execute_ideation(episode, show_blueprint)
+            episode = await self._execute_outlining(episode, show_blueprint)
+        except Exception:
+            if self.can_transition_to(episode.current_stage, PipelineStage.FAILED):
+                self._transition(episode, PipelineStage.FAILED)
+                self.storage.save_episode(episode)
+            raise
+
+        episode = self._transition(episode, PipelineStage.AWAITING_APPROVAL)
+        episode.approval_status = "pending"
+        self.storage.save_episode(episode)
+        await self._emit_event(EventType.APPROVAL_REQUIRED, episode)
+
+        raise ApprovalRequiredError(
+            f"Episode {episode.episode_id} awaiting approval (retry after rejection)",
+            episode_id=episode.episode_id,
+            show_id=show_id,
+        )
+
     async def execute_single_stage(
         self,
         show_id: str,
@@ -270,9 +367,11 @@ class PipelineOrchestrator:
         """Execute exactly one pipeline stage for debugging/re-running.
 
         Runs the runner associated with *target_stage* without advancing
-        through subsequent stages.  The episode must already be in a stage
-        from which *target_stage* is reachable (or already *at* that stage
-        for stages that tolerate being re-entered).
+        through subsequent stages.  Note that some runners (post-approval:
+        SEGMENT_GENERATION, SCRIPT_GENERATION, AUDIO_SYNTHESIS, AUDIO_MIXING)
+        include an exit transition to the *next* stage as part of their
+        completion contract.  Pre-approval runners (IDEATION, OUTLINING)
+        do NOT advance — the orchestrator loop handles that.
 
         Args:
             show_id: Show identifier
@@ -321,7 +420,7 @@ class PipelineOrchestrator:
         Returns:
             True if the transition is allowed
         """
-        return target in VALID_TRANSITIONS.get(current, [])
+        return target in VALID_TRANSITIONS.get(current, set())
 
     # ------------------------------------------------------------------
     # Stage execution (private)
@@ -602,12 +701,21 @@ class PipelineOrchestrator:
         first_name = prot_name.split()[0]
         voice_map[first_name] = dict(show_blueprint.protagonist.voice_config)
 
-        # Supporting characters
+        # Supporting characters (skip first-name shortcut if it would
+        # collide with an existing entry — protagonist takes priority)
         for char in show_blueprint.characters:
             char_name = char.name.lower()
             voice_map[char_name] = dict(char.voice_config)
             char_first = char_name.split()[0]
-            voice_map[char_first] = dict(char.voice_config)
+            if char_first not in voice_map:
+                voice_map[char_first] = dict(char.voice_config)
+            elif char_first != char_name:
+                logger.debug(
+                    "Skipping first-name shortcut '%s' for character '%s' "
+                    "(already mapped to another speaker)",
+                    char_first,
+                    char.name,
+                )
 
         return voice_map
 
@@ -672,7 +780,7 @@ class PipelineOrchestrator:
 
     async def _emit_event(
         self,
-        event_type: str,
+        event_type: EventType,
         episode: Episode,
         data: dict[str, Any] | None = None,
     ) -> None:

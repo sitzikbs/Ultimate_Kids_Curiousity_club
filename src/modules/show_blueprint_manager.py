@@ -414,9 +414,9 @@ class ShowBlueprintManager:
     def link_episode(self, show_id: str, episode_id: str) -> None:
         """Register an episode in the show's episode list.
 
-        Ensures the episode ID is recorded in the show metadata so that
-        subsequent ``load_show()`` calls include it in
-        ``ShowBlueprint.episodes``.
+        Creates the ``episodes/<episode_id>/`` directory under the show.
+        Directory presence is used as the metadata signal — subsequent
+        ``load_show()`` calls discover episodes via directory listing.
 
         Args:
             show_id: Unique identifier for the show

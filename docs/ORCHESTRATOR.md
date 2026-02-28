@@ -43,9 +43,18 @@ stateDiagram-v2
 
 ### Debug / Selective Re-run
 
-**`execute_single_stage(show_id, episode_id, target_stage)`** runs exactly one
-stage without advancing to subsequent stages. Useful for debugging or selective
-re-processing.
+**`execute_single_stage(show_id, episode_id, target_stage)`** runs the runner
+for a single stage. Note that post-approval runners include an exit transition
+to the next stage as part of their completion contract.
+
+### Recovery
+
+| Method | From | Result |
+|--------|------|--------|
+| `retry_failed_episode(show_id, episode_id)` | FAILED | FAILED → PENDING → IDEATION → OUTLINING → AWAITING_APPROVAL |
+| `retry_rejected_episode(show_id, episode_id)` | REJECTED | REJECTED → IDEATION → OUTLINING → AWAITING_APPROVAL |
+
+Both methods re-generate content and pause at the approval gate again.
 
 ## Approval Workflow
 
@@ -56,7 +65,7 @@ re-processing.
 | Check timeout | `ApprovalWorkflow.check_approval_timeout()` | Returns True if expired |
 | List pending | `ApprovalWorkflow.list_pending_approvals()` | All AWAITING_APPROVAL episodes |
 
-Rejected episodes can be re-run from IDEATION via `generate_episode()`.
+Rejected episodes can be re-run via `retry_rejected_episode()`.
 
 ## Event System
 

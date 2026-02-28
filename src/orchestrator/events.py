@@ -26,7 +26,7 @@ class EventType(str, Enum):
 class PipelineEvent:
     """Event emitted when a pipeline stage completes or changes."""
 
-    event_type: str
+    event_type: EventType
     episode_id: str
     show_id: str
     stage: PipelineStage

@@ -147,7 +147,7 @@ class ApprovalWorkflow:
     ) -> None:
         """Apply approval to episode."""
         target = PipelineStage.APPROVED
-        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, set()):
             raise ValueError(
                 f"Invalid transition: "
                 f"{episode.current_stage.value} \u2192 {target.value}"
@@ -173,7 +173,7 @@ class ApprovalWorkflow:
     ) -> None:
         """Apply rejection to episode."""
         target = PipelineStage.REJECTED
-        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, set()):
             raise ValueError(
                 f"Invalid transition: "
                 f"{episode.current_stage.value} \u2192 {target.value}"
