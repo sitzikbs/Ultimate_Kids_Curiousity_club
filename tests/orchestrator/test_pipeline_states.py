@@ -495,3 +495,93 @@ class TestEndToEnd:
         result = await orchestrator.resume_episode(show_id, episode_id)
         assert result.current_stage == PipelineStage.COMPLETE
         assert result.audio_path is not None
+
+
+# ---------------------------------------------------------------------------
+# execute_single_stage — debug / selective re-run
+# ---------------------------------------------------------------------------
+
+
+class TestExecuteSingleStage:
+    """Tests for PipelineOrchestrator.execute_single_stage()."""
+
+    @pytest.mark.asyncio
+    async def test_execute_ideation_only(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+    ):
+        """execute_single_stage runs IDEATION without advancing further."""
+        episode = Episode(
+            episode_id="ep_single_idea",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            current_stage=PipelineStage.PENDING,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        result = await orchestrator.execute_single_stage(
+            "olivers_workshop",
+            "ep_single_idea",
+            PipelineStage.IDEATION,
+        )
+
+        # Ideation runner transitions to OUTLINING at the end
+        assert result.current_stage == PipelineStage.OUTLINING
+        assert result.concept is not None
+
+    @pytest.mark.asyncio
+    async def test_execute_single_stage_invalid_stage(
+        self,
+        orchestrator,
+        mock_episode_storage,
+    ):
+        """execute_single_stage raises ValueError for non-executable stages."""
+        episode = Episode(
+            episode_id="ep_single_bad",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            current_stage=PipelineStage.AWAITING_APPROVAL,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ValueError, match="No runner for stage"):
+            await orchestrator.execute_single_stage(
+                "olivers_workshop",
+                "ep_single_bad",
+                PipelineStage.AWAITING_APPROVAL,
+            )
+
+    @pytest.mark.asyncio
+    async def test_execute_segment_generation_only(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+        sample_outline,
+    ):
+        """execute_single_stage runs SEGMENT_GENERATION independently."""
+        episode = Episode(
+            episode_id="ep_single_seg",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        result = await orchestrator.execute_single_stage(
+            "olivers_workshop",
+            "ep_single_seg",
+            PipelineStage.SEGMENT_GENERATION,
+        )
+
+        # Segment generation transitions to SCRIPT_GENERATION
+        assert result.current_stage == PipelineStage.SCRIPT_GENERATION
+        assert result.segments is not None

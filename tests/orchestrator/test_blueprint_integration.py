@@ -250,3 +250,63 @@ class TestConceptsUpdate:
         # Should NOT raise
         result = await orchestrator.resume_episode("olivers_workshop", "ep_concept_err")
         assert result.current_stage == PipelineStage.COMPLETE
+
+
+class TestEpisodeLinking:
+    """Tests for Show Blueprint episode linking after completion."""
+
+    @pytest.mark.asyncio
+    async def test_link_episode_called_on_complete(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_show_manager,
+        sample_outline,
+        sample_concept,
+    ):
+        """link_episode() is called with show_id and episode_id on COMPLETE."""
+        episode = Episode(
+            episode_id="ep_link",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        await orchestrator.resume_episode("olivers_workshop", "ep_link")
+
+        mock_show_manager.link_episode.assert_called_once_with(
+            show_id="olivers_workshop",
+            episode_id="ep_link",
+        )
+
+    @pytest.mark.asyncio
+    async def test_link_episode_failure_does_not_crash_pipeline(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_show_manager,
+        sample_outline,
+        sample_concept,
+    ):
+        """Pipeline completes even if link_episode() raises."""
+        mock_show_manager.link_episode.side_effect = RuntimeError("Disk full")
+
+        episode = Episode(
+            episode_id="ep_link_err",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        result = await orchestrator.resume_episode("olivers_workshop", "ep_link_err")
+        assert result.current_stage == PipelineStage.COMPLETE

@@ -8,12 +8,13 @@ The pipeline pauses at AWAITING_APPROVAL for human review.
 Use ApprovalWorkflow to approve/reject and then resume_episode() to continue.
 """
 
+import asyncio
 import inspect
 import logging
 import re
 import uuid
 from datetime import UTC, datetime
-from typing import Any, NoReturn
+from typing import Any
 
 from models.episode import Episode, PipelineStage
 from models.show import ShowBlueprint
@@ -120,7 +121,7 @@ class PipelineOrchestrator:
         show_id: str,
         topic: str,
         title: str | None = None,
-    ) -> NoReturn:
+    ) -> Episode:
         """Start generating a new episode.
 
         Creates the episode, runs IDEATION → OUTLINING, then pauses at
@@ -130,6 +131,10 @@ class PipelineOrchestrator:
             show_id: Identifier of the show
             topic: Topic / educational concept for the episode
             title: Optional explicit title; auto-generated if omitted
+
+        Returns:
+            Episode at AWAITING_APPROVAL stage (only reachable if caller
+            catches the ApprovalRequiredError).
 
         Raises:
             FileNotFoundError: If show_id does not exist
@@ -251,6 +256,52 @@ class PipelineOrchestrator:
 
         return episode
 
+    async def execute_single_stage(
+        self,
+        show_id: str,
+        episode_id: str,
+        target_stage: PipelineStage,
+    ) -> Episode:
+        """Execute exactly one pipeline stage for debugging/re-running.
+
+        Runs the runner associated with *target_stage* without advancing
+        through subsequent stages.  The episode must already be in a stage
+        from which *target_stage* is reachable (or already *at* that stage
+        for stages that tolerate being re-entered).
+
+        Args:
+            show_id: Show identifier
+            episode_id: Episode identifier
+            target_stage: The single stage to execute
+
+        Returns:
+            Episode after the stage completes
+
+        Raises:
+            ValueError: If *target_stage* has no associated runner
+        """
+        stage_runner_map = {
+            PipelineStage.IDEATION: self._execute_ideation,
+            PipelineStage.OUTLINING: self._execute_outlining,
+            PipelineStage.SEGMENT_GENERATION: self._execute_segment_generation,
+            PipelineStage.SCRIPT_GENERATION: self._execute_script_generation,
+            PipelineStage.AUDIO_SYNTHESIS: self._execute_audio_synthesis,
+            PipelineStage.AUDIO_MIXING: self._execute_audio_mixing,
+        }
+
+        runner = stage_runner_map.get(target_stage)
+        if runner is None:
+            raise ValueError(
+                f"No runner for stage {target_stage.value}. "
+                f"Executable stages: {[s.value for s in stage_runner_map]}"
+            )
+
+        episode = self.storage.load_episode(show_id, episode_id)
+        show_blueprint = self.show_manager.load_show(show_id)
+
+        episode = await runner(episode, show_blueprint)
+        return episode
+
     @staticmethod
     def can_transition_to(
         current: PipelineStage,
@@ -300,7 +351,9 @@ class PipelineOrchestrator:
         show_blueprint: ShowBlueprint,
     ) -> Episode:
         """Run OUTLINING stage: generate story outline from concept."""
-        # Episode is already in OUTLINING after ideation transition
+        if episode.current_stage != PipelineStage.OUTLINING:
+            episode = self._transition(episode, PipelineStage.OUTLINING)
+            self.storage.save_episode(episode)
         await self._emit_event("stage_started", episode)
 
         if not episode.concept:
@@ -327,8 +380,9 @@ class PipelineOrchestrator:
         show_blueprint: ShowBlueprint,
     ) -> Episode:
         """Run SEGMENT_GENERATION stage: expand outline into segments."""
-        episode = self._transition(episode, PipelineStage.SEGMENT_GENERATION)
-        self.storage.save_episode(episode)
+        if episode.current_stage != PipelineStage.SEGMENT_GENERATION:
+            episode = self._transition(episode, PipelineStage.SEGMENT_GENERATION)
+            self.storage.save_episode(episode)
         await self._emit_event("stage_started", episode)
 
         if not episode.outline:
@@ -417,7 +471,8 @@ class PipelineOrchestrator:
                     voice_map.get("narrator", {"voice_id": "mock_narrator"}),
                 )
 
-                result = self.synthesis.synthesize_segment(
+                result = await asyncio.to_thread(
+                    self.synthesis.synthesize_segment,
                     text=block.text,
                     character_id=block.speaker.lower(),
                     voice_config=voice_config,
@@ -518,6 +573,9 @@ class PipelineOrchestrator:
         """Build speaker-name → voice_config mapping from blueprint.
 
         Includes narrator, protagonist, and all supporting characters.
+
+        Returns:
+            Mapping of lowercase speaker name to voice configuration dict.
         """
         voice_map: dict[str, dict[str, Any]] = {}
 
@@ -565,6 +623,24 @@ class PipelineOrchestrator:
                 "Failed to update concepts for show %s after episode %s",
                 episode.show_id,
                 episode.episode_id,
+                exc_info=True,
+            )
+
+        try:
+            self.show_manager.link_episode(
+                show_id=episode.show_id,
+                episode_id=episode.episode_id,
+            )
+            logger.info(
+                "Linked episode %s to show %s",
+                episode.episode_id,
+                episode.show_id,
+            )
+        except Exception:
+            logger.warning(
+                "Failed to link episode %s to show %s",
+                episode.episode_id,
+                episode.show_id,
                 exc_info=True,
             )
 

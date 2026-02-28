@@ -411,6 +411,30 @@ class ShowBlueprintManager:
         with concepts_path.open("w") as f:
             json.dump(concepts_data, f, indent=2)
 
+    def link_episode(self, show_id: str, episode_id: str) -> None:
+        """Register an episode in the show's episode list.
+
+        Ensures the episode ID is recorded in the show metadata so that
+        subsequent ``load_show()`` calls include it in
+        ``ShowBlueprint.episodes``.
+
+        Args:
+            show_id: Unique identifier for the show
+            episode_id: Episode identifier to link
+
+        Raises:
+            FileNotFoundError: If show directory doesn't exist
+        """
+        show_dir = self.shows_dir / show_id
+        if not show_dir.exists():
+            raise FileNotFoundError(f"Show directory not found: {show_dir}")
+
+        episodes_dir = show_dir / "episodes"
+        episodes_dir.mkdir(exist_ok=True)
+
+        episode_dir = episodes_dir / episode_id
+        episode_dir.mkdir(exist_ok=True)
+
     def get_covered_concepts(self, show_id: str) -> list[str]:
         """Get all concepts covered across all episodes.
 
