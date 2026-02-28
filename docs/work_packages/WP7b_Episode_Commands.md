@@ -1,6 +1,6 @@
 # WP7b: Episode Commands
 
-**Status**: ⏳ Not Started  
+**Status**: ✅ Complete  
 **Parent WP**: [WP7: CLI Interface](WP7_CLI.md)  
 **Dependencies**: WP1 (Foundation), WP6 (Orchestrator), WP7a (Show Commands)  
 **Estimated Effort**: 1-2 days  
@@ -30,15 +30,15 @@ Episode Commands provide CLI interface for **episode creation**, **approval work
 Manage episode generation and lifecycle with approval workflow.
 
 **Subtasks**:
-- [ ] 7.4.1: Implement `episodes create <show-id> <topic>` command
-- [ ] 7.4.2: Implement `episodes resume <episode-id>` command
-- [ ] 7.4.3: Implement `episodes list [--show <show-id>] [--status <status>]` command
-- [ ] 7.4.4: Implement `episodes show <episode-id>` command (detailed info)
-- [ ] 7.4.5: Implement `episodes approve <episode-id>` command (approve outline, optionally edit)
-- [ ] 7.4.6: Implement `episodes reject <episode-id> --feedback <text>` command
-- [ ] 7.4.7: Implement `episodes delete <episode-id>` command
-- [ ] 7.4.8: Display real-time progress during generation (pause at AWAITING_APPROVAL)
-- [ ] 7.4.9: Show outline for review when episode reaches AWAITING_APPROVAL
+- [x] 7.4.1: Implement `episodes create <show-id> <topic>` command
+- [x] 7.4.2: Implement `episodes resume <episode-id>` command
+- [x] 7.4.3: Implement `episodes list [--show <show-id>] [--status <status>]` command
+- [x] 7.4.4: Implement `episodes show <episode-id>` command (detailed info)
+- [x] 7.4.5: Implement `episodes approve <episode-id>` command (approve outline, optionally edit)
+- [x] 7.4.6: Implement `episodes reject <episode-id> --feedback <text>` command
+- [x] 7.4.7: Implement `episodes delete <episode-id>` command
+- [x] 7.4.8: Display real-time progress during generation (pause at AWAITING_APPROVAL)
+- [x] 7.4.9: Show outline for review when episode reaches AWAITING_APPROVAL
 
 **Expected Outputs**:
 - `src/cli/episodes.py`
@@ -48,11 +48,11 @@ Manage episode generation and lifecycle with approval workflow.
 Manage system settings.
 
 **Subtasks**:
-- [ ] 7.5.1: Implement `config show` command (display all settings)
-- [ ] 7.5.2: Implement `config set-provider <service> <provider>` command
-- [ ] 7.5.3: Implement `config toggle-mock` command (enable/disable mock services)
-- [ ] 7.5.4: Implement `config api-keys` command (show/set API keys)
-- [ ] 7.5.5: Add validation for configuration changes
+- [x] 7.5.1: Implement `config show` command (display all settings)
+- [ ] 7.5.2: Implement `config set-provider <service> <provider>` command (deferred — runtime-only config)
+- [ ] 7.5.3: Implement `config toggle-mock` command (deferred — runtime-only config)
+- [ ] 7.5.4: Implement `config api-keys` command (deferred — runtime-only config)
+- [x] 7.5.5: Add validation for configuration changes
 
 **Expected Outputs**:
 - `src/cli/config.py`
@@ -62,12 +62,12 @@ Manage system settings.
 Beautiful terminal output for pipeline execution.
 
 **Subtasks**:
-- [ ] 7.6.1: Implement progress bars with rich.progress
-- [ ] 7.6.2: Show current stage and percentage complete
-- [ ] 7.6.3: Display estimated time remaining
-- [ ] 7.6.4: Color-code status messages (success, error, warning)
-- [ ] 7.6.5: Add spinner for long-running operations
-- [ ] 7.6.6: Display cost tracking during execution
+- [x] 7.6.1: Implement progress bars with rich.progress
+- [x] 7.6.2: Show current stage and percentage complete
+- [x] 7.6.3: Display estimated time remaining
+- [x] 7.6.4: Color-code status messages (success, error, warning)
+- [x] 7.6.5: Add spinner for long-running operations
+- [x] 7.6.6: Display cost tracking during execution
 
 **Expected Outputs**:
 - `src/cli/progress.py`
@@ -77,11 +77,11 @@ Beautiful terminal output for pipeline execution.
 Validate CLI commands end-to-end.
 
 **Subtasks**:
-- [ ] 7.7.1: Test episode create command with mock services
-- [ ] 7.7.2: Test episode resume command
-- [ ] 7.7.3: Test approval workflow (approve/reject)
-- [ ] 7.7.4: Test config commands
-- [ ] 7.7.5: Test error handling for invalid inputs
+- [x] 7.7.1: Test episode create command with mock services
+- [x] 7.7.2: Test episode resume command
+- [x] 7.7.3: Test approval workflow (approve/reject)
+- [x] 7.7.4: Test config commands
+- [x] 7.7.5: Test error handling for invalid inputs
 
 **Expected Outputs**:
 - CLI integration tests in `tests/test_cli_integration.py`
