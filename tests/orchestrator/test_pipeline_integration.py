@@ -46,9 +46,10 @@ class TestFullPipelineIntegration:
 
         # --- Post-approval ---
         result = await orchestrator.resume_episode("olivers_workshop", episode_id)
+        ep = result.episode
 
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.audio_path is not None
+        assert ep.current_stage == PipelineStage.COMPLETE
+        assert ep.audio_path is not None
 
         # All 6 stage checkpoints should exist
         expected_stages = [
@@ -60,7 +61,7 @@ class TestFullPipelineIntegration:
             "audio_mixing",
         ]
         for stage in expected_stages:
-            assert stage in result.checkpoints, f"Missing checkpoint: {stage}"
+            assert stage in ep.checkpoints, f"Missing checkpoint: {stage}"
 
     @pytest.mark.asyncio
     async def test_final_episode_has_all_outputs(
@@ -82,14 +83,15 @@ class TestFullPipelineIntegration:
         )
 
         result = await orchestrator.resume_episode("olivers_workshop", episode_id)
+        ep = result.episode
 
-        assert result.concept is not None
-        assert result.outline is not None
-        assert len(result.segments) > 0
-        assert len(result.scripts) > 0
-        assert len(result.audio_segment_paths) > 0
-        assert result.audio_path is not None
-        assert result.total_cost >= 0.0
+        assert ep.concept is not None
+        assert ep.outline is not None
+        assert len(ep.segments) > 0
+        assert len(ep.scripts) > 0
+        assert len(ep.audio_segment_paths) > 0
+        assert ep.audio_path is not None
+        assert ep.total_cost >= 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -256,7 +258,7 @@ class TestResumeFromEachStage:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_res_seg")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE
 
     @pytest.mark.asyncio
     async def test_resume_from_script_generation(
@@ -282,7 +284,7 @@ class TestResumeFromEachStage:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_res_scr")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE
 
     @pytest.mark.asyncio
     async def test_resume_from_audio_synthesis(
@@ -310,8 +312,8 @@ class TestResumeFromEachStage:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_res_tts")
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert len(result.audio_segment_paths) > 0
+        assert result.episode.current_stage == PipelineStage.COMPLETE
+        assert len(result.episode.audio_segment_paths) > 0
 
     @pytest.mark.asyncio
     async def test_resume_from_audio_mixing(
@@ -348,8 +350,8 @@ class TestResumeFromEachStage:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_res_mix")
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.audio_path is not None
+        assert result.episode.current_stage == PipelineStage.COMPLETE
+        assert result.episode.audio_path is not None
 
 
 # ---------------------------------------------------------------------------
@@ -382,10 +384,11 @@ class TestCostAccumulation:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_cost_full")
+        ep = result.episode
 
-        expected_total = sum(cp.get("cost", 0.0) for cp in result.checkpoints.values())
-        assert result.total_cost == pytest.approx(expected_total)
-        assert result.total_cost >= 0.0
+        expected_total = sum(cp.get("cost", 0.0) for cp in ep.checkpoints.values())
+        assert ep.total_cost == pytest.approx(expected_total)
+        assert ep.total_cost >= 0.0
 
 
 # ---------------------------------------------------------------------------

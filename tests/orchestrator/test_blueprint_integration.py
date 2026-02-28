@@ -245,7 +245,7 @@ class TestConceptsUpdate:
 
         # Should NOT raise
         result = await orchestrator.resume_episode("olivers_workshop", "ep_concept_err")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE
 
 
 class TestEpisodeLinking:
@@ -305,4 +305,4 @@ class TestEpisodeLinking:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_link_err")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE

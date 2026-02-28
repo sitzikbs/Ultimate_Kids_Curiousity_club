@@ -44,9 +44,11 @@ def show_config():
         "ELEVENLABS_API_KEY",
     ):
         value = getattr(settings, key_name, None)
-        if value:
+        if value and len(value) > 8:
             masked = value[:4] + "…" + value[-4:]
             table.add_row(key_name, f"[green]{masked}[/green]")
+        elif value:
+            table.add_row(key_name, "[green]<set>[/green]")
         else:
             table.add_row(key_name, "[dim]not set[/dim]")
 

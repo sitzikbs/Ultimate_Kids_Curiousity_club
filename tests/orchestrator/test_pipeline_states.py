@@ -214,11 +214,12 @@ class TestResumeEpisode:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_test_001")
+        ep = result.episode
 
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.segments  # segments populated
-        assert result.scripts  # scripts populated
-        assert result.audio_path is not None
+        assert ep.current_stage == PipelineStage.COMPLETE
+        assert ep.segments  # segments populated
+        assert ep.scripts  # scripts populated
+        assert ep.audio_path is not None
 
     @pytest.mark.asyncio
     async def test_segment_service_called_with_blueprint(
@@ -492,8 +493,8 @@ class TestEndToEnd:
 
         # 3. Resume — should run to COMPLETE
         result = await orchestrator.resume_episode(show_id, episode_id)
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.audio_path is not None
+        assert result.episode.current_stage == PipelineStage.COMPLETE
+        assert result.episode.audio_path is not None
 
 
 # ---------------------------------------------------------------------------

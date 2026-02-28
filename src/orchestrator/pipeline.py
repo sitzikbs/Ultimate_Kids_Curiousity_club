@@ -170,7 +170,7 @@ class PipelineOrchestrator:
         self,
         show_id: str,
         episode_id: str,
-    ) -> Episode:
+    ) -> PipelineResult:
         """Resume an approved episode through remaining stages.
 
         Continues the pipeline from the episode's current stage to COMPLETE.
@@ -180,7 +180,7 @@ class PipelineOrchestrator:
             episode_id: Episode identifier
 
         Returns:
-            Completed Episode
+            PipelineResult with COMPLETED status on success.
 
         Raises:
             ValueError: If episode is not in a resumable stage
@@ -192,22 +192,26 @@ class PipelineOrchestrator:
         # the episode's current position so adding a stage requires only
         # one entry here.  Multiple stages can share a runner (e.g.
         # APPROVED and SEGMENT_GENERATION both enter segment generation).
-        post_approval_pipeline: list[tuple[set[PipelineStage], Any]] = [
+        post_approval_pipeline: list[tuple[set[PipelineStage], Any, str]] = [
             (
                 {PipelineStage.APPROVED, PipelineStage.SEGMENT_GENERATION},
                 self._execute_segment_generation,
+                "segment_generation",
             ),
             (
                 {PipelineStage.SCRIPT_GENERATION},
                 self._execute_script_generation,
+                "script_generation",
             ),
             (
                 {PipelineStage.AUDIO_SYNTHESIS},
                 self._execute_audio_synthesis,
+                "audio_synthesis",
             ),
             (
                 {PipelineStage.AUDIO_MIXING},
                 self._execute_audio_mixing,
+                "audio_mixing",
             ),
         ]
 
@@ -215,7 +219,7 @@ class PipelineOrchestrator:
         try:
             start_idx = next(
                 i
-                for i, (stages, _) in enumerate(post_approval_pipeline)
+                for i, (stages, _, _) in enumerate(post_approval_pipeline)
                 if episode.current_stage in stages
             )
         except StopIteration:
@@ -224,16 +228,9 @@ class PipelineOrchestrator:
                 f"(current: {episode.current_stage.value})"
             )
 
-        runners = [runner for _, runner in post_approval_pipeline[start_idx:]]
-        runner_names = [
-            "segment_generation",
-            "script_generation",
-            "audio_synthesis",
-            "audio_mixing",
-        ]
-        runner_names = runner_names[start_idx:]
+        remaining = post_approval_pipeline[start_idx:]
 
-        for runner, stage_name in zip(runners, runner_names):
+        for _, runner, stage_name in remaining:
             service_name = STAGE_SERVICE_MAP.get(
                 STAGE_NAME_TO_ENUM.get(stage_name, PipelineStage.PENDING), "llm"
             )
@@ -244,7 +241,11 @@ class PipelineOrchestrator:
         # Finalize — update Show Blueprint concepts
         await self._finalize_episode(episode, show_blueprint)
 
-        return episode
+        return PipelineResult(
+            status=PipelineResultStatus.COMPLETED,
+            episode=episode,
+            message=f"Episode {episode.episode_id} complete",
+        )
 
     async def retry_failed_episode(
         self,
@@ -406,6 +407,8 @@ class PipelineOrchestrator:
     ) -> bool:
         """Check whether a state transition is valid.
 
+        Delegates to the canonical ``transitions.can_transition_to()``.
+
         Args:
             current: Current pipeline stage
             target: Desired target stage
@@ -413,7 +416,7 @@ class PipelineOrchestrator:
         Returns:
             True if the transition is allowed
         """
-        return target in VALID_TRANSITIONS.get(current, set())
+        return can_transition_to(current, target)
 
     async def reset_to_stage(
         self,

@@ -259,15 +259,16 @@ def approve_episode(
         if auto_resume:
             pipeline = create_pipeline()
             with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
-                episode = _run_async(
+                result = _run_async(
                     pipeline.resume_episode(show_id, episode_id)
                 )
+            ep = result.episode
             console.print(
                 f"[bold green]✓ Episode complete![/bold green]  "
-                f"Stage: {_format_stage(episode.current_stage)}"
+                f"Stage: {_format_stage(ep.current_stage)}"
             )
-            if episode.audio_path:
-                console.print(f"  Audio: [cyan]{episode.audio_path}[/cyan]")
+            if ep.audio_path:
+                console.print(f"  Audio: [cyan]{ep.audio_path}[/cyan]")
         else:
             console.print(
                 f"\n[dim]Resume with:[/dim]  "
@@ -321,11 +322,12 @@ def resume_episode(
     try:
         pipeline = create_pipeline()
 
-        with console.status("[bold cyan]Running pipeline…[/bold cyan]"):
-            episode = _run_async(
+        with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
+            result = _run_async(
                 pipeline.resume_episode(show_id, episode_id)
             )
 
+        episode = result.episode
         console.print(
             f"[bold green]✓ Episode complete![/bold green]  "
             f"Stage: {_format_stage(episode.current_stage)}"
@@ -417,9 +419,7 @@ def reset_episode(
 
     try:
         pipeline = create_pipeline()
-        episode = _run_async(
-            pipeline.reset_to_stage(show_id, episode_id, stage)
-        )
+        episode = _run_async(pipeline.reset_to_stage(show_id, episode_id, stage))
 
         console.print(
             f"[green]✓ Episode reset to {_format_stage(episode.current_stage)}[/green]"
@@ -430,6 +430,36 @@ def reset_episode(
         raise typer.Exit(1)
     except Exception as e:
         console.print(f"[red]Error resetting episode: {e}[/red]")
+        raise typer.Exit(1)
+
+
+@episodes_app.command("delete")
+def delete_episode(
+    show_id: str = typer.Argument(..., help="Show identifier"),
+    episode_id: str = typer.Argument(..., help="Episode identifier"),
+    confirm: bool = typer.Option(
+        False, "--yes", "-y", help="Skip confirmation prompt"
+    ),
+):
+    """Delete an episode permanently."""
+    if not confirm:
+        typer.confirm(
+            f"Permanently delete episode '{episode_id}' from show '{show_id}'?",
+            abort=True,
+        )
+
+    try:
+        storage = create_storage()
+        storage.delete_episode(show_id, episode_id)
+        console.print(f"[green]✓ Episode '{episode_id}' deleted[/green]")
+
+    except FileNotFoundError:
+        console.print(
+            f"[red]Episode '{episode_id}' not found in show '{show_id}'[/red]"
+        )
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Error deleting episode: {e}[/red]")
         raise typer.Exit(1)
 
 
