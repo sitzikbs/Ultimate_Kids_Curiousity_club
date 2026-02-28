@@ -160,8 +160,13 @@ def close_all_issues():
                 num = issue["number"]
                 title = issue["title"]
                 print(f"🗑️  Closing issue #{num}: {title}")
+                comment = (
+                    "Closing to reorganize into sub-Work Packages. "
+                    "New issues will be created with clearer "
+                    "dependencies and parallelization info."
+                )
                 run_command(
-                    f'gh issue close {num} --comment "Closing to reorganize into sub-Work Packages. New issues will be created with clearer dependencies and parallelization info."'
+                    f'gh issue close {num} --comment "{comment}"'
                 )
             print(f"✅ Closed {len(issues)} issues.\n")
         except json.JSONDecodeError:

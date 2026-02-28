@@ -6,6 +6,7 @@ import pytest
 
 from models.episode import Episode, PipelineStage
 from models.story import StoryBeat, StoryOutline
+from orchestrator.events import EventType
 
 
 class TestSubmitApproval:
@@ -200,7 +201,7 @@ class TestSubmitApproval:
         # but the mock records the call)
         assert mock_event_callback.called
         event = mock_event_callback.call_args[0][0]
-        assert event.event_type == "approval_submitted"
+        assert event.event_type == EventType.APPROVAL_SUBMITTED
         assert event.episode_id == "ep_evt"
 
 

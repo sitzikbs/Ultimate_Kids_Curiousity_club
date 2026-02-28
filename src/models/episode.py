@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -52,8 +53,8 @@ class Episode(BaseModel):
     current_stage: PipelineStage = Field(
         default=PipelineStage.PENDING, description="Current pipeline stage"
     )
-    approval_status: str | None = Field(
-        default=None, description="Approval status (approved/rejected/pending)"
+    approval_status: Literal["pending", "approved", "rejected"] | None = Field(
+        default=None, description="Approval status"
     )
     approval_feedback: str | None = Field(
         default=None, description="Feedback from approval process"

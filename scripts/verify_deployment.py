@@ -180,8 +180,10 @@ def main() -> int:
         print("\n🎉 All checks passed! Website is ready for deployment.")
         return 0
     else:
+        failed = total - passed
         print(
-            f"\n⚠️  {total - passed} check(s) failed. Please fix issues before deploying."
+            f"\n⚠️  {failed} check(s) failed. "
+            "Please fix issues before deploying."
         )
         return 1
 

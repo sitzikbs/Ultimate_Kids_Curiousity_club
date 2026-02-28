@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 from models.episode import Episode, PipelineStage
 from models.story import StoryOutline
 from modules.episode_storage import EpisodeStorage
-from orchestrator.events import EventCallback, PipelineEvent
+from orchestrator.events import EventCallback, EventType, PipelineEvent
 from orchestrator.pipeline import VALID_TRANSITIONS
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ class ApprovalWorkflow:
 
         # Emit event (fire-and-forget for sync callers)
         event = PipelineEvent(
-            event_type="approval_submitted",
+            event_type=EventType.APPROVAL_SUBMITTED,
             episode_id=episode.episode_id,
             show_id=episode.show_id,
             stage=episode.current_stage,
@@ -147,7 +147,7 @@ class ApprovalWorkflow:
     ) -> None:
         """Apply approval to episode."""
         target = PipelineStage.APPROVED
-        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, set()):
             raise ValueError(
                 f"Invalid transition: "
                 f"{episode.current_stage.value} \u2192 {target.value}"
@@ -173,7 +173,7 @@ class ApprovalWorkflow:
     ) -> None:
         """Apply rejection to episode."""
         target = PipelineStage.REJECTED
-        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, set()):
             raise ValueError(
                 f"Invalid transition: "
                 f"{episode.current_stage.value} \u2192 {target.value}"

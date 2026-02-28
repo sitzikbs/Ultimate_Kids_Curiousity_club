@@ -3,6 +3,7 @@
 import pytest
 
 from models.episode import Episode, PipelineStage
+from orchestrator.events import EventType
 from orchestrator.pipeline import VALID_TRANSITIONS, PipelineOrchestrator
 from utils.errors import ApprovalRequiredError
 
@@ -181,7 +182,7 @@ class TestGenerateEpisode:
         event_types = [
             call.args[0].event_type for call in mock_event_callback.call_args_list
         ]
-        assert "approval_required" in event_types
+        assert EventType.APPROVAL_REQUIRED in event_types
 
 
 # ---------------------------------------------------------------------------
@@ -495,3 +496,306 @@ class TestEndToEnd:
         result = await orchestrator.resume_episode(show_id, episode_id)
         assert result.current_stage == PipelineStage.COMPLETE
         assert result.audio_path is not None
+
+
+# ---------------------------------------------------------------------------
+# execute_single_stage — debug / selective re-run
+# ---------------------------------------------------------------------------
+
+
+class TestExecuteSingleStage:
+    """Tests for PipelineOrchestrator.execute_single_stage()."""
+
+    @pytest.mark.asyncio
+    async def test_execute_ideation_only(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+    ):
+        """execute_single_stage runs IDEATION without advancing further."""
+        episode = Episode(
+            episode_id="ep_single_idea",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            current_stage=PipelineStage.PENDING,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        result = await orchestrator.execute_single_stage(
+            "olivers_workshop",
+            "ep_single_idea",
+            PipelineStage.IDEATION,
+        )
+
+        # Ideation runner stays at IDEATION; OUTLINING entry is that runner's job
+        assert result.current_stage == PipelineStage.IDEATION
+        assert result.concept is not None
+
+    @pytest.mark.asyncio
+    async def test_execute_single_stage_invalid_stage(
+        self,
+        orchestrator,
+        mock_episode_storage,
+    ):
+        """execute_single_stage raises ValueError for non-executable stages."""
+        episode = Episode(
+            episode_id="ep_single_bad",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            current_stage=PipelineStage.AWAITING_APPROVAL,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ValueError, match="No runner for stage"):
+            await orchestrator.execute_single_stage(
+                "olivers_workshop",
+                "ep_single_bad",
+                PipelineStage.AWAITING_APPROVAL,
+            )
+
+    @pytest.mark.asyncio
+    async def test_execute_segment_generation_only(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+        sample_outline,
+    ):
+        """execute_single_stage runs SEGMENT_GENERATION independently."""
+        episode = Episode(
+            episode_id="ep_single_seg",
+            show_id="olivers_workshop",
+            topic="magnets",
+            title="Magnets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        result = await orchestrator.execute_single_stage(
+            "olivers_workshop",
+            "ep_single_seg",
+            PipelineStage.SEGMENT_GENERATION,
+        )
+
+        # Segment generation transitions to SCRIPT_GENERATION
+        assert result.current_stage == PipelineStage.SCRIPT_GENERATION
+        assert result.segments is not None
+
+
+# ---------------------------------------------------------------------------
+# FAILED transition — error handling
+# ---------------------------------------------------------------------------
+
+
+class TestFailedTransitions:
+    """Tests for automatic FAILED transitions when services raise."""
+
+    @pytest.mark.asyncio
+    async def test_generate_episode_transitions_to_failed_on_ideation_error(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_ideation_service,
+    ):
+        """generate_episode transitions to FAILED if ideation raises."""
+        mock_ideation_service.generate_concept.side_effect = RuntimeError("LLM down")
+
+        with pytest.raises(RuntimeError, match="LLM down"):
+            await orchestrator.generate_episode("olivers_workshop", "rockets")
+
+        # The episode should be persisted in FAILED stage
+        saved_calls = mock_episode_storage.save_episode.call_args_list
+        last_saved: Episode = saved_calls[-1][0][0]
+        assert last_saved.current_stage == PipelineStage.FAILED
+
+    @pytest.mark.asyncio
+    async def test_generate_episode_transitions_to_failed_on_outline_error(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_outline_service,
+    ):
+        """generate_episode transitions to FAILED if outlining raises."""
+        mock_outline_service.generate_outline.side_effect = RuntimeError("LLM timeout")
+
+        with pytest.raises(RuntimeError, match="LLM timeout"):
+            await orchestrator.generate_episode("olivers_workshop", "rockets")
+
+        saved_calls = mock_episode_storage.save_episode.call_args_list
+        last_saved: Episode = saved_calls[-1][0][0]
+        assert last_saved.current_stage == PipelineStage.FAILED
+
+    @pytest.mark.asyncio
+    async def test_resume_episode_transitions_to_failed_on_segment_error(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_segment_service,
+        sample_outline,
+        sample_concept,
+    ):
+        """resume_episode transitions to FAILED if segment generation raises."""
+        mock_segment_service.generate_segments.side_effect = RuntimeError("API error")
+
+        episode = Episode(
+            episode_id="ep_fail_seg",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(RuntimeError, match="API error"):
+            await orchestrator.resume_episode("olivers_workshop", "ep_fail_seg")
+
+        saved_calls = mock_episode_storage.save_episode.call_args_list
+        last_saved: Episode = saved_calls[-1][0][0]
+        assert last_saved.current_stage == PipelineStage.FAILED
+
+    @pytest.mark.asyncio
+    async def test_resume_episode_transitions_to_failed_on_script_error(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        mock_script_service,
+        sample_outline,
+        sample_concept,
+    ):
+        """resume_episode transitions to FAILED if script generation raises."""
+        mock_script_service.generate_scripts.side_effect = RuntimeError("Script error")
+
+        episode = Episode(
+            episode_id="ep_fail_scr",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            concept=sample_concept,
+            outline=sample_outline,
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(RuntimeError, match="Script error"):
+            await orchestrator.resume_episode("olivers_workshop", "ep_fail_scr")
+
+        saved_calls = mock_episode_storage.save_episode.call_args_list
+        last_saved: Episode = saved_calls[-1][0][0]
+        assert last_saved.current_stage == PipelineStage.FAILED
+
+
+# ---------------------------------------------------------------------------
+# retry_failed_episode / retry_rejected_episode
+# ---------------------------------------------------------------------------
+
+
+class TestRetryFailedEpisode:
+    """Tests for PipelineOrchestrator.retry_failed_episode()."""
+
+    @pytest.mark.asyncio
+    async def test_retry_failed_reruns_to_approval(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+        sample_outline,
+    ):
+        """retry_failed_episode resets and re-generates up to approval gate."""
+        episode = Episode(
+            episode_id="ep_retry_fail",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            current_stage=PipelineStage.FAILED,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ApprovalRequiredError):
+            await orchestrator.retry_failed_episode("olivers_workshop", "ep_retry_fail")
+
+        loaded = mock_episode_storage.load_episode("olivers_workshop", "ep_retry_fail")
+        assert loaded.current_stage == PipelineStage.AWAITING_APPROVAL
+        assert loaded.concept is not None
+        assert loaded.outline is not None
+
+    @pytest.mark.asyncio
+    async def test_retry_non_failed_raises(
+        self,
+        orchestrator,
+        mock_episode_storage,
+    ):
+        """retry_failed_episode raises ValueError if episode is not FAILED."""
+        episode = Episode(
+            episode_id="ep_not_fail",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            current_stage=PipelineStage.PENDING,
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ValueError, match="not in FAILED stage"):
+            await orchestrator.retry_failed_episode("olivers_workshop", "ep_not_fail")
+
+
+class TestRetryRejectedEpisode:
+    """Tests for PipelineOrchestrator.retry_rejected_episode()."""
+
+    @pytest.mark.asyncio
+    async def test_retry_rejected_reruns_to_approval(
+        self,
+        orchestrator,
+        mock_episode_storage,
+        sample_concept,
+        sample_outline,
+    ):
+        """retry_rejected_episode re-generates content up to approval gate."""
+        episode = Episode(
+            episode_id="ep_retry_rej",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            current_stage=PipelineStage.REJECTED,
+            approval_status="rejected",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ApprovalRequiredError):
+            await orchestrator.retry_rejected_episode(
+                "olivers_workshop", "ep_retry_rej"
+            )
+
+        loaded = mock_episode_storage.load_episode("olivers_workshop", "ep_retry_rej")
+        assert loaded.current_stage == PipelineStage.AWAITING_APPROVAL
+        assert loaded.concept is not None
+        assert loaded.outline is not None
+
+    @pytest.mark.asyncio
+    async def test_retry_non_rejected_raises(
+        self,
+        orchestrator,
+        mock_episode_storage,
+    ):
+        """retry_rejected_episode raises ValueError if episode is not REJECTED."""
+        episode = Episode(
+            episode_id="ep_not_rej",
+            show_id="olivers_workshop",
+            topic="rockets",
+            title="Rockets",
+            current_stage=PipelineStage.APPROVED,
+            approval_status="approved",
+        )
+        mock_episode_storage.save_episode(episode)
+
+        with pytest.raises(ValueError, match="not in REJECTED stage"):
+            await orchestrator.retry_rejected_episode("olivers_workshop", "ep_not_rej")
