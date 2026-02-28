@@ -6,7 +6,7 @@ estimated time remaining.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -24,11 +24,14 @@ class ProgressTracker:
         completed_stages: Number of stages completed so far.
     """
 
-    def __init__(self, total_stages: int = 8) -> None:
+    def __init__(self, total_stages: int = 6) -> None:
         """Initialize progress tracker.
 
         Args:
             total_stages: Total number of pipeline stages to track.
+                The default (6) matches the six execution stages:
+                ideation, outlining, segment_generation,
+                script_generation, audio_synthesis, audio_mixing.
         """
         self.total_stages = total_stages
         self.completed_stages = 0
@@ -43,7 +46,7 @@ class ProgressTracker:
             stage_name: Human-readable stage name.
         """
         self.current_stage = stage_name
-        self.stage_start_time = datetime.now(timezone.utc)
+        self.stage_start_time = datetime.now(UTC)
         logger.info(
             "▶ Starting stage: %s (%d/%d)",
             stage_name,
@@ -62,9 +65,7 @@ class ProgressTracker:
         """
         duration = 0.0
         if self.stage_start_time:
-            duration = (
-                datetime.now(timezone.utc) - self.stage_start_time
-            ).total_seconds()
+            duration = (datetime.now(UTC) - self.stage_start_time).total_seconds()
             self._stage_durations.append(duration)
             logger.info(
                 "✓ Completed stage: %s (%.1fs)",

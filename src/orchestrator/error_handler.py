@@ -1,24 +1,15 @@
 """Error handling and retry utilities for the pipeline orchestrator.
 
-Provides orchestrator-level retry with exponential backoff (via tenacity),
-a circuit breaker for repeated API failures, and structured error context
-storage on the Episode model.
+Provides a circuit breaker for repeated API failures and structured error
+context storage on the Episode model.
 """
 
 import logging
 import time
 from datetime import UTC, datetime
 
-from tenacity import (
-    RetryCallState,
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
-
 from models.episode import PipelineStage
-from utils.errors import APIError, PodcastError
+from utils.errors import PodcastError
 
 logger = logging.getLogger(__name__)
 
@@ -46,49 +37,6 @@ class CircuitBreakerOpenError(PipelineError):
 
 
 # ---------------------------------------------------------------------------
-# Retry configuration
-# ---------------------------------------------------------------------------
-
-# Exception types that are considered transient and worth retrying
-TRANSIENT_EXCEPTIONS = (APIError, TimeoutError, ConnectionError, OSError)
-
-
-def _log_retry(retry_state: RetryCallState) -> None:
-    """Log retry attempts for observability."""
-    attempt = retry_state.attempt_number
-    exc = retry_state.outcome.exception() if retry_state.outcome else None
-    logger.warning(
-        "Retry attempt %d failed: %s",
-        attempt,
-        exc,
-    )
-
-
-def create_stage_retry(
-    max_attempts: int = 3,
-    min_wait: int = 2,
-    max_wait: int = 10,
-) -> retry:
-    """Create a tenacity retry decorator for pipeline stages.
-
-    Args:
-        max_attempts: Maximum number of attempts before giving up.
-        min_wait: Minimum wait in seconds between retries.
-        max_wait: Maximum wait in seconds between retries.
-
-    Returns:
-        Configured tenacity retry decorator.
-    """
-    return retry(
-        stop=stop_after_attempt(max_attempts),
-        wait=wait_exponential(multiplier=1, min=min_wait, max=max_wait),
-        retry=retry_if_exception_type(TRANSIENT_EXCEPTIONS),
-        reraise=True,
-        after=_log_retry,
-    )
-
-
-# ---------------------------------------------------------------------------
 # Circuit Breaker
 # ---------------------------------------------------------------------------
 
@@ -99,6 +47,11 @@ class CircuitBreaker:
     Tracks consecutive failures per service and opens the circuit after a
     configurable threshold, preventing further calls until a recovery window
     has passed.
+
+    Note:
+        This implementation is **not** thread-safe. If multiple episodes are
+        generated concurrently, wrap calls with an external lock or switch
+        to ``threading.Lock``-guarded state.
 
     Attributes:
         failure_threshold: Number of consecutive failures before opening.

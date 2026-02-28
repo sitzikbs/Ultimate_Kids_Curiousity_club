@@ -100,9 +100,7 @@ class TestCostTracking:
             await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
-        expected_total = sum(
-            cp.get("cost", 0.0) for cp in saved.checkpoints.values()
-        )
+        expected_total = sum(cp.get("cost", 0.0) for cp in saved.checkpoints.values())
         assert saved.total_cost == expected_total
 
     @pytest.mark.asyncio

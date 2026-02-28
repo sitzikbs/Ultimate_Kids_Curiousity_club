@@ -174,9 +174,7 @@ class TestErrorInjectionPerStage:
         sample_outline,
     ):
         """Audio synthesis failure → FAILED with error context."""
-        mock_synthesis_service.synthesize_segment.side_effect = RuntimeError(
-            "tts down"
-        )
+        mock_synthesis_service.synthesize_segment.side_effect = RuntimeError("tts down")
 
         episode = Episode(
             episode_id="ep_inj_tts",
@@ -386,9 +384,7 @@ class TestCostAccumulation:
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_cost_full")
 
-        expected_total = sum(
-            cp.get("cost", 0.0) for cp in result.checkpoints.values()
-        )
+        expected_total = sum(cp.get("cost", 0.0) for cp in result.checkpoints.values())
         assert result.total_cost == pytest.approx(expected_total)
         assert result.total_cost >= 0.0
 

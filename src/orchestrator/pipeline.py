@@ -260,18 +260,13 @@ class PipelineOrchestrator:
         ]
         runner_names = runner_names[start_idx:]
 
-        try:
-            for runner, stage_name in zip(runners, runner_names):
-                service_name = STAGE_SERVICE_MAP.get(
-                    STAGE_NAME_TO_ENUM.get(stage_name, PipelineStage.PENDING), "llm"
-                )
-                episode = await self._execute_stage_with_error_handling(
-                    runner, episode, stage_name, service_name, show_blueprint
-                )
-        except Exception:
-            # _execute_stage_with_error_handling already transitions to FAILED
-            # and saves the episode — just re-raise.
-            raise
+        for runner, stage_name in zip(runners, runner_names):
+            service_name = STAGE_SERVICE_MAP.get(
+                STAGE_NAME_TO_ENUM.get(stage_name, PipelineStage.PENDING), "llm"
+            )
+            episode = await self._execute_stage_with_error_handling(
+                runner, episode, stage_name, service_name, show_blueprint
+            )
 
         # Finalize — update Show Blueprint concepts
         self._finalize_episode(episode, show_blueprint)
@@ -477,7 +472,7 @@ class PipelineOrchestrator:
         if episode.checkpoints:
             target_idx = STAGE_ORDER.index(target_stage)
             stages_to_clear = [
-                s for s in STAGE_ORDER[target_idx + 1:] if s in episode.checkpoints
+                s for s in STAGE_ORDER[target_idx + 1 :] if s in episode.checkpoints
             ]
             for stage in stages_to_clear:
                 del episode.checkpoints[stage]
@@ -641,9 +636,7 @@ class PipelineOrchestrator:
         )
 
         episode.outline = outline
-        self._save_checkpoint(
-            episode, "outlining", {"beats": len(outline.story_beats)}
-        )
+        self._save_checkpoint(episode, "outlining", {"beats": len(outline.story_beats)})
         self.progress.complete_stage("Outlining")
         await self._emit_event(
             EventType.STAGE_COMPLETED, episode, data={"stage": "outlining"}

@@ -1,6 +1,5 @@
 """Tests for WP6b ProgressTracker: stage progress, substage, time estimation."""
 
-
 from orchestrator.progress_tracker import ProgressTracker
 
 # ---------------------------------------------------------------------------
