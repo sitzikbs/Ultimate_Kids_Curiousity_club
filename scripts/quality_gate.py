@@ -7,7 +7,6 @@ and tests. It's used in CI and can be run locally before committing.
 
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_command(cmd: list[str], description: str) -> bool:
@@ -40,8 +39,6 @@ def main() -> int:
     Returns:
         0 if all checks pass, 1 if any check fails
     """
-    project_root = Path(__file__).parent.parent
-
     print("=" * 60)
     print("🚀 Running Quality Gate Checks")
     print("=" * 60)

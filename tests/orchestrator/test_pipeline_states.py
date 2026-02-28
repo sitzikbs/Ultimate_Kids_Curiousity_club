@@ -775,9 +775,7 @@ class TestRetryRejectedEpisode:
                 "olivers_workshop", "ep_retry_rej"
             )
 
-        loaded = mock_episode_storage.load_episode(
-            "olivers_workshop", "ep_retry_rej"
-        )
+        loaded = mock_episode_storage.load_episode("olivers_workshop", "ep_retry_rej")
         assert loaded.current_stage == PipelineStage.AWAITING_APPROVAL
         assert loaded.concept is not None
         assert loaded.outline is not None
@@ -800,6 +798,4 @@ class TestRetryRejectedEpisode:
         mock_episode_storage.save_episode(episode)
 
         with pytest.raises(ValueError, match="not in REJECTED stage"):
-            await orchestrator.retry_rejected_episode(
-                "olivers_workshop", "ep_not_rej"
-            )
+            await orchestrator.retry_rejected_episode("olivers_workshop", "ep_not_rej")

@@ -207,9 +207,7 @@ class PipelineOrchestrator:
         # the episode's current position so adding a stage requires only
         # one entry here.  Multiple stages can share a runner (e.g.
         # APPROVED and SEGMENT_GENERATION both enter segment generation).
-        post_approval_pipeline: list[
-            tuple[set[PipelineStage], Any]
-        ] = [
+        post_approval_pipeline: list[tuple[set[PipelineStage], Any]] = [
             (
                 {PipelineStage.APPROVED, PipelineStage.SEGMENT_GENERATION},
                 self._execute_segment_generation,
@@ -627,16 +625,12 @@ class PipelineOrchestrator:
             )
 
         # Mix all segments (sync I/O — offload to thread)
-        mixed_audio = await asyncio.to_thread(
-            self.mixer.mix_segments, segment_paths
-        )
+        mixed_audio = await asyncio.to_thread(self.mixer.mix_segments, segment_paths)
 
         # Determine output path
         episode_dir = self.storage.get_episode_path(episode.show_id, episode.episode_id)
         output_path = episode_dir / "final_audio.mp3"
-        await asyncio.to_thread(
-            mixed_audio.export, str(output_path), format="mp3"
-        )
+        await asyncio.to_thread(mixed_audio.export, str(output_path), format="mp3")
 
         episode.audio_path = str(output_path)
         episode = self._transition(episode, PipelineStage.COMPLETE)
