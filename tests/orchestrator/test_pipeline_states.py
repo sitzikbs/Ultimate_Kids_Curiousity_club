@@ -3,6 +3,7 @@
 import pytest
 
 from models.episode import Episode, PipelineStage
+from orchestrator.error_handler import StageExecutionError
 from orchestrator.events import EventType
 from orchestrator.pipeline import VALID_TRANSITIONS, PipelineOrchestrator
 from utils.errors import ApprovalRequiredError
@@ -655,7 +656,7 @@ class TestFailedTransitions:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(RuntimeError, match="API error"):
+        with pytest.raises(StageExecutionError, match="API error"):
             await orchestrator.resume_episode("olivers_workshop", "ep_fail_seg")
 
         saved_calls = mock_episode_storage.save_episode.call_args_list
@@ -686,7 +687,7 @@ class TestFailedTransitions:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(RuntimeError, match="Script error"):
+        with pytest.raises(StageExecutionError, match="Script error"):
             await orchestrator.resume_episode("olivers_workshop", "ep_fail_scr")
 
         saved_calls = mock_episode_storage.save_episode.call_args_list
