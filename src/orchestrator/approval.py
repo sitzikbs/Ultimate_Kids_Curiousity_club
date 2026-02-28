@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 from models.episode import Episode, PipelineStage
 from models.story import StoryOutline
 from modules.episode_storage import EpisodeStorage
-from orchestrator.events import EventCallback, PipelineEvent
+from orchestrator.events import EventCallback, EventType, PipelineEvent
 from orchestrator.pipeline import VALID_TRANSITIONS
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ class ApprovalWorkflow:
 
         # Emit event (fire-and-forget for sync callers)
         event = PipelineEvent(
-            event_type="approval_submitted",
+            event_type=EventType.APPROVAL_SUBMITTED,
             episode_id=episode.episode_id,
             show_id=episode.show_id,
             stage=episode.current_stage,

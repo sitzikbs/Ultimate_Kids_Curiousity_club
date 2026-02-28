@@ -528,8 +528,8 @@ class TestExecuteSingleStage:
             PipelineStage.IDEATION,
         )
 
-        # Ideation runner transitions to OUTLINING at the end
-        assert result.current_stage == PipelineStage.OUTLINING
+        # Ideation runner stays at IDEATION; OUTLINING entry is that runner's job
+        assert result.current_stage == PipelineStage.IDEATION
         assert result.concept is not None
 
     @pytest.mark.asyncio
