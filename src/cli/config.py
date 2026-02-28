@@ -83,8 +83,7 @@ def validate_config():
         }
         if provider in key_map and not key_map[provider]:
             issues.append(
-                f"LLM_PROVIDER={provider} requires "
-                f"{provider.upper()}_API_KEY to be set"
+                f"LLM_PROVIDER={provider} requires {provider.upper()}_API_KEY to be set"
             )
 
         tts = settings.TTS_PROVIDER
@@ -104,9 +103,7 @@ def validate_config():
         raise typer.Exit(1)
     else:
         mode = "mock" if settings.USE_MOCK_SERVICES else "live"
-        console.print(
-            f"[green]✓ Configuration valid[/green] (mode: {mode})"
-        )
+        console.print(f"[green]✓ Configuration valid[/green] (mode: {mode})")
 
 
 @config_app.command("providers")

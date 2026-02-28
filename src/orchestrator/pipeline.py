@@ -804,9 +804,7 @@ class PipelineOrchestrator:
                 episode.show_id, episode.episode_id
             )
             output_path = episode_dir / "final_audio.mp3"
-            await asyncio.to_thread(
-                mixed_audio.export, str(output_path), format="mp3"
-            )
+            await asyncio.to_thread(mixed_audio.export, str(output_path), format="mp3")
 
             episode.audio_path = str(output_path)
             episode = self._transition(episode, PipelineStage.COMPLETE)

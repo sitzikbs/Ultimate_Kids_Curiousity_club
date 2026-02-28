@@ -73,7 +73,7 @@ def list_episodes(
             console.print(f"[yellow]No episodes found for show '{show_id}'[/yellow]")
             console.print("\n[dim]Create one with:[/dim]")
             console.print(
-                f"  [cyan]kids-podcast episodes create {show_id} \"My Topic\"[/cyan]"
+                f'  [cyan]kids-podcast episodes create {show_id} "My Topic"[/cyan]'
             )
             return
 
@@ -182,13 +182,9 @@ def show_episode(
 
         # Approval info
         if episode.approval_status:
-            console.print(
-                f"\n[bold]Approval status:[/bold] {episode.approval_status}"
-            )
+            console.print(f"\n[bold]Approval status:[/bold] {episode.approval_status}")
         if episode.approval_feedback:
-            console.print(
-                f"[bold]Feedback:[/bold] {episode.approval_feedback}"
-            )
+            console.print(f"[bold]Feedback:[/bold] {episode.approval_feedback}")
 
         # Outline summary
         if episode.outline:
@@ -259,9 +255,7 @@ def approve_episode(
         if auto_resume:
             pipeline = create_pipeline()
             with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
-                result = _run_async(
-                    pipeline.resume_episode(show_id, episode_id)
-                )
+                result = _run_async(pipeline.resume_episode(show_id, episode_id))
             ep = result.episode
             console.print(
                 f"[bold green]✓ Episode complete![/bold green]  "
@@ -323,9 +317,7 @@ def resume_episode(
         pipeline = create_pipeline()
 
         with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
-            result = _run_async(
-                pipeline.resume_episode(show_id, episode_id)
-            )
+            result = _run_async(pipeline.resume_episode(show_id, episode_id))
 
         episode = result.episode
         console.print(
@@ -362,9 +354,7 @@ def retry_episode(
 
         with console.status("[bold blue]Retrying episode…[/bold blue]"):
             if episode.current_stage == PipelineStage.FAILED:
-                result = _run_async(
-                    pipeline.retry_failed_episode(show_id, episode_id)
-                )
+                result = _run_async(pipeline.retry_failed_episode(show_id, episode_id))
             elif episode.current_stage == PipelineStage.REJECTED:
                 result = _run_async(
                     pipeline.retry_rejected_episode(show_id, episode_id)
@@ -407,15 +397,11 @@ def reset_episode(
     stage: str = typer.Argument(
         ..., help="Target stage (ideation, outlining, segment_generation, …)"
     ),
-    confirm: bool = typer.Option(
-        False, "--yes", "-y", help="Skip confirmation prompt"
-    ),
+    confirm: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompt"),
 ):
     """Reset an episode to a previous stage for manual recovery."""
     if not confirm:
-        typer.confirm(
-            f"Reset episode '{episode_id}' to stage '{stage}'?", abort=True
-        )
+        typer.confirm(f"Reset episode '{episode_id}' to stage '{stage}'?", abort=True)
 
     try:
         pipeline = create_pipeline()
@@ -437,9 +423,7 @@ def reset_episode(
 def delete_episode(
     show_id: str = typer.Argument(..., help="Show identifier"),
     episode_id: str = typer.Argument(..., help="Episode identifier"),
-    confirm: bool = typer.Option(
-        False, "--yes", "-y", help="Skip confirmation prompt"
-    ),
+    confirm: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompt"),
 ):
     """Delete an episode permanently."""
     if not confirm:
