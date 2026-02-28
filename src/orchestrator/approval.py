@@ -4,6 +4,7 @@ Handles the approval gate between OUTLINING and SEGMENT_GENERATION,
 supporting approve, reject, and outline editing operations.
 """
 
+import asyncio
 import inspect
 import logging
 from datetime import UTC, datetime, timedelta
@@ -12,6 +13,7 @@ from models.episode import Episode, PipelineStage
 from models.story import StoryOutline
 from modules.episode_storage import EpisodeStorage
 from orchestrator.events import EventCallback, PipelineEvent
+from orchestrator.pipeline import VALID_TRANSITIONS
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +146,13 @@ class ApprovalWorkflow:
         feedback: str | None,
     ) -> None:
         """Apply approval to episode."""
+        target = PipelineStage.APPROVED
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+            raise ValueError(
+                f"Invalid transition: "
+                f"{episode.current_stage.value} \u2192 {target.value}"
+            )
+
         if edited_outline is not None:
             episode.outline = edited_outline
             logger.info(
@@ -151,7 +160,7 @@ class ApprovalWorkflow:
                 episode.episode_id,
             )
 
-        episode.current_stage = PipelineStage.APPROVED
+        episode.current_stage = target
         episode.approval_status = "approved"
         episode.approval_feedback = feedback
         episode.updated_at = datetime.now(UTC)
@@ -163,7 +172,13 @@ class ApprovalWorkflow:
         feedback: str | None,
     ) -> None:
         """Apply rejection to episode."""
-        episode.current_stage = PipelineStage.REJECTED
+        target = PipelineStage.REJECTED
+        if target not in VALID_TRANSITIONS.get(episode.current_stage, []):
+            raise ValueError(
+                f"Invalid transition: "
+                f"{episode.current_stage.value} \u2192 {target.value}"
+            )
+        episode.current_stage = target
         episode.approval_status = "rejected"
         episode.approval_feedback = feedback
         episode.updated_at = datetime.now(UTC)
@@ -177,7 +192,7 @@ class ApprovalWorkflow:
         if inspect.isawaitable(result):
             # Best-effort in sync context — schedule on running loop if available
             try:
-                loop = __import__("asyncio").get_running_loop()
+                loop = asyncio.get_running_loop()
                 loop.create_task(result)  # type: ignore[arg-type]
             except RuntimeError:
                 # No event loop running; close the coroutine to avoid warnings

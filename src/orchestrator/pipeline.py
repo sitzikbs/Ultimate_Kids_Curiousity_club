@@ -11,9 +11,9 @@ Use ApprovalWorkflow to approve/reject and then resume_episode() to continue.
 import inspect
 import logging
 import re
+import uuid
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 from models.episode import Episode, PipelineStage
 from models.show import ShowBlueprint
@@ -98,7 +98,8 @@ class PipelineOrchestrator:
             episode_storage: Persists episode state
             event_callback: Optional callback for pipeline events
         """
-        # TODO(WP6a): Integrate prompt_enhancer into stage execution
+        # NOTE: prompt_enhancer stored for future use
+        # (WP6b: prompt enhancement integration)
         self.prompt_enhancer = prompt_enhancer
         self.ideation = ideation_service
         self.outline = outline_service
@@ -119,7 +120,7 @@ class PipelineOrchestrator:
         show_id: str,
         topic: str,
         title: str | None = None,
-    ) -> Episode:
+    ) -> NoReturn:
         """Start generating a new episode.
 
         Creates the episode, runs IDEATION → OUTLINING, then pauses at
@@ -130,12 +131,11 @@ class PipelineOrchestrator:
             topic: Topic / educational concept for the episode
             title: Optional explicit title; auto-generated if omitted
 
-        Returns:
-            Episode paused at AWAITING_APPROVAL stage
-
         Raises:
             FileNotFoundError: If show_id does not exist
-            ApprovalRequiredError: When the pipeline reaches the approval gate
+            ApprovalRequiredError: Always raised when the pipeline reaches
+                the approval gate. Use episode_id/show_id from the exception
+                to present the approval UI and later call resume_episode().
         """
         # Load Show Blueprint
         show_blueprint = self.show_manager.load_show(show_id)
@@ -159,8 +159,14 @@ class PipelineOrchestrator:
         )
 
         # Execute pre-approval stages
-        episode = await self._execute_ideation(episode, show_blueprint)
-        episode = await self._execute_outlining(episode, show_blueprint)
+        try:
+            episode = await self._execute_ideation(episode, show_blueprint)
+            episode = await self._execute_outlining(episode, show_blueprint)
+        except Exception:
+            if self.can_transition_to(episode.current_stage, PipelineStage.FAILED):
+                self._transition(episode, PipelineStage.FAILED)
+                self.storage.save_episode(episode)
+            raise
 
         # Transition to approval gate
         episode = self._transition(episode, PipelineStage.AWAITING_APPROVAL)
@@ -231,8 +237,14 @@ class PipelineOrchestrator:
                 f"(current: {episode.current_stage.value})"
             )
 
-        for runner in runners:
-            episode = await runner(episode, show_blueprint)
+        try:
+            for runner in runners:
+                episode = await runner(episode, show_blueprint)
+        except Exception:
+            if self.can_transition_to(episode.current_stage, PipelineStage.FAILED):
+                self._transition(episode, PipelineStage.FAILED)
+                self.storage.save_episode(episode)
+            raise
 
         # Finalize — update Show Blueprint concepts
         self._finalize_episode(episode, show_blueprint)
@@ -394,7 +406,7 @@ class PipelineOrchestrator:
         # Build speaker → voice_config lookup from blueprint
         voice_map = self._build_voice_map(show_blueprint)
 
-        segment_audio_paths: list[Path] = []
+        segment_audio_paths: list[str] = []
         block_counter = 0
 
         for script in episode.scripts:
@@ -411,10 +423,10 @@ class PipelineOrchestrator:
                     voice_config=voice_config,
                     segment_number=block_counter,
                 )
-                segment_audio_paths.append(result.audio_path)
+                segment_audio_paths.append(str(result.audio_path))
 
         # Store paths for the mixing stage (proper model field for persistence)
-        episode.audio_segment_paths = [str(p) for p in segment_audio_paths]
+        episode.audio_segment_paths = segment_audio_paths
         episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
         self.storage.save_episode(episode)
         await self._emit_event(
@@ -433,7 +445,12 @@ class PipelineOrchestrator:
         episode: Episode,
         show_blueprint: ShowBlueprint,
     ) -> Episode:
-        """Run AUDIO_MIXING stage: mix segments into final audio file."""
+        """Run AUDIO_MIXING stage: mix segments into final audio file.
+
+        Args:
+            episode: Episode with audio_segment_paths populated
+            show_blueprint: Unused; kept for runner signature consistency
+        """
         if episode.current_stage != PipelineStage.AUDIO_MIXING:
             episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
             self.storage.save_episode(episode)
@@ -556,7 +573,8 @@ class PipelineOrchestrator:
         """Generate a URL-safe episode ID from the topic."""
         slug = re.sub(r"[^a-z0-9]+", "_", topic.lower()).strip("_")[:40]
         ts = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
-        return f"ep_{slug}_{ts}"
+        short_uid = uuid.uuid4().hex[:8]
+        return f"ep_{slug}_{ts}_{short_uid}"
 
     @staticmethod
     def _generate_title(topic: str) -> str:

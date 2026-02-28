@@ -196,10 +196,12 @@ class TestSubmitApproval:
             approved=True,
         )
 
-        # The callback was invoked (may be scheduled via create_task)
-        # Check that event_callback was called at least conceptually
-        # In sync context the async callback is fire-and-forget via create_task
-        # We just verify no exceptions were raised
+        # The callback was invoked (in sync context the coroutine is closed,
+        # but the mock records the call)
+        assert mock_event_callback.called
+        event = mock_event_callback.call_args[0][0]
+        assert event.event_type == "approval_submitted"
+        assert event.episode_id == "ep_evt"
 
 
 class TestApprovalTimeout:
