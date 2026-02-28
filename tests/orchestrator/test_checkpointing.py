@@ -3,7 +3,6 @@
 import pytest
 
 from models.episode import Episode, PipelineStage
-from utils.errors import ApprovalRequiredError
 
 # ---------------------------------------------------------------------------
 # Checkpoint save after each stage
@@ -20,8 +19,8 @@ class TestCheckpointSaving:
         mock_episode_storage,
     ):
         """Ideation checkpoint records concept_length."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         assert "ideation" in saved.checkpoints
@@ -37,8 +36,8 @@ class TestCheckpointSaving:
         mock_episode_storage,
     ):
         """Outlining checkpoint records beat count."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         assert "outlining" in saved.checkpoints
@@ -96,8 +95,8 @@ class TestCostTracking:
         mock_episode_storage,
     ):
         """total_cost equals the sum of individual checkpoint cost values."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         expected_total = sum(cp.get("cost", 0.0) for cp in saved.checkpoints.values())

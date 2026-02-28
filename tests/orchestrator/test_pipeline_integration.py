@@ -8,7 +8,6 @@ import pytest
 
 from models.episode import Episode, PipelineStage
 from orchestrator.error_handler import StageExecutionError
-from utils.errors import ApprovalRequiredError
 
 # ---------------------------------------------------------------------------
 # Full pipeline: generate → approve → resume → COMPLETE
@@ -27,10 +26,10 @@ class TestFullPipelineIntegration:
     ):
         """Full pipeline run produces checkpoints at every stage."""
         # --- Pre-approval ---
-        with pytest.raises(ApprovalRequiredError) as exc_info:
-            await orchestrator.generate_episode("olivers_workshop", "gravity")
+        result = await orchestrator.generate_episode("olivers_workshop", "gravity")
+        assert result.is_approval_required
 
-        episode_id = exc_info.value.context["episode_id"]
+        episode_id = result.episode.episode_id
 
         # Verify pre-approval checkpoints
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
@@ -71,10 +70,10 @@ class TestFullPipelineIntegration:
         approval_workflow,
     ):
         """Completed episode has concept, outline, segments, scripts, audio."""
-        with pytest.raises(ApprovalRequiredError) as exc_info:
-            await orchestrator.generate_episode("olivers_workshop", "volcanoes")
+        result = await orchestrator.generate_episode("olivers_workshop", "volcanoes")
+        assert result.is_approval_required
 
-        episode_id = exc_info.value.context["episode_id"]
+        episode_id = result.episode.episode_id
 
         approval_workflow.submit_approval(
             show_id="olivers_workshop",
