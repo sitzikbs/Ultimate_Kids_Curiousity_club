@@ -12,6 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from cli.factory import create_approval_workflow, create_pipeline, create_storage
+from cli.progress import PipelineProgress
 from models.episode import PipelineStage
 
 logger = logging.getLogger(__name__)
@@ -116,9 +117,10 @@ def create_episode(
     The pipeline pauses at the approval gate. Use 'approve' or 'reject' next.
     """
     try:
-        pipeline = create_pipeline()
+        progress = PipelineProgress(console=console, phase="pre-approval")
+        pipeline = create_pipeline(event_callback=progress.event_callback)
 
-        with console.status("[bold blue]Generating episode…[/bold blue]"):
+        with progress:
             result = _run_async(
                 pipeline.generate_episode(
                     show_id=show_id,
@@ -127,6 +129,7 @@ def create_episode(
                 )
             )
 
+        console.print(progress.format_summary())
         episode = result.episode
         console.print(
             Panel(
@@ -253,9 +256,11 @@ def approve_episode(
         console.print(f"[green]✓ Episode {episode_id} approved[/green]")
 
         if auto_resume:
-            pipeline = create_pipeline()
-            with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
+            progress = PipelineProgress(console=console, phase="post-approval")
+            pipeline = create_pipeline(event_callback=progress.event_callback)
+            with progress:
                 result = _run_async(pipeline.resume_episode(show_id, episode_id))
+            console.print(progress.format_summary())
             ep = result.episode
             console.print(
                 f"[bold green]✓ Episode complete![/bold green]  "
@@ -314,11 +319,13 @@ def resume_episode(
 ):
     """Resume an approved episode through remaining pipeline stages."""
     try:
-        pipeline = create_pipeline()
+        progress = PipelineProgress(console=console, phase="post-approval")
+        pipeline = create_pipeline(event_callback=progress.event_callback)
 
-        with console.status("[bold cyan]Resuming pipeline…[/bold cyan]"):
+        with progress:
             result = _run_async(pipeline.resume_episode(show_id, episode_id))
 
+        console.print(progress.format_summary())
         episode = result.episode
         console.print(
             f"[bold green]✓ Episode complete![/bold green]  "

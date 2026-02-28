@@ -249,7 +249,10 @@
 #### Completed Tasks
 - [x] Show Management Commands (4/4 subtasks: list, create, init, info)
 - [x] Show Blueprint Commands (3/3 subtasks: characters, concepts, suggest-topics)
-- [x] Episode Commands (3/3 subtasks: create, list, resume)
+- [x] Episode Commands (10/10 subtasks: create, list, show, approve, reject, resume, retry, reset, delete, pending)
+- [x] Configuration Commands (2/5 subtasks: show, validate; set-provider/toggle-mock/api-keys deferred)
+- [x] Progress Visualization (6/6 subtasks: progress bars, stage %, time estimate, color-coded, spinner, cost)
+- [x] CLI Integration Tests (5/5 subtasks: 53 tests across 4 test modules)
 - [x] Testing Commands (2/2 subtasks)
 
 **Key Features:** Complete CLI for Show Blueprint management and episode generation
