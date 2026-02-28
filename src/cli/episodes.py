@@ -248,7 +248,7 @@ def approve_episode(
     """Approve an episode outline and optionally resume the pipeline."""
     try:
         workflow = create_approval_workflow()
-        episode = workflow.submit_approval(
+        workflow.submit_approval(
             show_id=show_id,
             episode_id=episode_id,
             approved=True,
@@ -293,7 +293,7 @@ def reject_episode(
     """Reject an episode outline."""
     try:
         workflow = create_approval_workflow()
-        episode = workflow.submit_approval(
+        workflow.submit_approval(
             show_id=show_id,
             episode_id=episode_id,
             approved=False,

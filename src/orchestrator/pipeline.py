@@ -30,7 +30,7 @@ from orchestrator.error_handler import (
 from orchestrator.events import EventCallback, EventType, PipelineEvent
 from orchestrator.progress_tracker import ProgressTracker
 from orchestrator.result import PipelineResult, PipelineResultStatus
-from orchestrator.transitions import VALID_TRANSITIONS, can_transition_to
+from orchestrator.transitions import can_transition_to
 from services.protocols import (
     AudioMixerProtocol,
     AudioSynthesisProtocol,
@@ -349,7 +349,10 @@ class PipelineOrchestrator:
         return PipelineResult(
             status=PipelineResultStatus.APPROVAL_REQUIRED,
             episode=episode,
-            message=f"Episode {episode.episode_id} awaiting approval (retry after rejection)",
+            message=(
+                f"Episode {episode.episode_id} awaiting approval"
+                " (retry after rejection)"
+            ),
         )
 
     async def execute_single_stage(
@@ -654,7 +657,8 @@ class PipelineOrchestrator:
         async with self._stage_events(episode, "Segment Generation"):
             if not episode.outline:
                 raise ValueError(
-                    f"Episode {episode.episode_id} has no outline for segment generation"
+                    f"Episode {episode.episode_id} has no outline"
+                    " for segment generation"
                 )
             segments = await self.segment.generate_segments(
                 outline=episode.outline,
@@ -683,7 +687,8 @@ class PipelineOrchestrator:
         async with self._stage_events(episode, "Script Generation"):
             if not episode.segments:
                 raise ValueError(
-                    f"Episode {episode.episode_id} has no segments for script generation"
+                    f"Episode {episode.episode_id} has no segments"
+                    " for script generation"
                 )
             scripts = await self.script.generate_scripts(
                 segments=episode.segments,

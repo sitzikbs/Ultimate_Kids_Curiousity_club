@@ -9,10 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from models.episode import Episode, PipelineStage
-from models.show import Character, Protagonist, Show, ShowBlueprint, WorldDescription
+from models.episode import Episode
+from models.show import Show, ShowBlueprint
 from models.story import Script, StoryOutline, StorySegment
-
 
 # ---------------------------------------------------------------------------
 # LLM service protocols
