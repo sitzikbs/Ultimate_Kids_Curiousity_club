@@ -38,8 +38,15 @@ class Episode(BaseModel):
     segments: list[StorySegment] = Field(
         default_factory=list, description="Story segments"
     )
+    concept: str | None = Field(
+        default=None, description="Generated story concept from ideation"
+    )
     scripts: list[Script] = Field(
         default_factory=list, description="Scripts for each segment"
+    )
+    audio_segment_paths: list[str] = Field(
+        default_factory=list,
+        description="Paths to individual audio segments from TTS synthesis",
     )
     audio_path: str | None = Field(default=None, description="Path to final audio file")
     current_stage: PipelineStage = Field(
