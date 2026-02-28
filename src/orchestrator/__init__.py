@@ -8,8 +8,10 @@ from orchestrator.error_handler import (
     StageExecutionError,
 )
 from orchestrator.events import EventCallback, EventType, PipelineEvent
-from orchestrator.pipeline import VALID_TRANSITIONS, PipelineOrchestrator
+from orchestrator.pipeline import PipelineOrchestrator
 from orchestrator.progress_tracker import ProgressTracker
+from orchestrator.result import PipelineResult, PipelineResultStatus
+from orchestrator.transitions import VALID_TRANSITIONS, can_transition_to
 
 __all__ = [
     "ApprovalWorkflow",
@@ -20,7 +22,10 @@ __all__ = [
     "PipelineError",
     "PipelineEvent",
     "PipelineOrchestrator",
+    "PipelineResult",
+    "PipelineResultStatus",
     "ProgressTracker",
     "StageExecutionError",
     "VALID_TRANSITIONS",
+    "can_transition_to",
 ]

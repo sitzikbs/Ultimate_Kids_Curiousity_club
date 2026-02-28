@@ -3,7 +3,6 @@
 import pytest
 
 from models.episode import Episode, PipelineStage
-from utils.errors import ApprovalRequiredError
 
 
 class TestBlueprintLoading:
@@ -12,8 +11,7 @@ class TestBlueprintLoading:
     @pytest.mark.asyncio
     async def test_blueprint_loaded_at_generate(self, orchestrator, mock_show_manager):
         """ShowBlueprintManager.load_show() is called at pipeline start."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         mock_show_manager.load_show.assert_called_with("olivers_workshop")
 
@@ -60,8 +58,7 @@ class TestBlueprintContextInjection:
         self, orchestrator, mock_ideation_service, sample_blueprint
     ):
         """Ideation service receives the loaded ShowBlueprint."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         call_kwargs = mock_ideation_service.generate_concept.call_args.kwargs
         assert call_kwargs["show_blueprint"] is sample_blueprint
@@ -71,8 +68,7 @@ class TestBlueprintContextInjection:
         self, orchestrator, mock_outline_service, sample_blueprint
     ):
         """Outline service receives the loaded ShowBlueprint."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         call_kwargs = mock_outline_service.generate_outline.call_args.kwargs
         assert call_kwargs["show_blueprint"] is sample_blueprint
@@ -249,7 +245,7 @@ class TestConceptsUpdate:
 
         # Should NOT raise
         result = await orchestrator.resume_episode("olivers_workshop", "ep_concept_err")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE
 
 
 class TestEpisodeLinking:
@@ -309,4 +305,4 @@ class TestEpisodeLinking:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_link_err")
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert result.episode.current_stage == PipelineStage.COMPLETE

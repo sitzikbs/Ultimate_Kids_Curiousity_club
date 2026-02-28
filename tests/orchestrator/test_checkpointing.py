@@ -3,7 +3,6 @@
 import pytest
 
 from models.episode import Episode, PipelineStage
-from utils.errors import ApprovalRequiredError
 
 # ---------------------------------------------------------------------------
 # Checkpoint save after each stage
@@ -20,8 +19,8 @@ class TestCheckpointSaving:
         mock_episode_storage,
     ):
         """Ideation checkpoint records concept_length."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         assert "ideation" in saved.checkpoints
@@ -37,8 +36,8 @@ class TestCheckpointSaving:
         mock_episode_storage,
     ):
         """Outlining checkpoint records beat count."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         assert "outlining" in saved.checkpoints
@@ -67,16 +66,17 @@ class TestCheckpointSaving:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_chk_all")
+        ep = result.episode
 
-        assert result.current_stage == PipelineStage.COMPLETE
+        assert ep.current_stage == PipelineStage.COMPLETE
         for stage_name in [
             "segment_generation",
             "script_generation",
             "audio_synthesis",
             "audio_mixing",
         ]:
-            assert stage_name in result.checkpoints, f"Missing checkpoint: {stage_name}"
-            cp = result.checkpoints[stage_name]
+            assert stage_name in ep.checkpoints, f"Missing checkpoint: {stage_name}"
+            cp = ep.checkpoints[stage_name]
             assert "completed_at" in cp
             assert "output" in cp
 
@@ -96,8 +96,8 @@ class TestCostTracking:
         mock_episode_storage,
     ):
         """total_cost equals the sum of individual checkpoint cost values."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         expected_total = sum(cp.get("cost", 0.0) for cp in saved.checkpoints.values())
@@ -125,10 +125,11 @@ class TestCostTracking:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_cost")
+        ep = result.episode
 
-        assert result.total_cost >= 0.0
+        assert ep.total_cost >= 0.0
         # Every checkpoint should have a cost key
-        for stage_name, cp in result.checkpoints.items():
+        for stage_name, cp in ep.checkpoints.items():
             assert "cost" in cp, f"Checkpoint {stage_name} missing cost key"
 
 
@@ -162,10 +163,10 @@ class TestCheckpointResetToStage:
         mock_episode_storage.save_episode(episode)
 
         completed = await orchestrator.resume_episode("olivers_workshop", "ep_reset")
-        assert completed.current_stage == PipelineStage.COMPLETE
+        assert completed.episode.current_stage == PipelineStage.COMPLETE
 
         # Now reset to segment_generation
-        mock_episode_storage.save_episode(completed)
+        mock_episode_storage.save_episode(completed.episode)
         reset_ep = await orchestrator.reset_to_stage(
             "olivers_workshop", "ep_reset", "segment_generation"
         )

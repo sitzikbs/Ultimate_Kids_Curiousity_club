@@ -5,8 +5,8 @@ import pytest
 from models.episode import Episode, PipelineStage
 from orchestrator.error_handler import StageExecutionError
 from orchestrator.events import EventType
-from orchestrator.pipeline import VALID_TRANSITIONS, PipelineOrchestrator
-from utils.errors import ApprovalRequiredError
+from orchestrator.pipeline import PipelineOrchestrator
+from orchestrator.transitions import VALID_TRANSITIONS
 
 # ---------------------------------------------------------------------------
 # State transition validation
@@ -96,17 +96,17 @@ class TestGenerateEpisode:
 
     @pytest.mark.asyncio
     async def test_raises_approval_required(self, orchestrator):
-        """generate_episode() raises ApprovalRequiredError at approval gate."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        """generate_episode() returns PipelineResult with APPROVAL_REQUIRED."""
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
     @pytest.mark.asyncio
     async def test_episode_saved_at_awaiting_approval(
         self, orchestrator, mock_episode_storage
     ):
         """Episode is persisted in AWAITING_APPROVAL stage."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         # The last save should be at AWAITING_APPROVAL
         saved_calls = mock_episode_storage.save_episode.call_args_list
@@ -119,8 +119,8 @@ class TestGenerateEpisode:
         self, orchestrator, mock_ideation_service, sample_blueprint
     ):
         """IdeationService.generate_concept() is invoked with topic and blueprint."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         mock_ideation_service.generate_concept.assert_awaited_once()
         call_kwargs = mock_ideation_service.generate_concept.call_args
@@ -132,8 +132,8 @@ class TestGenerateEpisode:
         self, orchestrator, mock_outline_service, sample_concept
     ):
         """OutlineService.generate_outline() is invoked with concept and blueprint."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         mock_outline_service.generate_outline.assert_awaited_once()
         call_kwargs = mock_outline_service.generate_outline.call_args
@@ -144,8 +144,8 @@ class TestGenerateEpisode:
         self, orchestrator, mock_episode_storage
     ):
         """Episode stores both concept and outline after pre-approval stages."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[-1][0][0]
         assert saved.concept is not None
@@ -154,8 +154,7 @@ class TestGenerateEpisode:
     @pytest.mark.asyncio
     async def test_auto_generated_title(self, orchestrator, mock_episode_storage):
         """Title is auto-generated when not explicitly provided."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[0][0][0]
         assert saved.title == "Rockets"
@@ -163,10 +162,9 @@ class TestGenerateEpisode:
     @pytest.mark.asyncio
     async def test_explicit_title(self, orchestrator, mock_episode_storage):
         """Explicit title is used when provided."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode(
-                "olivers_workshop", "rockets", title="Blast Off!"
-            )
+        await orchestrator.generate_episode(
+            "olivers_workshop", "rockets", title="Blast Off!"
+        )
 
         saved: Episode = mock_episode_storage.save_episode.call_args_list[0][0][0]
         assert saved.title == "Blast Off!"
@@ -174,8 +172,7 @@ class TestGenerateEpisode:
     @pytest.mark.asyncio
     async def test_events_emitted(self, orchestrator, mock_event_callback):
         """Pipeline events are emitted during generation."""
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        await orchestrator.generate_episode("olivers_workshop", "rockets")
 
         # Should have stage_started/completed for ideation and outlining,
         # plus approval_required
@@ -217,11 +214,12 @@ class TestResumeEpisode:
         mock_episode_storage.save_episode(episode)
 
         result = await orchestrator.resume_episode("olivers_workshop", "ep_test_001")
+        ep = result.episode
 
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.segments  # segments populated
-        assert result.scripts  # scripts populated
-        assert result.audio_path is not None
+        assert ep.current_stage == PipelineStage.COMPLETE
+        assert ep.segments  # segments populated
+        assert ep.scripts  # scripts populated
+        assert ep.audio_path is not None
 
     @pytest.mark.asyncio
     async def test_segment_service_called_with_blueprint(
@@ -471,8 +469,8 @@ class TestEndToEnd:
     ):
         """Complete flow: generate → approve → resume → COMPLETE."""
         # 1. Generate — should pause at approval
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.generate_episode("olivers_workshop", "rockets")
+        result = await orchestrator.generate_episode("olivers_workshop", "rockets")
+        assert result.is_approval_required
 
         # Find the saved episode
         saved_episodes = mock_episode_storage._episodes
@@ -495,8 +493,8 @@ class TestEndToEnd:
 
         # 3. Resume — should run to COMPLETE
         result = await orchestrator.resume_episode(show_id, episode_id)
-        assert result.current_stage == PipelineStage.COMPLETE
-        assert result.audio_path is not None
+        assert result.episode.current_stage == PipelineStage.COMPLETE
+        assert result.episode.audio_path is not None
 
 
 # ---------------------------------------------------------------------------
@@ -721,8 +719,10 @@ class TestRetryFailedEpisode:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.retry_failed_episode("olivers_workshop", "ep_retry_fail")
+        result = await orchestrator.retry_failed_episode(
+            "olivers_workshop", "ep_retry_fail"
+        )
+        assert result.is_approval_required
 
         loaded = mock_episode_storage.load_episode("olivers_workshop", "ep_retry_fail")
         assert loaded.current_stage == PipelineStage.AWAITING_APPROVAL
@@ -771,10 +771,10 @@ class TestRetryRejectedEpisode:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(ApprovalRequiredError):
-            await orchestrator.retry_rejected_episode(
-                "olivers_workshop", "ep_retry_rej"
-            )
+        result = await orchestrator.retry_rejected_episode(
+            "olivers_workshop", "ep_retry_rej"
+        )
+        assert result.is_approval_required
 
         loaded = mock_episode_storage.load_episode("olivers_workshop", "ep_retry_rej")
         assert loaded.current_stage == PipelineStage.AWAITING_APPROVAL

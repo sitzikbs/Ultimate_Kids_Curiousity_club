@@ -13,14 +13,12 @@ import inspect
 import logging
 import re
 import uuid
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from typing import Any, NoReturn
+from typing import Any
 
 from models.episode import Episode, PipelineStage
 from models.show import ShowBlueprint
-from modules.episode_storage import EpisodeStorage
-from modules.prompts.enhancer import PromptEnhancer
-from modules.show_blueprint_manager import ShowBlueprintManager
 from orchestrator.error_handler import (
     STAGE_NAME_TO_ENUM,
     STAGE_ORDER,
@@ -31,47 +29,21 @@ from orchestrator.error_handler import (
 )
 from orchestrator.events import EventCallback, EventType, PipelineEvent
 from orchestrator.progress_tracker import ProgressTracker
-from services.audio.mixer import AudioMixer
-from services.llm.ideation_service import IdeationService
-from services.llm.outline_service import OutlineService
-from services.llm.script_generation_service import ScriptGenerationService
-from services.llm.segment_generation_service import SegmentGenerationService
-from services.tts.synthesis_service import AudioSynthesisService
-from utils.errors import ApprovalRequiredError
+from orchestrator.result import PipelineResult, PipelineResultStatus
+from orchestrator.transitions import can_transition_to
+from services.protocols import (
+    AudioMixerProtocol,
+    AudioSynthesisProtocol,
+    BlueprintManagerProtocol,
+    EpisodeStorageProtocol,
+    IdeationServiceProtocol,
+    OutlineServiceProtocol,
+    PromptEnhancerProtocol,
+    ScriptServiceProtocol,
+    SegmentServiceProtocol,
+)
 
 logger = logging.getLogger(__name__)
-
-# Valid state transitions map
-VALID_TRANSITIONS: dict[PipelineStage, set[PipelineStage]] = {
-    PipelineStage.PENDING: {PipelineStage.IDEATION},
-    PipelineStage.IDEATION: {PipelineStage.OUTLINING, PipelineStage.FAILED},
-    PipelineStage.OUTLINING: {PipelineStage.AWAITING_APPROVAL, PipelineStage.FAILED},
-    PipelineStage.AWAITING_APPROVAL: {
-        PipelineStage.APPROVED,
-        PipelineStage.REJECTED,
-        PipelineStage.FAILED,
-    },
-    PipelineStage.APPROVED: {
-        PipelineStage.SEGMENT_GENERATION,
-        PipelineStage.FAILED,
-    },
-    PipelineStage.SEGMENT_GENERATION: {
-        PipelineStage.SCRIPT_GENERATION,
-        PipelineStage.FAILED,
-    },
-    PipelineStage.SCRIPT_GENERATION: {
-        PipelineStage.AUDIO_SYNTHESIS,
-        PipelineStage.FAILED,
-    },
-    PipelineStage.AUDIO_SYNTHESIS: {
-        PipelineStage.AUDIO_MIXING,
-        PipelineStage.FAILED,
-    },
-    PipelineStage.AUDIO_MIXING: {PipelineStage.COMPLETE, PipelineStage.FAILED},
-    PipelineStage.REJECTED: {PipelineStage.IDEATION},
-    PipelineStage.COMPLETE: set(),
-    PipelineStage.FAILED: {PipelineStage.PENDING},
-}
 
 
 class PipelineOrchestrator:
@@ -83,15 +55,15 @@ class PipelineOrchestrator:
 
     def __init__(
         self,
-        prompt_enhancer: PromptEnhancer,
-        ideation_service: IdeationService,
-        outline_service: OutlineService,
-        segment_service: SegmentGenerationService,
-        script_service: ScriptGenerationService,
-        synthesis_service: AudioSynthesisService,
-        audio_mixer: AudioMixer,
-        show_blueprint_manager: ShowBlueprintManager,
-        episode_storage: EpisodeStorage,
+        prompt_enhancer: PromptEnhancerProtocol,
+        ideation_service: IdeationServiceProtocol,
+        outline_service: OutlineServiceProtocol,
+        segment_service: SegmentServiceProtocol,
+        script_service: ScriptServiceProtocol,
+        synthesis_service: AudioSynthesisProtocol,
+        audio_mixer: AudioMixerProtocol,
+        show_blueprint_manager: BlueprintManagerProtocol,
+        episode_storage: EpisodeStorageProtocol,
         event_callback: EventCallback | None = None,
     ) -> None:
         """Initialize orchestrator with all service dependencies.
@@ -132,7 +104,7 @@ class PipelineOrchestrator:
         show_id: str,
         topic: str,
         title: str | None = None,
-    ) -> NoReturn:
+    ) -> PipelineResult:
         """Start generating a new episode.
 
         Creates the episode, runs IDEATION → OUTLINING, then pauses at
@@ -143,11 +115,12 @@ class PipelineOrchestrator:
             topic: Topic / educational concept for the episode
             title: Optional explicit title; auto-generated if omitted
 
+        Returns:
+            PipelineResult with APPROVAL_REQUIRED status on success,
+            or FAILED status if a stage raises an exception.
+
         Raises:
             FileNotFoundError: If show_id does not exist
-            ApprovalRequiredError: Always raised when the pipeline reaches
-                the approval gate. Use episode_id/show_id from the exception
-                to present the approval UI and later call resume_episode().
         """
         # Load Show Blueprint
         show_blueprint = self.show_manager.load_show(show_id)
@@ -187,17 +160,17 @@ class PipelineOrchestrator:
         self.storage.save_episode(episode)
         await self._emit_event(EventType.APPROVAL_REQUIRED, episode)
 
-        raise ApprovalRequiredError(
-            f"Episode {episode.episode_id} awaiting approval",
-            episode_id=episode.episode_id,
-            show_id=show_id,
+        return PipelineResult(
+            status=PipelineResultStatus.APPROVAL_REQUIRED,
+            episode=episode,
+            message=f"Episode {episode.episode_id} awaiting approval",
         )
 
     async def resume_episode(
         self,
         show_id: str,
         episode_id: str,
-    ) -> Episode:
+    ) -> PipelineResult:
         """Resume an approved episode through remaining stages.
 
         Continues the pipeline from the episode's current stage to COMPLETE.
@@ -207,7 +180,7 @@ class PipelineOrchestrator:
             episode_id: Episode identifier
 
         Returns:
-            Completed Episode
+            PipelineResult with COMPLETED status on success.
 
         Raises:
             ValueError: If episode is not in a resumable stage
@@ -219,22 +192,26 @@ class PipelineOrchestrator:
         # the episode's current position so adding a stage requires only
         # one entry here.  Multiple stages can share a runner (e.g.
         # APPROVED and SEGMENT_GENERATION both enter segment generation).
-        post_approval_pipeline: list[tuple[set[PipelineStage], Any]] = [
+        post_approval_pipeline: list[tuple[set[PipelineStage], Any, str]] = [
             (
                 {PipelineStage.APPROVED, PipelineStage.SEGMENT_GENERATION},
                 self._execute_segment_generation,
+                "segment_generation",
             ),
             (
                 {PipelineStage.SCRIPT_GENERATION},
                 self._execute_script_generation,
+                "script_generation",
             ),
             (
                 {PipelineStage.AUDIO_SYNTHESIS},
                 self._execute_audio_synthesis,
+                "audio_synthesis",
             ),
             (
                 {PipelineStage.AUDIO_MIXING},
                 self._execute_audio_mixing,
+                "audio_mixing",
             ),
         ]
 
@@ -242,7 +219,7 @@ class PipelineOrchestrator:
         try:
             start_idx = next(
                 i
-                for i, (stages, _) in enumerate(post_approval_pipeline)
+                for i, (stages, _, _) in enumerate(post_approval_pipeline)
                 if episode.current_stage in stages
             )
         except StopIteration:
@@ -251,16 +228,9 @@ class PipelineOrchestrator:
                 f"(current: {episode.current_stage.value})"
             )
 
-        runners = [runner for _, runner in post_approval_pipeline[start_idx:]]
-        runner_names = [
-            "segment_generation",
-            "script_generation",
-            "audio_synthesis",
-            "audio_mixing",
-        ]
-        runner_names = runner_names[start_idx:]
+        remaining = post_approval_pipeline[start_idx:]
 
-        for runner, stage_name in zip(runners, runner_names):
+        for _, runner, stage_name in remaining:
             service_name = STAGE_SERVICE_MAP.get(
                 STAGE_NAME_TO_ENUM.get(stage_name, PipelineStage.PENDING), "llm"
             )
@@ -269,15 +239,19 @@ class PipelineOrchestrator:
             )
 
         # Finalize — update Show Blueprint concepts
-        self._finalize_episode(episode, show_blueprint)
+        await self._finalize_episode(episode, show_blueprint)
 
-        return episode
+        return PipelineResult(
+            status=PipelineResultStatus.COMPLETED,
+            episode=episode,
+            message=f"Episode {episode.episode_id} complete",
+        )
 
     async def retry_failed_episode(
         self,
         show_id: str,
         episode_id: str,
-    ) -> NoReturn:
+    ) -> PipelineResult:
         """Reset a FAILED episode to PENDING and re-run from the start.
 
         Transitions FAILED → PENDING, then delegates to ``generate_episode``
@@ -287,9 +261,11 @@ class PipelineOrchestrator:
             show_id: Show identifier
             episode_id: Episode identifier
 
+        Returns:
+            PipelineResult with APPROVAL_REQUIRED status on success.
+
         Raises:
             ValueError: If episode is not in FAILED stage
-            ApprovalRequiredError: Always raised at the approval gate
         """
         episode = self.storage.load_episode(show_id, episode_id)
 
@@ -320,17 +296,17 @@ class PipelineOrchestrator:
         self.storage.save_episode(episode)
         await self._emit_event(EventType.APPROVAL_REQUIRED, episode)
 
-        raise ApprovalRequiredError(
-            f"Episode {episode.episode_id} awaiting approval (retry)",
-            episode_id=episode.episode_id,
-            show_id=show_id,
+        return PipelineResult(
+            status=PipelineResultStatus.APPROVAL_REQUIRED,
+            episode=episode,
+            message=f"Episode {episode.episode_id} awaiting approval (retry)",
         )
 
     async def retry_rejected_episode(
         self,
         show_id: str,
         episode_id: str,
-    ) -> NoReturn:
+    ) -> PipelineResult:
         """Re-run a REJECTED episode from IDEATION with fresh content.
 
         Transitions REJECTED → IDEATION and re-generates concept + outline,
@@ -340,9 +316,11 @@ class PipelineOrchestrator:
             show_id: Show identifier
             episode_id: Episode identifier
 
+        Returns:
+            PipelineResult with APPROVAL_REQUIRED status on success.
+
         Raises:
             ValueError: If episode is not in REJECTED stage
-            ApprovalRequiredError: Always raised at the approval gate
         """
         episode = self.storage.load_episode(show_id, episode_id)
 
@@ -368,10 +346,13 @@ class PipelineOrchestrator:
         self.storage.save_episode(episode)
         await self._emit_event(EventType.APPROVAL_REQUIRED, episode)
 
-        raise ApprovalRequiredError(
-            f"Episode {episode.episode_id} awaiting approval (retry after rejection)",
-            episode_id=episode.episode_id,
-            show_id=show_id,
+        return PipelineResult(
+            status=PipelineResultStatus.APPROVAL_REQUIRED,
+            episode=episode,
+            message=(
+                f"Episode {episode.episode_id} awaiting approval"
+                " (retry after rejection)"
+            ),
         )
 
     async def execute_single_stage(
@@ -429,6 +410,8 @@ class PipelineOrchestrator:
     ) -> bool:
         """Check whether a state transition is valid.
 
+        Delegates to the canonical ``transitions.can_transition_to()``.
+
         Args:
             current: Current pipeline stage
             target: Desired target stage
@@ -436,7 +419,7 @@ class PipelineOrchestrator:
         Returns:
             True if the transition is allowed
         """
-        return target in VALID_TRANSITIONS.get(current, set())
+        return can_transition_to(current, target)
 
     async def reset_to_stage(
         self,
@@ -585,6 +568,33 @@ class PipelineOrchestrator:
     # Stage execution (private)
     # ------------------------------------------------------------------
 
+    @asynccontextmanager
+    async def _stage_events(
+        self,
+        episode: Episode,
+        display_name: str,
+    ):
+        """Context manager for unified stage event emission (D-6).
+
+        Emits STAGE_STARTED on entry and STAGE_COMPLETED on normal exit.
+        Also drives ProgressTracker start/complete lifecycle.
+
+        Args:
+            episode: Current episode (used in event payloads).
+            display_name: Human-readable stage name (e.g. "Ideation").
+
+        Yields:
+            Control to the stage body.
+        """
+        stage_key = display_name.lower().replace(" ", "_")
+        self.progress.start_stage(display_name)
+        await self._emit_event(EventType.STAGE_STARTED, episode)
+        yield
+        self.progress.complete_stage(display_name)
+        await self._emit_event(
+            EventType.STAGE_COMPLETED, episode, data={"stage": stage_key}
+        )
+
     async def _execute_ideation(
         self,
         episode: Episode,
@@ -594,20 +604,14 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.IDEATION:
             episode = self._transition(episode, PipelineStage.IDEATION)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Ideation")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        concept = await self.ideation.generate_concept(
-            topic=episode.topic,
-            show_blueprint=show_blueprint,
-        )
-
-        episode.concept = concept
-        self._save_checkpoint(episode, "ideation", {"concept_length": len(concept)})
-        self.progress.complete_stage("Ideation")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "ideation"}
-        )
+        async with self._stage_events(episode, "Ideation"):
+            concept = await self.ideation.generate_concept(
+                topic=episode.topic,
+                show_blueprint=show_blueprint,
+            )
+            episode.concept = concept
+            self._save_checkpoint(episode, "ideation", {"concept_length": len(concept)})
 
         logger.info("Ideation complete for episode %s", episode.episode_id)
         return episode
@@ -621,26 +625,21 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.OUTLINING:
             episode = self._transition(episode, PipelineStage.OUTLINING)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Outlining")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        if not episode.concept:
-            raise ValueError(
-                f"Episode {episode.episode_id} has no concept for outlining"
+        async with self._stage_events(episode, "Outlining"):
+            if not episode.concept:
+                raise ValueError(
+                    f"Episode {episode.episode_id} has no concept for outlining"
+                )
+            outline = await self.outline.generate_outline(
+                concept=episode.concept,
+                show_blueprint=show_blueprint,
+                episode_id=episode.episode_id,
             )
-
-        outline = await self.outline.generate_outline(
-            concept=episode.concept,
-            show_blueprint=show_blueprint,
-            episode_id=episode.episode_id,
-        )
-
-        episode.outline = outline
-        self._save_checkpoint(episode, "outlining", {"beats": len(outline.story_beats)})
-        self.progress.complete_stage("Outlining")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "outlining"}
-        )
+            episode.outline = outline
+            self._save_checkpoint(
+                episode, "outlining", {"beats": len(outline.story_beats)}
+            )
 
         logger.info("Outlining complete for episode %s", episode.episode_id)
         return episode
@@ -654,28 +653,22 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.SEGMENT_GENERATION:
             episode = self._transition(episode, PipelineStage.SEGMENT_GENERATION)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Segment Generation")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        if not episode.outline:
-            raise ValueError(
-                f"Episode {episode.episode_id} has no outline for segment generation"
+        async with self._stage_events(episode, "Segment Generation"):
+            if not episode.outline:
+                raise ValueError(
+                    f"Episode {episode.episode_id} has no outline"
+                    " for segment generation"
+                )
+            segments = await self.segment.generate_segments(
+                outline=episode.outline,
+                show_blueprint=show_blueprint,
             )
-
-        segments = await self.segment.generate_segments(
-            outline=episode.outline,
-            show_blueprint=show_blueprint,
-        )
-
-        episode.segments = segments
-        episode = self._transition(episode, PipelineStage.SCRIPT_GENERATION)
-        self._save_checkpoint(
-            episode, "segment_generation", {"segment_count": len(segments)}
-        )
-        self.progress.complete_stage("Segment Generation")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "segment_generation"}
-        )
+            episode.segments = segments
+            episode = self._transition(episode, PipelineStage.SCRIPT_GENERATION)
+            self._save_checkpoint(
+                episode, "segment_generation", {"segment_count": len(segments)}
+            )
 
         logger.info("Segment generation complete for episode %s", episode.episode_id)
         return episode
@@ -690,31 +683,25 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.SCRIPT_GENERATION:
             episode = self._transition(episode, PipelineStage.SCRIPT_GENERATION)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Script Generation")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        if not episode.segments:
-            raise ValueError(
-                f"Episode {episode.episode_id} has no segments for script generation"
+        async with self._stage_events(episode, "Script Generation"):
+            if not episode.segments:
+                raise ValueError(
+                    f"Episode {episode.episode_id} has no segments"
+                    " for script generation"
+                )
+            scripts = await self.script.generate_scripts(
+                segments=episode.segments,
+                show_blueprint=show_blueprint,
             )
-
-        scripts = await self.script.generate_scripts(
-            segments=episode.segments,
-            show_blueprint=show_blueprint,
-        )
-
-        episode.scripts = scripts
-        episode = self._transition(episode, PipelineStage.AUDIO_SYNTHESIS)
-        total_blocks = sum(len(s.script_blocks) for s in scripts)
-        self._save_checkpoint(
-            episode,
-            "script_generation",
-            {"script_count": len(scripts), "total_blocks": total_blocks},
-        )
-        self.progress.complete_stage("Script Generation")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "script_generation"}
-        )
+            episode.scripts = scripts
+            episode = self._transition(episode, PipelineStage.AUDIO_SYNTHESIS)
+            total_blocks = sum(len(s.script_blocks) for s in scripts)
+            self._save_checkpoint(
+                episode,
+                "script_generation",
+                {"script_count": len(scripts), "total_blocks": total_blocks},
+            )
 
         logger.info("Script generation complete for episode %s", episode.episode_id)
         return episode
@@ -732,55 +719,50 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.AUDIO_SYNTHESIS:
             episode = self._transition(episode, PipelineStage.AUDIO_SYNTHESIS)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Audio Synthesis")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        if not episode.scripts:
-            raise ValueError(
-                f"Episode {episode.episode_id} has no scripts for audio synthesis"
+        async with self._stage_events(episode, "Audio Synthesis"):
+            if not episode.scripts:
+                raise ValueError(
+                    f"Episode {episode.episode_id} has no scripts for audio synthesis"
+                )
+
+            # Build speaker → voice_config lookup from blueprint
+            voice_map = self._build_voice_map(show_blueprint)
+
+            # Count total blocks for substage progress
+            total_blocks = sum(len(s.script_blocks) for s in episode.scripts)
+
+            segment_audio_paths: list[str] = []
+            block_counter = 0
+
+            for script in episode.scripts:
+                for block in script.script_blocks:
+                    block_counter += 1
+                    self.progress.report_substage_progress(
+                        block_counter, total_blocks, "Synthesizing audio blocks"
+                    )
+                    voice_config = voice_map.get(
+                        block.speaker.lower(),
+                        voice_map.get("narrator", {"voice_id": "mock_narrator"}),
+                    )
+
+                    result = await asyncio.to_thread(
+                        self.synthesis.synthesize_segment,
+                        text=block.text,
+                        character_id=block.speaker.lower(),
+                        voice_config=voice_config,
+                        segment_number=block_counter,
+                    )
+                    segment_audio_paths.append(str(result.audio_path))
+
+            # Store paths for the mixing stage
+            episode.audio_segment_paths = segment_audio_paths
+            episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
+            self._save_checkpoint(
+                episode,
+                "audio_synthesis",
+                {"audio_segment_count": len(segment_audio_paths)},
             )
-
-        # Build speaker → voice_config lookup from blueprint
-        voice_map = self._build_voice_map(show_blueprint)
-
-        # Count total blocks for substage progress
-        total_blocks = sum(len(s.script_blocks) for s in episode.scripts)
-
-        segment_audio_paths: list[str] = []
-        block_counter = 0
-
-        for script in episode.scripts:
-            for block in script.script_blocks:
-                block_counter += 1
-                self.progress.report_substage_progress(
-                    block_counter, total_blocks, "Synthesizing audio blocks"
-                )
-                voice_config = voice_map.get(
-                    block.speaker.lower(),
-                    voice_map.get("narrator", {"voice_id": "mock_narrator"}),
-                )
-
-                result = await asyncio.to_thread(
-                    self.synthesis.synthesize_segment,
-                    text=block.text,
-                    character_id=block.speaker.lower(),
-                    voice_config=voice_config,
-                    segment_number=block_counter,
-                )
-                segment_audio_paths.append(str(result.audio_path))
-
-        # Store paths for the mixing stage (proper model field for persistence)
-        episode.audio_segment_paths = segment_audio_paths
-        episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
-        self._save_checkpoint(
-            episode,
-            "audio_synthesis",
-            {"audio_segment_count": len(segment_audio_paths)},
-        )
-        self.progress.complete_stage("Audio Synthesis")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "audio_synthesis"}
-        )
 
         logger.info(
             "Audio synthesis complete for episode %s (%d blocks)",
@@ -803,35 +785,34 @@ class PipelineOrchestrator:
         if episode.current_stage != PipelineStage.AUDIO_MIXING:
             episode = self._transition(episode, PipelineStage.AUDIO_MIXING)
             self.storage.save_episode(episode)
-        self.progress.start_stage("Audio Mixing")
-        await self._emit_event(EventType.STAGE_STARTED, episode)
 
-        # Collect audio segment paths
-        segment_paths: list[str] = episode.audio_segment_paths
-        if not segment_paths:
-            raise ValueError(
-                f"Episode {episode.episode_id} has no audio segments for mixing"
+        async with self._stage_events(episode, "Audio Mixing"):
+            # Collect audio segment paths
+            segment_paths: list[str] = episode.audio_segment_paths
+            if not segment_paths:
+                raise ValueError(
+                    f"Episode {episode.episode_id} has no audio segments for mixing"
+                )
+
+            # Mix all segments (sync I/O — offload to thread)
+            mixed_audio = await asyncio.to_thread(
+                self.mixer.mix_segments, segment_paths
             )
 
-        # Mix all segments (sync I/O — offload to thread)
-        mixed_audio = await asyncio.to_thread(self.mixer.mix_segments, segment_paths)
+            # Determine output path
+            episode_dir = self.storage.get_episode_path(
+                episode.show_id, episode.episode_id
+            )
+            output_path = episode_dir / "final_audio.mp3"
+            await asyncio.to_thread(mixed_audio.export, str(output_path), format="mp3")
 
-        # Determine output path
-        episode_dir = self.storage.get_episode_path(episode.show_id, episode.episode_id)
-        output_path = episode_dir / "final_audio.mp3"
-        await asyncio.to_thread(mixed_audio.export, str(output_path), format="mp3")
-
-        episode.audio_path = str(output_path)
-        episode = self._transition(episode, PipelineStage.COMPLETE)
-        self._save_checkpoint(
-            episode,
-            "audio_mixing",
-            {"audio_path": str(output_path)},
-        )
-        self.progress.complete_stage("Audio Mixing")
-        await self._emit_event(
-            EventType.STAGE_COMPLETED, episode, data={"stage": "audio_mixing"}
-        )
+            episode.audio_path = str(output_path)
+            episode = self._transition(episode, PipelineStage.COMPLETE)
+            self._save_checkpoint(
+                episode,
+                "audio_mixing",
+                {"audio_path": str(output_path)},
+            )
 
         logger.info("Audio mixing complete for episode %s", episode.episode_id)
         return episode
@@ -907,7 +888,7 @@ class PipelineOrchestrator:
 
         return voice_map
 
-    def _finalize_episode(
+    async def _finalize_episode(
         self,
         episode: Episode,
         show_blueprint: ShowBlueprint,

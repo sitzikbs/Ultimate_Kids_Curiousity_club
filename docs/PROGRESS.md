@@ -18,7 +18,9 @@
 | WP4: Audio Mixer | 🟢 Complete | 100% | @copilot | #75 |
 | WP5: Image Service | 🟢 Complete | 100% | @copilot | #68 |
 | WP6a: Orchestrator | 🟢 Complete | 100% | @copilot | #56 |
+| WP6b: Reliability & Retry | 🟢 Complete | 100% | @copilot | #80 |
 | WP7: CLI Interface | 🟢 Complete | 100% | @copilot | #72 |
+| WP7b: Episode Commands | 🟢 Complete | 100% | @copilot | #58 |
 | WP8: Testing Infrastructure | 🟢 Complete | 100% | @copilot | #85 |
 | WP9a: Backend API | 🟢 Complete | 100% | @copilot | #73 |
 | WP9b: Blueprint Editor UI | 🟡 In Progress | 90% | @copilot | Current PR |
@@ -53,8 +55,7 @@
 - **Admin Interface:** Web-based blueprint editor at `/admin/` for internal show management
 
 ### Blocked Items
-- WP6b (Reliability/Retry) - Ready to start
-- WP7b (Episode Commands) - Waiting for orchestrator
+- None — all dependencies for remaining work packages are satisfied
 
 ## 📈 Detailed Progress
 
@@ -394,7 +395,7 @@
 - ✅ **WP7 Complete:** CLI Interface with show and episode management
 - ✅ **WP9a Complete:** Backend API with REST endpoints and WebSocket support
 - 🟡 **WP9b In Progress:** Blueprint Editor UI (90% complete)
-- 🎯 **Next:** WP6b (Reliability), WP7b (Episode CLI), WP9c-e (Approval UI workflows)
+- 🎯 **Next:** WP9c-e (Approval UI workflows)
 
 ### December 26, 2025
 - ✅ **WP1a Complete:** Core models (Show, Episode, Story) with Pydantic validation
