@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -58,6 +58,20 @@ class Episode(BaseModel):
     )
     approval_feedback: str | None = Field(
         default=None, description="Feedback from approval process"
+    )
+    # WP6b: Reliability & Recovery fields
+    checkpoints: dict[str, dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Per-stage checkpoint data (timestamp, output summary, cost)",
+    )
+    total_cost: float = Field(
+        default=0.0, description="Accumulated cost across all stages"
+    )
+    last_error: dict[str, str] | None = Field(
+        default=None, description="Error context from last failure"
+    )
+    retry_count: int = Field(
+        default=0, description="Number of retry attempts for the current stage"
     )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),

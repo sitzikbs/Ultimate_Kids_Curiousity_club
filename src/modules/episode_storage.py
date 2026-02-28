@@ -164,9 +164,12 @@ class EpisodeStorage:
 
         # Determine checkpoint filename based on stage
         checkpoint_files = {
+            PipelineStage.IDEATION: "concept.json",
             PipelineStage.OUTLINING: "outline.json",
             PipelineStage.SEGMENT_GENERATION: "segments.json",
             PipelineStage.SCRIPT_GENERATION: "scripts.json",
+            PipelineStage.AUDIO_SYNTHESIS: "audio_segments.json",
+            PipelineStage.AUDIO_MIXING: "audio_mix.json",
         }
 
         checkpoint_file = checkpoint_files.get(stage)
@@ -185,7 +188,9 @@ class EpisodeStorage:
             "saved_at": datetime.now(UTC).isoformat(),
         }
 
-        if stage == PipelineStage.OUTLINING and episode.outline:
+        if stage == PipelineStage.IDEATION and episode.concept:
+            checkpoint_data["concept"] = episode.concept
+        elif stage == PipelineStage.OUTLINING and episode.outline:
             # Use model_dump with mode='json' to properly serialize datetime objects
             checkpoint_data["outline"] = episode.outline.model_dump(mode="json")
         elif stage == PipelineStage.SEGMENT_GENERATION and episode.segments:
@@ -196,6 +201,10 @@ class EpisodeStorage:
             checkpoint_data["scripts"] = [
                 script.model_dump(mode="json") for script in episode.scripts
             ]
+        elif stage == PipelineStage.AUDIO_SYNTHESIS and episode.audio_segment_paths:
+            checkpoint_data["audio_segment_paths"] = episode.audio_segment_paths
+        elif stage == PipelineStage.AUDIO_MIXING and episode.audio_path:
+            checkpoint_data["audio_path"] = episode.audio_path
 
         # Save checkpoint with atomic write
         self._atomic_write(checkpoint_path, json.dumps(checkpoint_data, indent=2))
