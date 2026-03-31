@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.config import get_api_settings
 from api.models import HealthResponse
-from api.routes import episodes, shows
+from api.routes import episodes, shows, uploads
 from api.websocket import websocket_endpoint
 
 # Get API settings
@@ -36,6 +36,7 @@ app.add_middleware(
 # Include routers
 app.include_router(shows.router)
 app.include_router(episodes.router)
+app.include_router(uploads.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
@@ -58,7 +59,15 @@ async def websocket_route(websocket: WebSocket) -> None:
     await websocket_endpoint(websocket)
 
 
-# Mount static files (website directory)
+# Mount data directory for serving show images
+from config import get_settings as _get_app_settings
+
+_app_settings = _get_app_settings()
+data_path = Path(_app_settings.DATA_DIR)
+if data_path.exists():
+    app.mount("/data", StaticFiles(directory=str(data_path)), name="data")
+
+# Mount static files (website directory) — must be last (catch-all)
 website_path = Path(settings.WEBSITE_DIR)
 if website_path.exists():
     app.mount("/", StaticFiles(directory=str(website_path), html=True), name="static")

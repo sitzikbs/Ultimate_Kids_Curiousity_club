@@ -31,12 +31,12 @@ class Settings(BaseSettings):
     TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, mock
     IMAGE_PROVIDER: str = "flux"  # flux, dalle, mock
 
-    # Storage paths
-    DATA_DIR: Path = Path("data")
-    SHOWS_DIR: Path = Path("data/shows")
-    EPISODES_DIR: Path = Path("data/episodes")
-    ASSETS_DIR: Path = Path("data/assets")
-    AUDIO_OUTPUT_DIR: Path = Path("data/audio")
+    # Storage paths (resolve relative to project root)
+    DATA_DIR: Path = Path(__file__).resolve().parent.parent / "data"
+    SHOWS_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "shows"
+    EPISODES_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "episodes"
+    ASSETS_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "assets"
+    AUDIO_OUTPUT_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "audio"
 
     model_config = SettingsConfigDict(
         env_file=".env",

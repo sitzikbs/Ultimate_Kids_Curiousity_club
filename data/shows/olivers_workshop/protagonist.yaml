@@ -16,7 +16,7 @@ physical_description: >
   shirt with blue overalls and always carries a well-worn backpack stuffed with gizmos,
   cogwheels, and little tools that peek out of the pockets.
 
-image_path: "data/shows/olivers_workshop/images/oliver_portrait.png"  # To be generated
+image_path: "/data/characters/images/oliver_the_inventor.jpg"
 
 # Personality
 personality_traits:

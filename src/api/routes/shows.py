@@ -2,9 +2,14 @@
 
 from fastapi import APIRouter, HTTPException
 
-from api.models import ShowBlueprintResponse, ShowResponse, UpdateShowBlueprintRequest
+from api.models import (
+    ShowBlueprintResponse,
+    ShowResponse,
+    UpdateCharactersRequest,
+    UpdateShowBlueprintRequest,
+)
 from config import get_settings
-from models.show import Protagonist, WorldDescription
+from models.show import Character, Protagonist, WorldDescription
 from modules.show_blueprint_manager import ShowBlueprintManager
 
 router = APIRouter(prefix="/api/shows", tags=["shows"])
@@ -98,6 +103,40 @@ async def update_show(
             manager.update_world(show_id, world)
 
         # Load and return updated blueprint
+        blueprint = manager.load_show(show_id)
+        return ShowBlueprintResponse(
+            show=blueprint.show.model_dump(),
+            protagonist=blueprint.protagonist.model_dump(),
+            world=blueprint.world.model_dump(),
+            characters=[char.model_dump() for char in blueprint.characters],
+            concepts_history=blueprint.concepts_history.model_dump(),
+            episodes=blueprint.episodes,
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.put("/{show_id}/characters", response_model=ShowBlueprintResponse)
+async def update_characters(
+    show_id: str, request: UpdateCharactersRequest
+) -> ShowBlueprintResponse:
+    """Replace all supporting characters for a show.
+
+    Args:
+        show_id: Show identifier
+        request: Update request with complete list of characters
+
+    Returns:
+        Updated show blueprint
+    """
+    try:
+        manager = _get_manager()
+        characters = [Character(**char) for char in request.characters]
+        manager.replace_characters(show_id, characters)
         blueprint = manager.load_show(show_id)
         return ShowBlueprintResponse(
             show=blueprint.show.model_dump(),

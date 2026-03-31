@@ -1,6 +1,7 @@
 """Show Blueprint Manager for loading, saving, and managing show data."""
 
 import json
+import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -373,6 +374,26 @@ class ShowBlueprintManager:
         char_path = characters_dir / char_filename
         with char_path.open("w") as f:
             yaml.safe_dump(char_data, f, default_flow_style=False, sort_keys=False)
+
+    def replace_characters(self, show_id: str, characters: list[Character]) -> None:
+        """Replace all characters for a show (delete existing, write new list).
+
+        Args:
+            show_id: Unique identifier for the show
+            characters: Complete list of characters to write
+
+        Raises:
+            FileNotFoundError: If show directory doesn't exist
+        """
+        show_dir = self.shows_dir / show_id
+        if not show_dir.exists():
+            raise FileNotFoundError(f"Show directory not found: {show_dir}")
+        characters_dir = show_dir / "characters"
+        if characters_dir.exists():
+            shutil.rmtree(characters_dir)
+        characters_dir.mkdir(exist_ok=True)
+        for character in characters:
+            self.add_character(show_id, character)
 
     def add_concept(self, show_id: str, concept: str, episode_id: str) -> None:
         """Track new concept covered in episode.
