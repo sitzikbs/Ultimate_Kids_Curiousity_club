@@ -64,11 +64,8 @@ class ApprovalWorkflow:
         """
         episode = self.storage.load_episode(show_id, episode_id)
 
-        if episode.current_stage != PipelineStage.AWAITING_APPROVAL:
-            raise ValueError(
-                f"Episode {episode_id} is not awaiting approval "
-                f"(current stage: {episode.current_stage.value})"
-            )
+        # Transition validation is handled by _approve/_reject via
+        # can_transition_to() — no duplicate pre-check needed (D-8).
 
         if approved:
             self._approve(episode, edited_outline, feedback)
