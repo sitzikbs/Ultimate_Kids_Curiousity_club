@@ -145,7 +145,7 @@ class TestSubmitApproval:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(ValueError, match="not awaiting approval"):
+        with pytest.raises(ValueError, match="Invalid transition"):
             approval_workflow.submit_approval(
                 show_id="olivers_workshop",
                 episode_id="ep_wrong",
@@ -165,7 +165,7 @@ class TestSubmitApproval:
         )
         mock_episode_storage.save_episode(episode)
 
-        with pytest.raises(ValueError, match="not awaiting approval"):
+        with pytest.raises(ValueError, match="Invalid transition"):
             approval_workflow.submit_approval(
                 show_id="olivers_workshop",
                 episode_id="ep_done",
