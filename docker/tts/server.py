@@ -195,9 +195,7 @@ async def synthesize(request: TTSRequest) -> FileResponse:
                 filename="output.mp3",
             )
     except Exception as exc:
-        raise HTTPException(
-            status_code=500, detail=f"Synthesis failed: {exc}"
-        ) from exc
+        raise HTTPException(status_code=500, detail=f"Synthesis failed: {exc}") from exc
 
 
 @app.post("/v1/tts/synthesize-multi")
@@ -222,9 +220,7 @@ async def synthesize_multi(
 
         audio = model.synthesize_dialogue(dialogue_parts)
         suffix = ".mp3" if request.output_format == "mp3" else ".wav"
-        media_type = (
-            "audio/mpeg" if request.output_format == "mp3" else "audio/wav"
-        )
+        media_type = "audio/mpeg" if request.output_format == "mp3" else "audio/wav"
 
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as fh:
             audio.save(fh.name, format=request.output_format)

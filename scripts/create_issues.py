@@ -165,9 +165,7 @@ def close_all_issues():
                     "New issues will be created with clearer "
                     "dependencies and parallelization info."
                 )
-                run_command(
-                    f'gh issue close {num} --comment "{comment}"'
-                )
+                run_command(f'gh issue close {num} --comment "{comment}"')
             print(f"✅ Closed {len(issues)} issues.\n")
         except json.JSONDecodeError:
             print("Failed to parse issue list JSON")

@@ -27,20 +27,14 @@ def get_service():
             account_id=os.environ.get("R2_ACCOUNT_ID", ""),
             access_key_id=os.environ.get("R2_ACCESS_KEY_ID", ""),
             secret_access_key=os.environ.get("R2_SECRET_ACCESS_KEY", ""),
-            bucket_name=os.environ.get(
-                "R2_BUCKET_NAME", "kids-curiosity-club"
-            ),
+            bucket_name=os.environ.get("R2_BUCKET_NAME", "kids-curiosity-club"),
             cdn_base_url=os.environ.get(
                 "CDN_BASE_URL", "https://cdn.kidscuriosityclub.com"
             ),
         )
         feed_gen = PodcastFeedGenerator(
-            site_url=os.environ.get(
-                "SITE_URL", "https://kidscuriosityclub.com"
-            ),
-            cdn_url=os.environ.get(
-                "CDN_BASE_URL", "https://cdn.kidscuriosityclub.com"
-            ),
+            site_url=os.environ.get("SITE_URL", "https://kidscuriosityclub.com"),
+            cdn_url=os.environ.get("CDN_BASE_URL", "https://cdn.kidscuriosityclub.com"),
         )
         _publication_service = PublicationService(
             r2_client=r2,
@@ -119,9 +113,7 @@ async def publish_episode(request: PublishRequest):
     svc = get_service()
     audio = Path(request.audio_path)
     if not audio.exists():
-        raise HTTPException(
-            400, f"Audio file not found: {request.audio_path}"
-        )
+        raise HTTPException(400, f"Audio file not found: {request.audio_path}")
     metadata = svc.publish_episode(
         show_id=request.show_id,
         episode_id=request.episode_id,
