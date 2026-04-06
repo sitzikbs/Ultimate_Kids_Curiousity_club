@@ -26,8 +26,12 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     ELEVENLABS_API_KEY: str | None = None
 
+    # Gemma / ollama settings
+    GEMMA_BASE_URL: str = "http://llm:11434/v1"
+    GEMMA_MODEL: str = "gemma4:26b-a4b"
+
     # Provider selection
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, mock
+    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, gemma, mock
     TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, mock
     IMAGE_PROVIDER: str = "flux"  # flux, dalle, mock
 
