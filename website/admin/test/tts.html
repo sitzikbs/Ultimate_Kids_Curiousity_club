@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Playground - Test Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        .admin-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .admin-navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .test-badge {
+            background: #8b5cf6;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #3b82f6; }
+
+        .page-header {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+        }
+
+        .editor-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .editor-card h5 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .btn-admin-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-primary:hover { background: #2563eb; color: white; }
+        .btn-admin-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        .btn-admin-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-secondary:hover { background: #e5e7eb; color: #1f2937; }
+
+        .slider-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .player-area {
+            background: #f9fafb;
+            border: 2px dashed #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: #9ca3af;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-area.has-audio {
+            border-style: solid;
+            border-color: #d1d5db;
+            background: #ffffff;
+        }
+
+        .segment-row {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6b7280;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #3b82f6;
+            border-color: transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #3b82f6;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #3b82f6;
+            margin-bottom: -2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="admin-navbar">
+        <div class="content-container">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="navbar-brand">
+                    Kids Curiosity Club
+                    <span class="admin-badge">ADMIN</span>
+                    <span class="test-badge">TEST</span>
+                </span>
+                <div class="nav-links">
+                    <a href="index.html" class="back-link">&larr; Test Dashboard</a>
+                    <a href="health.html" class="back-link">Health</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="content-container">
+            <h1 class="page-title">TTS Playground</h1>
+            <p class="page-subtitle">VibeVoice -- Text-to-Speech synthesis</p>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="tts-tabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-single">Single Speaker</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-multi">Multi-Speaker Dialogue</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Single Speaker Tab -->
+            <div class="tab-pane fade show active" id="tab-single">
+                <div class="editor-card">
+                    <h5>Single Speaker Synthesis</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="single-text">Text</label>
+                        <textarea class="form-control" id="single-text" rows="5" placeholder="Enter text to synthesize...">Welcome to Oliver's Workshop! Today we're going to learn about something amazing - how bridges hold up all those cars and trucks without falling down!</textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label" for="single-speaker">Speaker</label>
+                            <select class="form-select" id="single-speaker">
+                                <option value="narrator">Narrator</option>
+                                <option value="oliver the inventor" selected>Oliver the Inventor</option>
+                                <option value="lily">Lily</option>
+                                <option value="max">Max</option>
+                                <option value="aisha">Aisha</option>
+                                <option value="mrs. chen">Mrs. Chen</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="single-emotion">Emotion</label>
+                            <select class="form-select" id="single-emotion">
+                                <option value="neutral">Neutral</option>
+                                <option value="excited" selected>Excited</option>
+                                <option value="curious">Curious</option>
+                                <option value="warm">Warm</option>
+                                <option value="serious">Serious</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="slider-label">
+                                <label for="single-speed">Speed</label>
+                                <span id="single-speed-value">1.0</span>
+                            </div>
+                            <input type="range" class="form-range mt-2" id="single-speed" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-admin-primary" id="btn-synthesize-single" onclick="synthesizeSingle()">Synthesize</button>
+                        <button class="btn btn-admin-secondary" id="btn-download-single" onclick="downloadSingle()" style="display: none;">Download</button>
+                    </div>
+
+                    <div class="player-area" id="single-player-area">
+                        Audio player will appear after synthesis
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Speaker Tab -->
+            <div class="tab-pane fade" id="tab-multi">
+                <div class="editor-card">
+                    <h5>Multi-Speaker Dialogue</h5>
+
+                    <div id="segments-container">
+                        <!-- Default segments -->
+                    </div>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-admin-secondary btn-sm" onclick="addSegment()">+ Add Segment</button>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Output Format</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="output-format" id="format-mp3" value="mp3" checked>
+                                    <label class="form-check-label" for="format-mp3">MP3</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="output-format" id="format-wav" value="wav">
+                                    <label class="form-check-label" for="format-wav">WAV</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-admin-primary" id="btn-synthesize-multi" onclick="synthesizeMulti()">Synthesize Dialogue</button>
+                        <button class="btn btn-admin-secondary" id="btn-download-multi" onclick="downloadMulti()" style="display: none;">Download</button>
+                    </div>
+
+                    <div class="player-area" id="multi-player-area">
+                        Audio player will appear after synthesis
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="test-utils.js"></script>
+    <script>
+        let singleBlob = null;
+        let multiBlob = null;
+        let segmentCount = 0;
+
+        const SPEAKERS = ['narrator', 'oliver the inventor', 'lily', 'max', 'aisha', 'mrs. chen'];
+        const EMOTIONS = ['neutral', 'excited', 'curious', 'warm', 'serious'];
+
+        document.getElementById('single-speed').addEventListener('input', (e) => {
+            document.getElementById('single-speed-value').textContent = e.target.value;
+        });
+
+        // Initialize with default segments
+        document.addEventListener('DOMContentLoaded', () => {
+            addSegment('narrator', 'Once upon a time, in a workshop filled with gears and gadgets...', 'warm');
+            addSegment('oliver the inventor', 'Hey everyone! Guess what I discovered today?', 'excited');
+            addSegment('lily', 'What is it, Oliver? Tell us!', 'curious');
+        });
+
+        function addSegment(speaker = 'narrator', text = '', emotion = 'neutral') {
+            segmentCount++;
+            const id = segmentCount;
+            const container = document.getElementById('segments-container');
+
+            const speakerOptions = SPEAKERS.map(s =>
+                `<option value="${s}" ${s === speaker ? 'selected' : ''}>${s}</option>`
+            ).join('');
+
+            const emotionOptions = EMOTIONS.map(e =>
+                `<option value="${e}" ${e === emotion ? 'selected' : ''}>${e}</option>`
+            ).join('');
+
+            const html = `
+                <div class="segment-row" id="segment-${id}">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm" id="seg-speaker-${id}">
+                                ${speakerOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control form-control-sm" id="seg-text-${id}" value="${escapeHtml(text)}" placeholder="Dialogue text...">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm" id="seg-emotion-${id}">
+                                ${emotionOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-muted" style="font-size: 0.75rem;">#${id}</span>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeSegment(${id})" title="Remove">&times;</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeSegment(id) {
+            const el = document.getElementById(`segment-${id}`);
+            if (el) el.remove();
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function getSegments() {
+            const container = document.getElementById('segments-container');
+            const rows = container.querySelectorAll('.segment-row');
+            const segments = [];
+
+            rows.forEach(row => {
+                const id = row.id.replace('segment-', '');
+                const speaker = document.getElementById(`seg-speaker-${id}`).value;
+                const text = document.getElementById(`seg-text-${id}`).value.trim();
+                const emotion = document.getElementById(`seg-emotion-${id}`).value;
+
+                if (text) {
+                    segments.push({ speaker, text, emotion: emotion !== 'neutral' ? emotion : null });
+                }
+            });
+
+            return segments;
+        }
+
+        async function synthesizeSingle() {
+            const btn = document.getElementById('btn-synthesize-single');
+            const playerArea = document.getElementById('single-player-area');
+            const textInput = document.getElementById('single-text');
+            const speakerSelect = document.getElementById('single-speaker');
+            const emotionSelect = document.getElementById('single-emotion');
+            const speedSlider = document.getElementById('single-speed');
+
+            if (!textInput.value.trim()) {
+                playerArea.innerHTML = '<div class="text-danger">Please enter text to synthesize.</div>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Synthesizing...';
+            playerArea.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Generating audio...';
+            playerArea.classList.remove('has-audio');
+
+            try {
+                const response = await fetch('/tts/v1/tts/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textInput.value.trim(),
+                        speaker: speakerSelect.value,
+                        emotion: emotionSelect.value || null,
+                        speed: parseFloat(speedSlider.value),
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
+                }
+
+                singleBlob = await response.blob();
+                playerArea.innerHTML = '';
+                playerArea.classList.add('has-audio');
+                playerArea.appendChild(createAudioPlayer(singleBlob));
+                document.getElementById('btn-download-single').style.display = 'inline-block';
+
+            } catch (err) {
+                playerArea.innerHTML = `<div class="text-danger">Error: ${err.message}</div>`;
+                singleBlob = null;
+                document.getElementById('btn-download-single').style.display = 'none';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Synthesize';
+            }
+        }
+
+        async function synthesizeMulti() {
+            const btn = document.getElementById('btn-synthesize-multi');
+            const playerArea = document.getElementById('multi-player-area');
+            const segments = getSegments();
+            const format = document.querySelector('input[name="output-format"]:checked').value;
+
+            if (segments.length === 0) {
+                playerArea.innerHTML = '<div class="text-danger">Please add at least one segment with text.</div>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Synthesizing...';
+            playerArea.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Generating dialogue audio...';
+            playerArea.classList.remove('has-audio');
+
+            try {
+                const response = await fetch('/tts/v1/tts/synthesize-multi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        segments,
+                        output_format: format,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
+                }
+
+                multiBlob = await response.blob();
+                playerArea.innerHTML = '';
+                playerArea.classList.add('has-audio');
+                playerArea.appendChild(createAudioPlayer(multiBlob));
+                document.getElementById('btn-download-multi').style.display = 'inline-block';
+
+            } catch (err) {
+                playerArea.innerHTML = `<div class="text-danger">Error: ${err.message}</div>`;
+                multiBlob = null;
+                document.getElementById('btn-download-multi').style.display = 'none';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Synthesize Dialogue';
+            }
+        }
+
+        function downloadSingle() {
+            if (singleBlob) downloadBlob(singleBlob, 'tts-single.mp3');
+        }
+
+        function downloadMulti() {
+            if (multiBlob) {
+                const format = document.querySelector('input[name="output-format"]:checked').value;
+                downloadBlob(multiBlob, `tts-dialogue.${format}`);
+            }
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
