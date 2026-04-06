@@ -6,7 +6,7 @@ configuration, including mock mode toggle, API keys, and provider preferences.
 
 from pathlib import Path
 
-from pydantic import ValidationInfo, field_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -39,43 +39,39 @@ class Settings(BaseSettings):
     AUDIO_OUTPUT_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "audio"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=Path(__file__).resolve().parent.parent / ".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",
     )
 
-    @field_validator(
-        "OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
-        "GEMINI_API_KEY",
-        "ELEVENLABS_API_KEY",
-        mode="after",
-    )
-    @classmethod
-    def validate_api_keys(cls, v: str | None, info: ValidationInfo) -> str | None:
-        """Validate that API keys are provided when not using mocks.
+    @model_validator(mode="after")
+    def validate_api_keys(self) -> "Settings":
+        """Validate that API keys are provided for the selected provider.
 
-        Args:
-            v: The API key value
-            info: Validation context with other field values
-
-        Returns:
-            The API key value if valid
-
-        Raises:
-            ValueError: If API key is required but not provided
+        Only requires keys for providers that are actually selected —
+        e.g. if LLM_PROVIDER=openai, only OPENAI_API_KEY is required.
+        Mock providers never need keys.
         """
-        # Get USE_MOCK_SERVICES from the validation data
-        use_mock = info.data.get("USE_MOCK_SERVICES", True)
+        if self.USE_MOCK_SERVICES:
+            return self
 
-        # Only require API keys when not using mocks
-        if not use_mock and v is None:
-            field_name = info.field_name
-            raise ValueError(
-                f"{field_name} is required when USE_MOCK_SERVICES is False"
-            )
+        provider_map = {
+            "OPENAI_API_KEY": ("LLM_PROVIDER", "openai"),
+            "ANTHROPIC_API_KEY": ("LLM_PROVIDER", "anthropic"),
+            "GEMINI_API_KEY": ("LLM_PROVIDER", "gemini"),
+            "ELEVENLABS_API_KEY": ("TTS_PROVIDER", "elevenlabs"),
+        }
 
-        return v
+        for key_field, (setting_key, provider_value) in provider_map.items():
+            selected = getattr(self, setting_key)
+            key_value = getattr(self, key_field)
+            if selected == provider_value and key_value is None:
+                raise ValueError(
+                    f"{key_field} is required when {setting_key}={provider_value}"
+                )
+
+        return self
 
 
 # Singleton instance
