@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Runner - Test Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        .admin-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .admin-navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .test-badge {
+            background: #8b5cf6;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #3b82f6; }
+
+        .page-header {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+        }
+
+        .editor-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .editor-card h5 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .btn-admin-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-primary:hover { background: #2563eb; color: white; }
+        .btn-admin-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        .btn-admin-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-secondary:hover { background: #e5e7eb; }
+
+        /* Pipeline Stepper */
+        .pipeline-stepper {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .pipeline-stepper::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .pipeline-step {
+            position: relative;
+            margin-bottom: 1rem;
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            transition: border-color 0.3s;
+        }
+
+        .pipeline-step::before {
+            content: '';
+            position: absolute;
+            left: -1.625rem;
+            top: 1.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 0 2px #e5e7eb;
+            z-index: 1;
+        }
+
+        .pipeline-step.pending::before { background: #d1d5db; box-shadow: 0 0 0 2px #d1d5db; }
+        .pipeline-step.running::before { background: #3b82f6; box-shadow: 0 0 0 2px #3b82f6; animation: pulse-dot 1.5s infinite; }
+        .pipeline-step.complete::before { background: #22c55e; box-shadow: 0 0 0 2px #22c55e; }
+        .pipeline-step.failed::before { background: #ef4444; box-shadow: 0 0 0 2px #ef4444; }
+
+        .pipeline-step.running { border-color: #93c5fd; }
+        .pipeline-step.complete { border-color: #bbf7d0; }
+        .pipeline-step.failed { border-color: #fecaca; }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .step-status-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-weight: 600;
+        }
+
+        .step-output {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .step-output.show { display: block; }
+
+        .step-output-content {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .step-actions {
+            margin-top: 0.75rem;
+        }
+
+        /* Progress bar */
+        .pipeline-progress {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .pipeline-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.5s ease;
+        }
+
+        /* Log panel */
+        .log-panel {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .log-entry { margin-bottom: 0.25rem; }
+        .log-entry .log-time { color: #6c7086; }
+        .log-entry .log-info { color: #89b4fa; }
+        .log-entry .log-success { color: #a6e3a1; }
+        .log-entry .log-error { color: #f38ba8; }
+        .log-entry .log-warn { color: #f9e2af; }
+
+        .approval-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="admin-navbar">
+        <div class="content-container">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="navbar-brand">
+                    Kids Curiosity Club
+                    <span class="admin-badge">ADMIN</span>
+                    <span class="test-badge">TEST</span>
+                </span>
+                <div class="nav-links">
+                    <a href="index.html" class="back-link">&larr; Test Dashboard</a>
+                    <a href="health.html" class="back-link">Health</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="content-container">
+            <h1 class="page-title">Pipeline Runner</h1>
+            <p class="page-subtitle">Run and monitor the full podcast generation pipeline</p>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <!-- Controls -->
+        <div class="editor-card">
+            <h5>Configuration</h5>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label" for="show-select">Show</label>
+                    <select class="form-select" id="show-select">
+                        <option value="oliver_the_inventor">Oliver the Inventor</option>
+                        <option value="hannah_the_historian">Hannah the Historian</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label" for="topic-input">Topic</label>
+                    <input type="text" class="form-control" id="topic-input" placeholder="e.g. How bridges work" value="How bridges work">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-admin-primary w-100" id="btn-run-pipeline" onclick="runFullPipeline()">Run Full Pipeline</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="pipeline-progress">
+            <div class="pipeline-progress-bar" id="progress-bar" style="width: 0%;"></div>
+        </div>
+
+        <!-- Pipeline Steps -->
+        <div class="pipeline-stepper" id="pipeline-stepper">
+            <!-- Step 1: Ideation -->
+            <div class="pipeline-step pending" id="step-ideation" data-step="ideation">
+                <div class="step-header" onclick="toggleStepOutput('ideation')">
+                    <div>
+                        <span class="step-title">1. Ideation</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-ideation">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('ideation')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-ideation">
+                    <div class="step-output-content" id="content-ideation">No output yet.</div>
+                </div>
+            </div>
+
+            <!-- Step 2: Outlining -->
+            <div class="pipeline-step pending" id="step-outlining" data-step="outlining">
+                <div class="step-header" onclick="toggleStepOutput('outlining')">
+                    <div>
+                        <span class="step-title">2. Outlining</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-outlining">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('outlining')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-outlining">
+                    <div class="step-output-content" id="content-outlining">No output yet.</div>
+                </div>
+            </div>
+
+            <!-- Step 3: Approval -->
+            <div class="pipeline-step pending" id="step-approval" data-step="approval">
+                <div class="step-header" onclick="toggleStepOutput('approval')">
+                    <div>
+                        <span class="step-title">3. Approval</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-approval">Pending</span>
+                    </div>
+                </div>
+                <div class="step-output" id="output-approval">
+                    <div class="step-output-content" id="content-approval">Waiting for outline to be generated...</div>
+                    <div class="approval-buttons" id="approval-buttons" style="display: none;">
+                        <button class="btn btn-success btn-sm" onclick="approveStep()">Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectStep()">Reject</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Segment Generation -->
+            <div class="pipeline-step pending" id="step-segment_generation" data-step="segment_generation">
+                <div class="step-header" onclick="toggleStepOutput('segment_generation')">
+                    <div>
+                        <span class="step-title">4. Segment Generation</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-segment_generation">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('segment_generation')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-segment_generation">
+                    <div class="step-output-content" id="content-segment_generation">No output yet.</div>
+                </div>
+            </div>
+
+            <!-- Step 5: Script Generation -->
+            <div class="pipeline-step pending" id="step-script_generation" data-step="script_generation">
+                <div class="step-header" onclick="toggleStepOutput('script_generation')">
+                    <div>
+                        <span class="step-title">5. Script Generation</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-script_generation">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('script_generation')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-script_generation">
+                    <div class="step-output-content" id="content-script_generation">No output yet.</div>
+                </div>
+            </div>
+
+            <!-- Step 6: Audio Synthesis -->
+            <div class="pipeline-step pending" id="step-audio_synthesis" data-step="audio_synthesis">
+                <div class="step-header" onclick="toggleStepOutput('audio_synthesis')">
+                    <div>
+                        <span class="step-title">6. Audio Synthesis</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-audio_synthesis">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('audio_synthesis')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-audio_synthesis">
+                    <div class="step-output-content" id="content-audio_synthesis">No output yet.</div>
+                    <div id="audio-synthesis-players"></div>
+                </div>
+            </div>
+
+            <!-- Step 7: Audio Mixing -->
+            <div class="pipeline-step pending" id="step-audio_mixing" data-step="audio_mixing">
+                <div class="step-header" onclick="toggleStepOutput('audio_mixing')">
+                    <div>
+                        <span class="step-title">7. Audio Mixing</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-audio_mixing">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('audio_mixing')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-audio_mixing">
+                    <div class="step-output-content" id="content-audio_mixing">No output yet.</div>
+                    <div id="audio-mixing-player"></div>
+                </div>
+            </div>
+
+            <!-- Step 8: Publication -->
+            <div class="pipeline-step pending" id="step-publication" data-step="publication">
+                <div class="step-header" onclick="toggleStepOutput('publication')">
+                    <div>
+                        <span class="step-title">8. Publication</span>
+                        <span class="badge bg-secondary step-status-badge ms-2" id="badge-publication">Pending</span>
+                    </div>
+                    <button class="btn btn-admin-secondary btn-sm" onclick="event.stopPropagation(); runStep('publication')">Run This Step</button>
+                </div>
+                <div class="step-output" id="output-publication">
+                    <div class="step-output-content" id="content-publication">No output yet.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="editor-card mt-4">
+            <h5>Log Output</h5>
+            <div class="log-panel" id="log-panel"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="test-utils.js"></script>
+    <script>
+        const STEPS = [
+            'ideation', 'outlining', 'approval', 'segment_generation',
+            'script_generation', 'audio_synthesis', 'audio_mixing', 'publication'
+        ];
+
+        const STEP_LABELS = {
+            ideation: 'Ideation',
+            outlining: 'Outlining',
+            approval: 'Approval',
+            segment_generation: 'Segment Generation',
+            script_generation: 'Script Generation',
+            audio_synthesis: 'Audio Synthesis',
+            audio_mixing: 'Audio Mixing',
+            publication: 'Publication',
+        };
+
+        let pipelineRunId = null;
+
+        function log(message, level = 'info') {
+            const panel = document.getElementById('log-panel');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${level}">${message}</span>`;
+            panel.appendChild(entry);
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        function setStepStatus(step, status) {
+            const stepEl = document.getElementById(`step-${step}`);
+            const badge = document.getElementById(`badge-${step}`);
+
+            stepEl.className = `pipeline-step ${status}`;
+
+            const badgeConfig = {
+                pending: { cls: 'bg-secondary', label: 'Pending' },
+                running: { cls: 'bg-primary', label: 'Running...' },
+                complete: { cls: 'bg-success', label: 'Complete' },
+                failed: { cls: 'bg-danger', label: 'Failed' },
+            };
+
+            const config = badgeConfig[status] || badgeConfig.pending;
+            badge.className = `badge ${config.cls} step-status-badge ms-2`;
+            badge.textContent = config.label;
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const completed = STEPS.filter(s =>
+                document.getElementById(`step-${s}`).classList.contains('complete')
+            ).length;
+            const pct = Math.round((completed / STEPS.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+        }
+
+        function toggleStepOutput(step) {
+            const output = document.getElementById(`output-${step}`);
+            output.classList.toggle('show');
+        }
+
+        function setStepContent(step, content) {
+            document.getElementById(`content-${step}`).textContent =
+                typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+        }
+
+        async function runStep(step) {
+            const show = document.getElementById('show-select').value;
+            const topic = document.getElementById('topic-input').value.trim();
+
+            if (!topic) {
+                log('Please enter a topic.', 'warn');
+                return;
+            }
+
+            setStepStatus(step, 'running');
+            log(`Starting step: ${STEP_LABELS[step]}`, 'info');
+
+            // Open the step output
+            const output = document.getElementById(`output-${step}`);
+            if (!output.classList.contains('show')) {
+                output.classList.add('show');
+            }
+
+            try {
+                const response = await fetch('/api/pipeline/run-step', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        show_id: show,
+                        topic: topic,
+                        step: step,
+                        run_id: pipelineRunId,
+                    }),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Service not available yet. Make sure the App service is running.');
+                    }
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
+                }
+
+                const data = await response.json();
+                pipelineRunId = data.run_id || pipelineRunId;
+
+                setStepContent(step, data.output || data);
+                setStepStatus(step, 'complete');
+                log(`Step ${STEP_LABELS[step]} completed.`, 'success');
+
+                // Show approval buttons if this is the outlining step
+                if (step === 'outlining') {
+                    document.getElementById('approval-buttons').style.display = 'flex';
+                    setStepContent('approval', 'Review the outline above and approve or reject.');
+                    const approvalOutput = document.getElementById('output-approval');
+                    if (!approvalOutput.classList.contains('show')) {
+                        approvalOutput.classList.add('show');
+                    }
+                }
+
+            } catch (err) {
+                setStepContent(step, `Error: ${err.message}`);
+                setStepStatus(step, 'failed');
+                log(`Step ${STEP_LABELS[step]} failed: ${err.message}`, 'error');
+            }
+        }
+
+        async function runFullPipeline() {
+            const btn = document.getElementById('btn-run-pipeline');
+            btn.disabled = true;
+            btn.textContent = 'Running...';
+            pipelineRunId = null;
+
+            log('Starting full pipeline run...', 'info');
+
+            // Reset all steps
+            STEPS.forEach(s => {
+                setStepStatus(s, 'pending');
+                setStepContent(s, 'Waiting...');
+            });
+
+            // Check if the app service is available first
+            try {
+                const healthResult = await checkServiceHealth('app');
+                if (healthResult.status !== 'healthy') {
+                    log('App service is not available. Pipeline steps will attempt to connect.', 'warn');
+                }
+            } catch (e) {
+                log('Could not check App service health.', 'warn');
+            }
+
+            // Run steps sequentially (except approval which needs user input)
+            const autoSteps = ['ideation', 'outlining'];
+
+            for (const step of autoSteps) {
+                await runStep(step);
+                const stepEl = document.getElementById(`step-${step}`);
+                if (stepEl.classList.contains('failed')) {
+                    log('Pipeline stopped due to step failure.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Run Full Pipeline';
+                    return;
+                }
+            }
+
+            log('Pipeline paused: awaiting approval for outline.', 'warn');
+            setStepStatus('approval', 'running');
+            setStepContent('approval', 'Please review the outline and approve or reject.');
+            document.getElementById('approval-buttons').style.display = 'flex';
+
+            btn.disabled = false;
+            btn.textContent = 'Run Full Pipeline';
+        }
+
+        async function approveStep() {
+            log('Outline approved. Continuing pipeline...', 'success');
+            setStepStatus('approval', 'complete');
+            setStepContent('approval', 'Approved');
+            document.getElementById('approval-buttons').style.display = 'none';
+
+            // Continue with remaining steps
+            const remainingSteps = ['segment_generation', 'script_generation', 'audio_synthesis', 'audio_mixing', 'publication'];
+            for (const step of remainingSteps) {
+                await runStep(step);
+                const stepEl = document.getElementById(`step-${step}`);
+                if (stepEl.classList.contains('failed')) {
+                    log('Pipeline stopped due to step failure.', 'error');
+                    return;
+                }
+            }
+
+            log('Pipeline complete!', 'success');
+        }
+
+        function rejectStep() {
+            log('Outline rejected. Pipeline stopped.', 'error');
+            setStepStatus('approval', 'failed');
+            setStepContent('approval', 'Rejected by user.');
+            document.getElementById('approval-buttons').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
