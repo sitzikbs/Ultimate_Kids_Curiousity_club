@@ -103,7 +103,7 @@ class TestLLMProviderFactory:
                 "openai", api_key="test-key-123"
             )
             assert isinstance(provider, BaseLLMProvider)
-            assert provider.model == "gpt-4-turbo-preview"
+            assert provider.model == "gpt-4o-mini"
         except ImportError as e:
             # Skip test if openai package not installed
             pytest.skip(f"OpenAI package not installed: {e}")

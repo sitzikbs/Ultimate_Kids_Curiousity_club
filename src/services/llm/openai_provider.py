@@ -16,7 +16,7 @@ from services.llm.base import BaseLLMProvider
 class OpenAIProvider(BaseLLMProvider):
     """OpenAI LLM provider with retry logic."""
 
-    def __init__(self, api_key: str, model: str = "gpt-4-turbo-preview") -> None:
+    def __init__(self, api_key: str, model: str = "gpt-4o-mini") -> None:
         """Initialize OpenAI provider.
 
         Args:

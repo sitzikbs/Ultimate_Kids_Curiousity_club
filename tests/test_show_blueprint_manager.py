@@ -83,7 +83,8 @@ class TestShowBlueprintManager:
     def test_init_default_shows_dir(self):
         """Test manager initialization with default shows directory."""
         manager = ShowBlueprintManager()
-        assert manager.shows_dir == Path("data/shows")
+        assert manager.shows_dir.is_absolute()
+        assert manager.shows_dir.name == "shows"
 
     def test_init_custom_shows_dir(self, temp_shows_dir: Path):
         """Test manager initialization with custom shows directory."""

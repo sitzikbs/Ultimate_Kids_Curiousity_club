@@ -1,5 +1,31 @@
 {
   "show_id": "olivers_workshop",
-  "concepts": [],
-  "last_updated": "2025-12-24"
+  "concepts": [
+    {
+      "concept": "How do airplanes fly?",
+      "episode_id": "ep_how_do_airplanes_fly_20260331041924_06589a30",
+      "covered_at": "2026-03-31T04:24:06.299167+00:00"
+    },
+    {
+      "concept": "How do magnets work?",
+      "episode_id": "ep_how_do_magnets_work_20260331043106_a432923a",
+      "covered_at": "2026-03-31T04:34:59.865758+00:00"
+    },
+    {
+      "concept": "Why is the sky blue?",
+      "episode_id": "ep_why_is_the_sky_blue_20260331044209_f63ff77b",
+      "covered_at": "2026-03-31T04:45:57.399921+00:00"
+    },
+    {
+      "concept": "How do volcanos erupt?",
+      "episode_id": "ep_how_do_volcanos_erupt_20260331044527_ed40eccf",
+      "covered_at": "2026-03-31T04:46:18.613990+00:00"
+    },
+    {
+      "concept": "How do airplanes fly?",
+      "episode_id": "ep_how_do_airplanes_fly_20260406042038_e6b5685b",
+      "covered_at": "2026-04-06T04:23:00.881533+00:00"
+    }
+  ],
+  "last_updated": "2026-04-06T04:23:00.881540+00:00"
 }
