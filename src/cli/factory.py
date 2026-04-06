@@ -75,6 +75,7 @@ def create_pipeline(
     tts_provider = TTSProviderFactory.create_provider(
         provider_type=tts_type,
         api_key=settings.ELEVENLABS_API_KEY,
+        base_url=(settings.VIBEVOICE_BASE_URL if tts_type == "vibevoice" else None),
     )
 
     # Audio services
