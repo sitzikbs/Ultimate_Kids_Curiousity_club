@@ -52,6 +52,15 @@
             margin-bottom: 2rem;
         }
         
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #3b82f6; }
+
         .page-title {
             font-size: 2rem;
             font-weight: 700;
@@ -162,13 +171,32 @@
             font-weight: 500;
             font-size: 0.875rem;
             transition: all 0.2s;
-            width: 100%;
+            flex: 1;
         }
-        
+
         .btn-admin-primary:hover {
             background: #2563eb;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-admin-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            flex: 1;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-admin-secondary:hover {
+            background: #e5e7eb;
+            color: #1f2937;
         }
         
         /* Loading State */
@@ -226,11 +254,12 @@
     <!-- Admin Navbar -->
     <nav class="admin-navbar">
         <div class="content-container">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-between">
                 <span class="navbar-brand">
                     Kids Curiosity Club
                     <span class="admin-badge">ADMIN</span>
                 </span>
+                <a href="dashboard.html" class="back-link">Pipeline Dashboard &rarr;</a>
             </div>
         </div>
     </nav>
@@ -276,7 +305,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // API Configuration
-        const API_BASE_URL = 'http://localhost:8000';
+        const API_BASE_URL = '';
         
         // Global state
         let allShows = [];
@@ -298,15 +327,29 @@
          */
         async function loadShows() {
             showLoading(true);
-            
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/shows`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Failed to load shows: ${response.statusText}`);
                 }
-                
-                allShows = await response.json();
+
+                const showsList = await response.json();
+
+                // Fetch full blueprint for each show to get protagonist image
+                allShows = await Promise.all(showsList.map(async (show) => {
+                    try {
+                        const bpResponse = await fetch(`${API_BASE_URL}/api/shows/${show.show_id}`);
+                        if (bpResponse.ok) {
+                            const blueprint = await bpResponse.json();
+                            show.thumbnail = blueprint.protagonist?.image_path || null;
+                            show.episode_count = blueprint.episodes?.length || 0;
+                        }
+                    } catch { /* use defaults */ }
+                    return show;
+                }));
+
                 displayShows(allShows);
                 
             } catch (error) {
@@ -356,10 +399,16 @@
                                     <span class="show-card-badge">${episodeCount} episodes</span>
                                 </div>
                                 <p class="show-card-description">${show.description || 'No description available'}</p>
-                                <a href="blueprint.html?show_id=${show.show_id}" 
-                                   class="btn btn-admin-primary">
-                                    Edit Blueprint →
-                                </a>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="blueprint.html?show_id=${show.show_id}"
+                                       class="btn btn-admin-primary">
+                                        Edit Blueprint
+                                    </a>
+                                    <a href="dashboard.html?show_id=${show.show_id}"
+                                       class="btn btn-admin-secondary">
+                                        View Episodes
+                                    </a>
+                                </div>
                                 <div class="show-card-footer">
                                     Created ${createdDate}
                                 </div>

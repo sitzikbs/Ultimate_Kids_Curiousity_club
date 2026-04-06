@@ -27,7 +27,8 @@ class APISettings(BaseSettings):
 
     # Static files configuration
     WEBSITE_DIR: Path = Field(
-        default=Path("website"), description="Website static files directory"
+        default=Path(__file__).resolve().parent.parent.parent / "website",
+        description="Website static files directory",
     )
 
     # WebSocket configuration

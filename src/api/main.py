@@ -9,8 +9,9 @@ from fastapi.staticfiles import StaticFiles
 
 from api.config import get_api_settings
 from api.models import HealthResponse
-from api.routes import episodes, shows
+from api.routes import episodes, shows, uploads
 from api.websocket import websocket_endpoint
+from config import get_settings as _get_app_settings
 
 # Get API settings
 settings = get_api_settings()
@@ -36,6 +37,7 @@ app.add_middleware(
 # Include routers
 app.include_router(shows.router)
 app.include_router(episodes.router)
+app.include_router(uploads.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
@@ -58,7 +60,19 @@ async def websocket_route(websocket: WebSocket) -> None:
     await websocket_endpoint(websocket)
 
 
-# Mount static files (website directory)
+# Mount only specific data subdirectories (audio, characters, images)
+_app_settings = _get_app_settings()
+_data_path = Path(_app_settings.DATA_DIR)
+for _subdir in ("audio", "characters", "images"):
+    _subdir_path = _data_path / _subdir
+    if _subdir_path.exists():
+        app.mount(
+            f"/data/{_subdir}",
+            StaticFiles(directory=str(_subdir_path)),
+            name=f"data_{_subdir}",
+        )
+
+# Mount static files (website directory) — must be last (catch-all)
 website_path = Path(settings.WEBSITE_DIR)
 if website_path.exists():
     app.mount("/", StaticFiles(directory=str(website_path), html=True), name="static")

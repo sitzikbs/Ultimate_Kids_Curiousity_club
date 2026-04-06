@@ -17,7 +17,7 @@ physical_description: >
   a magnifying glass, and small artifacts she's collected. She often carries 
   a worn leather journal for recording her discoveries.
 
-image_path: "data/shows/hannah/images/hannah_portrait.png"  # To be generated
+image_path: "/data/characters/images/Hannah_the_historian.jpg"
 
 # Personality
 personality_traits:

@@ -42,6 +42,12 @@ class UpdateShowBlueprintRequest(BaseModel):
     world: dict | None = Field(None, description="Updated world description")
 
 
+class UpdateCharactersRequest(BaseModel):
+    """Request model for replacing all show characters."""
+
+    characters: list[dict] = Field(..., description="Complete list of characters")
+
+
 # Episode models
 class EpisodeResponse(BaseModel):
     """Response model for episode data."""
@@ -66,6 +72,13 @@ class EpisodeDetailResponse(EpisodeResponse):
     approval_feedback: str | None = Field(
         None, description="Feedback from approval process"
     )
+
+
+class CreateEpisodeRequest(BaseModel):
+    """Request model for creating a new episode."""
+
+    topic: str = Field(..., description="Episode topic / educational concept")
+    title: str | None = Field(None, description="Optional explicit episode title")
 
 
 class UpdateOutlineRequest(BaseModel):
