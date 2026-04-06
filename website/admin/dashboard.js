@@ -2,8 +2,8 @@
  * Pipeline Dashboard - Episode tracking with WebSocket live updates
  */
 
-const API_BASE_URL = 'http://localhost:8000';
-const WS_URL = `ws://${window.location.hostname}:8000/ws`;
+const API_BASE_URL = '';
+const WS_URL = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
 
 let allEpisodes = [];
 let currentFilter = 'all';

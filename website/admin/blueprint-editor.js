@@ -10,7 +10,7 @@ let characterModal = null;
 let hasUnsavedChanges = false;
 
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '';
 
 /**
  * Initialize the blueprint editor on page load

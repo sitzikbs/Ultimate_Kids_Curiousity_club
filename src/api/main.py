@@ -11,6 +11,7 @@ from api.config import get_api_settings
 from api.models import HealthResponse
 from api.routes import episodes, shows, uploads
 from api.websocket import websocket_endpoint
+from config import get_settings as _get_app_settings
 
 # Get API settings
 settings = get_api_settings()
@@ -59,13 +60,17 @@ async def websocket_route(websocket: WebSocket) -> None:
     await websocket_endpoint(websocket)
 
 
-# Mount data directory for serving show images
-from config import get_settings as _get_app_settings
-
+# Mount only specific data subdirectories (audio, characters, images)
 _app_settings = _get_app_settings()
-data_path = Path(_app_settings.DATA_DIR)
-if data_path.exists():
-    app.mount("/data", StaticFiles(directory=str(data_path)), name="data")
+_data_path = Path(_app_settings.DATA_DIR)
+for _subdir in ("audio", "characters", "images"):
+    _subdir_path = _data_path / _subdir
+    if _subdir_path.exists():
+        app.mount(
+            f"/data/{_subdir}",
+            StaticFiles(directory=str(_subdir_path)),
+            name=f"data_{_subdir}",
+        )
 
 # Mount static files (website directory) — must be last (catch-all)
 website_path = Path(settings.WEBSITE_DIR)

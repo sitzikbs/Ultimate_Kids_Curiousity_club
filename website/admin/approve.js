@@ -2,7 +2,7 @@
  * Outline Approval - View/edit story beats and approve or reject
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '';
 
 let currentEpisodeId = null;
 let episodeData = null;

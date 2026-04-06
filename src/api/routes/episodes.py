@@ -70,7 +70,7 @@ def _to_web_audio_path(audio_path: str | None) -> str | None:
     settings = get_settings()
     data_dir = str(settings.DATA_DIR)
     if audio_path.startswith(data_dir):
-        return "/data" + audio_path[len(data_dir):]
+        return "/data" + audio_path[len(data_dir) :]
     return audio_path
 
 
@@ -220,9 +220,7 @@ async def create_episode(
 
         # Run the full initial pipeline in background
         # (the orchestrator creates the episode internally)
-        background_tasks.add_task(
-            _run_initial_pipeline, show_id, request.topic, title
-        )
+        background_tasks.add_task(_run_initial_pipeline, show_id, request.topic, title)
 
         return {
             "status": "started",
@@ -233,14 +231,10 @@ async def create_episode(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Internal server error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-def _run_initial_pipeline(
-    show_id: str, topic: str, title: str
-) -> None:
+def _run_initial_pipeline(show_id: str, topic: str, title: str) -> None:
     """Run ideation + outlining in a background thread."""
     from cli.factory import create_pipeline
 
@@ -248,7 +242,14 @@ def _run_initial_pipeline(
         pipeline = create_pipeline()
         await pipeline.generate_episode(show_id, topic, title)
 
-    asyncio.run(_run())
+    try:
+        asyncio.run(_run())
+    except Exception:
+        logger.exception(
+            "Background pipeline failed for show=%s topic=%s",
+            show_id,
+            topic,
+        )
 
 
 @router.get("/episodes/{episode_id}", response_model=EpisodeDetailResponse)
@@ -371,9 +372,7 @@ async def approve_episode(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Internal server error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 def _resume_pipeline(show_id: str, episode_id: str) -> None:
@@ -390,4 +389,11 @@ def _resume_pipeline(show_id: str, episode_id: str) -> None:
             result.status,
         )
 
-    asyncio.run(_run())
+    try:
+        asyncio.run(_run())
+    except Exception:
+        logger.exception(
+            "Background pipeline resume failed for %s/%s",
+            show_id,
+            episode_id,
+        )
