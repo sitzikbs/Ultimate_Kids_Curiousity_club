@@ -11,6 +11,7 @@ from services.tts.elevenlabs_provider import ElevenLabsProvider
 from services.tts.google_provider import GoogleTTSProvider
 from services.tts.mock_provider import MockTTSProvider
 from services.tts.openai_provider import OpenAITTSProvider
+from services.tts.vibevoice_provider import VibeVoiceProvider
 
 
 def retry_on_failure(
@@ -127,22 +128,27 @@ class TTSProviderFactory:
         fast_mode: bool = False,
         add_noise: bool = False,
         enable_retry: bool = True,
+        base_url: str | None = None,
     ) -> BaseTTSProvider:
         """Create a TTS provider instance.
 
         Args:
-            provider_type: Type of provider ('mock', 'elevenlabs', 'google', 'openai')
-            api_key: API key for the provider (required for real providers)
-            credentials_path: Path to credentials file (for Google Cloud)
-            fast_mode: Enable fast mode for mock provider
-            add_noise: Add noise to mock audio
-            enable_retry: Enable retry logic for transient failures
+            provider_type: Type of provider
+                (``mock``, ``elevenlabs``, ``google``, ``openai``,
+                ``vibevoice``).
+            api_key: API key for the provider (required for cloud providers).
+            credentials_path: Path to credentials file (for Google Cloud).
+            fast_mode: Enable fast mode for mock provider.
+            add_noise: Add noise to mock audio.
+            enable_retry: Enable retry logic for transient failures.
+            base_url: Base URL override (used by VibeVoice provider).
 
         Returns:
-            TTS provider instance
+            TTS provider instance.
 
         Raises:
-            ValueError: If provider_type is invalid or required credentials are missing
+            ValueError: If provider_type is invalid or required credentials
+                are missing.
         """
         provider: BaseTTSProvider
 
@@ -158,10 +164,13 @@ class TTSProviderFactory:
             if not api_key:
                 raise ValueError("API key is required for OpenAI provider")
             provider = OpenAITTSProvider(api_key=api_key)
+        elif provider_type == "vibevoice":
+            url = base_url or "http://tts:8100"
+            provider = VibeVoiceProvider(base_url=url)
         else:
             raise ValueError(
                 f"Invalid provider type: {provider_type}. "
-                f"Must be one of: mock, elevenlabs, google, openai"
+                f"Must be one of: mock, elevenlabs, google, openai, vibevoice"
             )
 
         # Wrap with retry logic if enabled and not mock
