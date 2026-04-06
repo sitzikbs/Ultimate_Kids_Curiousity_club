@@ -9,6 +9,7 @@ __all__ = [
     "LLMCallMetrics",
     "LLMProviderFactory",
     "GeminiProvider",
+    "GemmaProvider",
     "IdeationService",
     "LLMResponseParser",
     "OutlineService",
@@ -39,6 +40,10 @@ def __getattr__(name):
         from services.llm.gemini_provider import GeminiProvider
 
         return GeminiProvider
+    elif name == "GemmaProvider":
+        from services.llm.gemma_provider import GemmaProvider
+
+        return GemmaProvider
     elif name == "IdeationService":
         from services.llm.ideation_service import IdeationService
 
