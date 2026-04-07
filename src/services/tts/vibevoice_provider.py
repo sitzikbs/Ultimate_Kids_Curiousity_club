@@ -171,9 +171,10 @@ class VibeVoiceProvider(BaseTTSProvider):
             )
             response.raise_for_status()
 
-        output_path = Path(
-            tempfile.mktemp(suffix=f".{output_format}", prefix="dialogue_")
-        )
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=f".{output_format}", prefix="dialogue_"
+        ) as fh:
+            output_path = Path(fh.name)
         output_path.write_bytes(response.content)
         return output_path
 

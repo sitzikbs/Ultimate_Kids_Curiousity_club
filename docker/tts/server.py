@@ -6,15 +6,33 @@ and multi-speaker synthesis endpoints for the podcast pipeline.
 
 from __future__ import annotations
 
+import logging
+import os
 import tempfile
+from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Any
 
+import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from starlette.background import BackgroundTask
 
-app = FastAPI(title="VibeVoice TTS Service", version="0.1.0")
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Load model at startup so first request is not delayed."""
+    try:
+        get_model()
+    except Exception as e:
+        logger.warning("Model not available at startup: %s", e)
+    yield
+
+
+app = FastAPI(title="VibeVoice TTS Service", version="0.1.0", lifespan=lifespan)
 
 # ---------------------------------------------------------------------------
 # Models
@@ -32,6 +50,9 @@ class Speaker(str, Enum):
     MRS_CHEN = "mrs. chen"
 
 
+# VibeVoice 1.5B supports max 4 simultaneous speakers (S1-S4).
+# Characters sharing a speaker_id will have similar voice characteristics.
+# For scenes with >4 characters, batch synthesis across groups.
 SPEAKER_MAP: dict[Speaker, dict[str, str]] = {
     Speaker.NARRATOR: {
         "speaker_id": "S1",
@@ -149,8 +170,6 @@ def _resolve_speaker(name: str) -> dict[str, str]:
 @app.get("/health")
 async def health() -> dict[str, Any]:
     """Return service health including GPU status."""
-    import torch
-
     gpu_available = torch.cuda.is_available()
     gpu_name = torch.cuda.get_device_name(0) if gpu_available else None
     gpu_memory: dict[str, float] | None = None
@@ -193,7 +212,13 @@ async def synthesize(request: TTSRequest) -> FileResponse:
                 fh.name,
                 media_type="audio/mpeg",
                 filename="output.mp3",
+                background=BackgroundTask(os.unlink, fh.name),
             )
+    except torch.cuda.OutOfMemoryError:
+        torch.cuda.empty_cache()
+        raise HTTPException(
+            503, "GPU out of memory — try shorter text or restart container"
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Synthesis failed: {exc}") from exc
 
@@ -228,7 +253,13 @@ async def synthesize_multi(
                 fh.name,
                 media_type=media_type,
                 filename=f"dialogue{suffix}",
+                background=BackgroundTask(os.unlink, fh.name),
             )
+    except torch.cuda.OutOfMemoryError:
+        torch.cuda.empty_cache()
+        raise HTTPException(
+            503, "GPU out of memory — try shorter text or restart container"
+        )
     except Exception as exc:
         raise HTTPException(
             status_code=500,
