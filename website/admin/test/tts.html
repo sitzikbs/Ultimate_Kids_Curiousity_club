@@ -466,7 +466,7 @@
                 document.getElementById('btn-download-single').style.display = 'inline-block';
 
             } catch (err) {
-                playerArea.innerHTML = `<div class="text-danger">Error: ${err.message}</div>`;
+                playerArea.innerHTML = `<div class="text-danger">Error: ${escapeHtml(err.message)}</div>`;
                 singleBlob = null;
                 document.getElementById('btn-download-single').style.display = 'none';
             } finally {
@@ -513,7 +513,7 @@
                 document.getElementById('btn-download-multi').style.display = 'inline-block';
 
             } catch (err) {
-                playerArea.innerHTML = `<div class="text-danger">Error: ${err.message}</div>`;
+                playerArea.innerHTML = `<div class="text-danger">Error: ${escapeHtml(err.message)}</div>`;
                 multiBlob = null;
                 document.getElementById('btn-download-multi').style.display = 'none';
             } finally {

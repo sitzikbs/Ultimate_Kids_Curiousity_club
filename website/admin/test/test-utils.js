@@ -2,6 +2,12 @@
  * Shared utilities for the test dashboard.
  */
 
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 const SERVICES = {
     llm: { name: 'LLM (Gemma 4)', url: '/llm', healthUrl: '/llm/api/tags', port: 11434 },
     tts: { name: 'TTS (VibeVoice)', url: '/tts', healthUrl: '/tts/health', port: 8100 },
@@ -26,11 +32,16 @@ async function checkServiceHealth(serviceKey) {
 }
 
 async function checkAllHealth() {
-    const results = {};
-    for (const key of Object.keys(SERVICES)) {
-        results[key] = await checkServiceHealth(key);
-    }
-    return results;
+    const keys = Object.keys(SERVICES);
+    const checks = keys.map(key => checkServiceHealth(key));
+    const results = await Promise.allSettled(checks);
+    const output = {};
+    keys.forEach((key, i) => {
+        output[key] = results[i].status === 'fulfilled'
+            ? results[i].value
+            : { status: 'down', latency: null, error: results[i].reason?.message };
+    });
+    return output;
 }
 
 function statusBadge(status) {
@@ -43,8 +54,14 @@ function formatJson(obj) {
     return JSON.stringify(obj, null, 2);
 }
 
+let _lastAudioUrl = null;
+
 function createAudioPlayer(blob) {
+    if (_lastAudioUrl) {
+        URL.revokeObjectURL(_lastAudioUrl);
+    }
     const url = URL.createObjectURL(blob);
+    _lastAudioUrl = url;
     const audio = document.createElement('audio');
     audio.controls = true;
     audio.src = url;
@@ -69,10 +86,10 @@ async function* streamResponse(url, body) {
 
 function showError(containerId, message) {
     document.getElementById(containerId).innerHTML =
-        `<div class="alert alert-danger">${message}</div>`;
+        `<div class="alert alert-danger">${escapeHtml(message)}</div>`;
 }
 
 function showLoading(containerId, message = 'Loading...') {
     document.getElementById(containerId).innerHTML =
-        `<div class="text-center p-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">${message}</p></div>`;
+        `<div class="text-center p-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">${escapeHtml(message)}</p></div>`;
 }

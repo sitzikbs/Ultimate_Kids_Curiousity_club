@@ -418,8 +418,8 @@
                     const memTotal = gpuData.memory_total || gpuData.mem_total || '?';
                     gpuEl.innerHTML = `
                         <div class="gpu-info-label">GPU</div>
-                        <div>${name}</div>
-                        <div>Memory: ${memFree} / ${memTotal}</div>
+                        <div>${escapeHtml(String(name))}</div>
+                        <div>Memory: ${escapeHtml(String(memFree))} / ${escapeHtml(String(memTotal))}</div>
                     `;
                 } else {
                     gpuEl.style.display = 'none';

@@ -288,7 +288,7 @@
                         <div>Speed: <span id="stat-speed">--</span></div>
                     </div>
                     <div class="mt-2">
-                        <button class="btn btn-admin-secondary btn-sm" onclick="copyResponse()">Copy</button>
+                        <button class="btn btn-admin-secondary btn-sm" onclick="copyResponse(event)">Copy</button>
                     </div>
                 </div>
             </div>
@@ -426,10 +426,10 @@
             lastResponse = '';
         }
 
-        function copyResponse() {
+        function copyResponse(e) {
             if (lastResponse) {
                 navigator.clipboard.writeText(lastResponse).then(() => {
-                    const btn = event.target;
+                    const btn = e ? e.target : document.querySelector('.btn-outline-secondary');
                     btn.textContent = 'Copied!';
                     setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
                 });

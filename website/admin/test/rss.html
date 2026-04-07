@@ -322,7 +322,7 @@
 
             } catch (err) {
                 xmlDisplay.textContent = `Error: ${err.message}`;
-                episodesContainer.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                episodesContainer.innerHTML = `<div class="alert alert-danger">${escapeHtml(err.message)}</div>`;
                 currentXml = null;
             } finally {
                 btn.disabled = false;
@@ -399,7 +399,7 @@
                 container.innerHTML = html;
 
             } catch (err) {
-                container.innerHTML = `<div class="alert alert-danger">Error parsing XML: ${err.message}</div>`;
+                container.innerHTML = `<div class="alert alert-danger">Error parsing XML: ${escapeHtml(err.message)}</div>`;
             }
         }
 
@@ -444,7 +444,7 @@
                 container.innerHTML = html;
 
             } catch (err) {
-                container.innerHTML = `<div class="validation-result invalid"><strong>Error:</strong> ${err.message}</div>`;
+                container.innerHTML = `<div class="validation-result invalid"><strong>Error:</strong> ${escapeHtml(err.message)}</div>`;
             }
         }
 
@@ -469,14 +469,14 @@
 
                 const data = await response.json();
                 document.getElementById('validation-container').innerHTML =
-                    `<div class="validation-result valid"><strong>Feed regenerated successfully.</strong> ${data.message || ''}</div>`;
+                    `<div class="validation-result valid"><strong>Feed regenerated successfully.</strong> ${escapeHtml(data.message || '')}</div>`;
 
                 // Reload the feed
                 loadFeed();
 
             } catch (err) {
                 document.getElementById('validation-container').innerHTML =
-                    `<div class="validation-result invalid"><strong>Error:</strong> ${err.message}</div>`;
+                    `<div class="validation-result invalid"><strong>Error:</strong> ${escapeHtml(err.message)}</div>`;
             }
         }
 
