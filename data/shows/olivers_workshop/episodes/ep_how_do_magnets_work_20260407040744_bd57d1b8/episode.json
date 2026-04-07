@@ -1,0 +1,85 @@
+{
+  "episode_id": "ep_how_do_magnets_work_20260407040744_bd57d1b8",
+  "show_id": "olivers_workshop",
+  "topic": "How do magnets work?",
+  "title": "How do magnets work?",
+  "outline": {
+    "episode_id": "ep_how_do_magnets_work_20260407040744_bd57d1b8",
+    "show_id": "olivers_workshop",
+    "topic": "Generated Topic",
+    "title": "Magnetic Marvels",
+    "educational_concept": "Understanding magnetism and its properties",
+    "story_beats": [
+      {
+        "beat_number": 1,
+        "title": "The Mysterious Box",
+        "description": "Oliver and his friends discover an old box filled with metal objects and magnets in the attic of the library.",
+        "educational_focus": "Introduction to magnets and their properties",
+        "key_moments": [
+          "Oliver excitedly opens the box and finds various metal objects and shiny magnets.",
+          "Mrs. Chen explains that magnets can attract certain metals and have different poles."
+        ]
+      },
+      {
+        "beat_number": 2,
+        "title": "Hands-On Experiments",
+        "description": "The kids gather at the Curiosity Corner to experiment with the magnets and discover how they work.",
+        "educational_focus": "Experimentation with magnetism",
+        "key_moments": [
+          "The kids conduct magnet races using paper clips and learn about magnetic attraction.",
+          "They create simple magnetic games, testing different materials to see what sticks."
+        ]
+      },
+      {
+        "beat_number": 3,
+        "title": "The Stuck Magnet",
+        "description": "A magnet gets stuck to a metal filing cabinet, and the kids must work together to retrieve it.",
+        "educational_focus": "Problem-solving and teamwork",
+        "key_moments": [
+          "Oliver suggests using a long stick to carefully dislodge the magnet without damaging the cabinet.",
+          "The friends collaborate, sharing ideas and supporting each other as they work to solve the problem."
+        ]
+      },
+      {
+        "beat_number": 4,
+        "title": "Celebrating Success",
+        "description": "After successfully retrieving the magnet, the kids reflect on what they've learned.",
+        "educational_focus": "Reflection on learning and collaboration",
+        "key_moments": [
+          "The kids celebrate their teamwork and newfound knowledge about magnetism.",
+          "Oliver expresses excitement about exploring more scientific wonders in Maplewood."
+        ]
+      }
+    ],
+    "created_at": "2026-04-07T04:08:00.868144Z"
+  },
+  "segments": [],
+  "concept": "In this episode of \"Oliver the Inventor,\" titled \"Magnetic Marvels,\" Oliver and his friends discover a mysterious, old box in the attic of the Maplewood library, filled with unusual metal objects and a few shiny magnets. Intrigued by the box, Oliver exclaims, \"Let's figure it out!\" and gathers his friends at the Curiosity Corner, where Mrs. Chen, the retired tinkerer, is excited to help them explore the world of magnets. With her guidance, Oliver learns that magnets have a special power to attract certain metals and can even push away or pull together depending on their poles. The kids are eager to experiment and see how different materials react to the magnets they found.\n\nAs they dive into hands-on experiments, they create fun challenges like magnet races with paper clips and building simple magnetic games. However, they face a problem when a magnet gets stuck to a metal filing cabinet, and they need to work together to figure out how to retrieve it without damaging anything. This situation allows Oliver to demonstrate his inventive spirit, as he suggests using a long stick and some teamwork to carefully dislodge the magnet. Through their playful problem-solving and experimentation, the kids not only learn about the science of magnetism but also the importance of collaboration and perseverance. By the end of the episode, they celebrate their success and newfound knowledge, eager to continue exploring other scientific wonders in their friendly town.",
+  "scripts": [],
+  "audio_segment_paths": [],
+  "audio_path": null,
+  "current_stage": "AWAITING_APPROVAL",
+  "approval_status": "pending",
+  "approval_feedback": null,
+  "checkpoints": {
+    "ideation": {
+      "completed_at": "2026-04-07T04:07:51.737852+00:00",
+      "output": {
+        "concept_length": 1474
+      },
+      "cost": 0.0
+    },
+    "outlining": {
+      "completed_at": "2026-04-07T04:08:00.868165+00:00",
+      "output": {
+        "beats": 4
+      },
+      "cost": 0.0
+    }
+  },
+  "total_cost": 0.0,
+  "last_error": null,
+  "retry_count": 0,
+  "created_at": "2026-04-07T04:07:44.178036Z",
+  "updated_at": "2026-04-07T04:08:00.868688Z"
+}

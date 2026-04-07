@@ -1,0 +1,95 @@
+{
+  "episode_id": "ep_how_do_rainbows_form_20260407043702_c231ccc9",
+  "show_id": "olivers_workshop",
+  "topic": "How do rainbows form?",
+  "title": "How do rainbows form?",
+  "outline": {
+    "episode_id": "ep_how_do_rainbows_form_20260407043702_c231ccc9",
+    "show_id": "olivers_workshop",
+    "topic": "Generated Topic",
+    "title": "Chasing Rainbows",
+    "educational_concept": "Understanding the science of light and rainbows",
+    "story_beats": [
+      {
+        "beat_number": 1,
+        "title": "A Surprise Shower",
+        "description": "Oliver and his friends are playing at Maplewood Park when a sudden rain shower interrupts their fun. They notice a rainbow forming after the rain stops.",
+        "educational_focus": "Introduction to the concept of rainbows and how they are formed.",
+        "key_moments": [
+          "Oliver spots the rainbow and expresses his curiosity about how it forms.",
+          "The friends gather around Oliver, excitedly discussing their observations of the colors in the sky."
+        ]
+      },
+      {
+        "beat_number": 2,
+        "title": "Curiosity Corner Research",
+        "description": "Oliver leads his friends to Mrs. Chen's Curiosity Corner in the library to learn about the science behind rainbows.",
+        "educational_focus": "Understanding the phenomena of light refraction, reflection, and dispersion.",
+        "key_moments": [
+          "Mrs. Chen uses a simple diagram to explain how sunlight interacts with raindrops to create rainbows.",
+          "The kids ask questions and share their own ideas, showing teamwork and curiosity."
+        ]
+      },
+      {
+        "beat_number": 3,
+        "title": "Experiment Preparation",
+        "description": "Inspired by Mrs. Chen's explanation, Oliver and his friends decide to conduct an experiment to create their own rainbows.",
+        "educational_focus": "The importance of planning and teamwork in scientific experiments.",
+        "key_moments": [
+          "Oliver sketches out their experiment plan on a notepad, detailing how they will use a hose, mirror, and flashlight.",
+          "The friends split tasks, gathering materials and setting up the experiment in Oliver's backyard workshop."
+        ]
+      },
+      {
+        "beat_number": 4,
+        "title": "Mini Rainbow Challenges",
+        "description": "The group faces challenges while trying to create their rainbow, learning through trial and error.",
+        "educational_focus": "Problem-solving and the scientific method: testing, measuring, and adjusting.",
+        "key_moments": [
+          "The kids experiment with different angles and distances, discussing what works and what doesn’t.",
+          "After several attempts, they finally create a mini rainbow, celebrating their teamwork and perseverance."
+        ]
+      },
+      {
+        "beat_number": 5,
+        "title": "Marveling at Their Creation",
+        "description": "The episode concludes with the friends admiring their mini rainbow and reflecting on what they learned.",
+        "educational_focus": "The joy of discovery and the importance of curiosity in science.",
+        "key_moments": [
+          "The friends gather around to take turns shining the flashlight and creating rainbows, laughing and cheering each other on.",
+          "Oliver concludes with a reminder that curiosity and teamwork can lead to amazing discoveries."
+        ]
+      }
+    ],
+    "created_at": "2026-04-07T04:37:19.070722Z"
+  },
+  "segments": [],
+  "concept": "In this episode of \"Oliver the Inventor,\" Oliver and his friends are enjoying a sunny day at Maplewood Park when a sudden rain shower drizzles down, followed by a brilliant burst of sunshine. As the sun shines through the raindrops, a stunning rainbow appears in the sky, capturing the children's awe. Oliver, ever the curious inventor, exclaims, “Let’s figure it out! How does a rainbow form?” Determined to uncover the mystery, he gathers his friends and heads to Mrs. Chen's Curiosity Corner at the library for some research.\n\nAt the Curiosity Corner, Mrs. Chen shares the science behind rainbows, explaining how sunlight refracts, reflects, and disperses through raindrops to create the colorful arc. Inspired, Oliver and his friends decide to create a hands-on experiment that simulates this phenomenon. They gather materials like a hose, a mirror, and a flashlight to explore how light behaves in different ways. Along the way, they encounter challenges, like getting the right angle to create their own mini rainbows, but with teamwork and a little tinkering, they succeed! The episode ends with everyone marveling at the colorful results, reinforcing the importance of curiosity, teamwork, and experimentation in understanding the wonderful world of science.",
+  "scripts": [],
+  "audio_segment_paths": [],
+  "audio_path": null,
+  "current_stage": "AWAITING_APPROVAL",
+  "approval_status": "pending",
+  "approval_feedback": null,
+  "checkpoints": {
+    "ideation": {
+      "completed_at": "2026-04-07T04:37:08.583560+00:00",
+      "output": {
+        "concept_length": 1266
+      },
+      "cost": 0.0
+    },
+    "outlining": {
+      "completed_at": "2026-04-07T04:37:19.070732+00:00",
+      "output": {
+        "beats": 5
+      },
+      "cost": 0.0
+    }
+  },
+  "total_cost": 0.0,
+  "last_error": null,
+  "retry_count": 0,
+  "created_at": "2026-04-07T04:37:02.546950Z",
+  "updated_at": "2026-04-07T04:37:19.071120Z"
+}

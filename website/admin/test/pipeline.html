@@ -314,8 +314,8 @@
                 <div class="col-md-4">
                     <label class="form-label" for="show-select">Show</label>
                     <select class="form-select" id="show-select">
-                        <option value="oliver_the_inventor">Oliver the Inventor</option>
-                        <option value="hannah_the_historian">Hannah the Historian</option>
+                        <option value="olivers_workshop">Oliver the Inventor</option>
+                        <option value="hannah">Hannah the Historian</option>
                     </select>
                 </div>
                 <div class="col-md-5">
@@ -593,11 +593,19 @@
 
         async function runFullPipeline() {
             const btn = document.getElementById('btn-run-pipeline');
+            const show = document.getElementById('show-select').value;
+            const topic = document.getElementById('topic-input').value.trim();
+
+            if (!topic) {
+                log('Please enter a topic.', 'warn');
+                return;
+            }
+
             btn.disabled = true;
             btn.textContent = 'Running...';
             pipelineRunId = null;
 
-            log('Starting full pipeline run...', 'info');
+            log(`Starting full pipeline: show=${show}, topic="${topic}"`, 'info');
 
             // Reset all steps
             STEPS.forEach(s => {
@@ -615,24 +623,54 @@
                 log('Could not check App service health.', 'warn');
             }
 
-            // Run steps sequentially (except approval which needs user input)
-            const autoSteps = ['ideation', 'outlining'];
+            // Call the full pipeline endpoint
+            setStepStatus('ideation', 'running');
+            log('Calling pipeline/run endpoint...', 'info');
 
-            for (const step of autoSteps) {
-                await runStep(step);
-                const stepEl = document.getElementById(`step-${step}`);
-                if (stepEl.classList.contains('failed')) {
-                    log('Pipeline stopped due to step failure.', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Run Full Pipeline';
-                    return;
+            try {
+                const response = await fetch('http://localhost:8000/api/pipeline/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        show_id: show,
+                        topic: topic,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
                 }
-            }
 
-            log('Pipeline paused: awaiting approval for outline.', 'warn');
-            setStepStatus('approval', 'running');
-            setStepContent('approval', 'Please review the outline and approve or reject.');
-            document.getElementById('approval-buttons').style.display = 'flex';
+                const result = await response.json();
+                pipelineRunId = result.episode_id;
+                log(`Episode created: ${result.episode_id}`, 'success');
+                log(`Current stage: ${result.current_stage}`, 'info');
+
+                // Mark completed stages
+                for (const stage of (result.stages_completed || [])) {
+                    setStepStatus(stage, 'complete');
+                    setStepContent(stage, `Completed (episode: ${result.episode_id})`);
+                }
+
+                // Handle current stage
+                if (result.current_stage === 'AWAITING_APPROVAL') {
+                    log('Pipeline paused: awaiting approval for outline.', 'warn');
+                    setStepStatus('approval', 'running');
+                    setStepContent('approval', 'Please review the outline and approve or reject.');
+                    document.getElementById('approval-buttons').style.display = 'flex';
+                } else if (result.current_stage === 'COMPLETE') {
+                    STEPS.forEach(s => setStepStatus(s, 'complete'));
+                    log('Pipeline completed!', 'success');
+                } else if (result.error) {
+                    log(`Pipeline error: ${result.error}`, 'error');
+                } else {
+                    log(`Pipeline at stage: ${result.current_stage}`, 'info');
+                }
+            } catch (err) {
+                log(`Pipeline failed: ${err.message}`, 'error');
+                setStepStatus('ideation', 'failed');
+            }
 
             btn.disabled = false;
             btn.textContent = 'Run Full Pipeline';

@@ -1,0 +1,95 @@
+{
+  "episode_id": "ep_how_do_rainbows_form_20260407043122_e39c47a5",
+  "show_id": "olivers_workshop",
+  "topic": "How do rainbows form?",
+  "title": "How do rainbows form?",
+  "outline": {
+    "episode_id": "ep_how_do_rainbows_form_20260407043122_e39c47a5",
+    "show_id": "olivers_workshop",
+    "topic": "Generated Topic",
+    "title": "Chasing Rainbows",
+    "educational_concept": "Understanding rainbows and light refraction",
+    "story_beats": [
+      {
+        "beat_number": 1,
+        "title": "The Rainbow Discovery",
+        "description": "After a rainstorm, Oliver, Mia, and Sam spot a beautiful rainbow and feel curious about its formation.",
+        "educational_focus": "Introduction to light refraction and the science of rainbows.",
+        "key_moments": [
+          "Oliver exclaims, 'Let’s figure it out!' sparking curiosity.",
+          "They decide to visit Mrs. Chen at the Curiosity Corner for answers."
+        ]
+      },
+      {
+        "beat_number": 2,
+        "title": "Learning from Mrs. Chen",
+        "description": "At the Curiosity Corner, Mrs. Chen explains how rainbows are formed when sunlight passes through raindrops.",
+        "educational_focus": "Understanding the concept of light bending and color separation.",
+        "key_moments": [
+          "Mrs. Chen shares a story about prisms and how they create rainbows.",
+          "Oliver takes notes and sketches ideas for their own experiment inspired by the explanation."
+        ]
+      },
+      {
+        "beat_number": 3,
+        "title": "Gathering Supplies",
+        "description": "The trio heads to the Fab Lab to collect materials for their rainbow experiment.",
+        "educational_focus": "Practical application of teamwork and resourcefulness.",
+        "key_moments": [
+          "They brainstorm what materials are needed and gather spray bottles, water, and food coloring.",
+          "Ms. Park encourages them, reminding them to measure carefully for the experiment."
+        ]
+      },
+      {
+        "beat_number": 4,
+        "title": "Creating Their Mini Rainstorm",
+        "description": "In the sunny playground, they set up their experiment and begin to create rainbows with the spray bottles.",
+        "educational_focus": "Exploring angles of light and the importance of observation in experiments.",
+        "key_moments": [
+          "They mist the water at different angles, observing how the rainbows change.",
+          "Oliver encourages them after a few failed attempts, emphasizing the learning process."
+        ]
+      },
+      {
+        "beat_number": 5,
+        "title": "The Moment of Discovery",
+        "description": "After experimenting, they successfully create a rainbow and celebrate their teamwork and newfound knowledge.",
+        "educational_focus": "Reinforcing the value of curiosity, persistence, and collaboration.",
+        "key_moments": [
+          "The trio cheers as they see the rainbow appear, feeling proud of their accomplishment.",
+          "Oliver reflects on how fun it is to learn together and suggests more experiments for the future."
+        ]
+      }
+    ],
+    "created_at": "2026-04-07T04:31:37.539339Z"
+  },
+  "segments": [],
+  "concept": "In this episode of \"Oliver the Inventor,\" Oliver and his friends are playing outside after a rainstorm when they notice a vibrant rainbow arcing across the sky. Curious about how rainbows form, Oliver exclaims, “Let’s figure it out!” He gathers his friends, Mia and Sam, and they decide to visit Mrs. Chen at the Curiosity Corner for some guidance. Mrs. Chen explains that rainbows are created when sunlight passes through raindrops in the air, bending and splitting into different colors. Inspired by her explanation, Oliver suggests they create their own rainbow experiment using a spray bottle, a sunny spot, and some colorful paper.\n\nThe trio sets off to the Fab Lab at their school, where they gather materials to create a mini rainstorm in a sunny corner of the playground. They mix water and food coloring in the spray bottle and take turns misting the water in the sunlight while observing how the colors appear. Through trial and error, they learn about angles of light and how to position themselves to see the best rainbow. As they tinker and experiment, Oliver encourages his friends, reminding them that it’s okay if things don’t work perfectly the first time. By the end of the episode, they not only create their rainbow but also understand the science behind it, reinforcing the value of teamwork, curiosity, and the joy of discovering how the world works.",
+  "scripts": [],
+  "audio_segment_paths": [],
+  "audio_path": null,
+  "current_stage": "AWAITING_APPROVAL",
+  "approval_status": "pending",
+  "approval_feedback": null,
+  "checkpoints": {
+    "ideation": {
+      "completed_at": "2026-04-07T04:31:28.331812+00:00",
+      "output": {
+        "concept_length": 1372
+      },
+      "cost": 0.0
+    },
+    "outlining": {
+      "completed_at": "2026-04-07T04:31:37.539350+00:00",
+      "output": {
+        "beats": 5
+      },
+      "cost": 0.0
+    }
+  },
+  "total_cost": 0.0,
+  "last_error": null,
+  "retry_count": 0,
+  "created_at": "2026-04-07T04:31:22.517081Z",
+  "updated_at": "2026-04-07T04:31:37.539746Z"
+}

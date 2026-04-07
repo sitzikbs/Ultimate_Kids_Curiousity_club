@@ -10,7 +10,7 @@ COPY pyproject.toml .
 COPY src/ ./src/
 
 # Install the package and dependencies
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir . python-multipart
 
 ENV PYTHONPATH=/app/src
 EXPOSE 8000

@@ -71,20 +71,18 @@ services:
     build:
       context: .
       dockerfile: docker/app/Dockerfile
-    ports: ["8000:8000"]
+    network_mode: host
     volumes:
-      - episode-data:/data
+      - ./data:/app/data
     env_file: .env
-    depends_on:
-      distribution:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+    environment:
+      - LLM_PROVIDER=gemma
+      - GEMMA_BASE_URL=http://localhost:11435/v1
+      - GEMMA_MODEL=gemma4:latest
+      - TTS_PROVIDER=vibevoice
+      - VIBEVOICE_BASE_URL=http://localhost:8100
+      - USE_MOCK_SERVICES=false
     restart: unless-stopped
-    networks: [podcast-net]
 
   frontend:
     build:

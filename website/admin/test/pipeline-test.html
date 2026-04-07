@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Pipeline Test</title></head>
+<body>
+<h2>Pipeline API Test</h2>
+<button onclick="runTest()">Run Pipeline</button>
+<pre id="output">Click the button to test...</pre>
+<script>
+async function runTest() {
+    const out = document.getElementById('output');
+    out.textContent = 'Calling http://localhost:8000/api/pipeline/run ...\n';
+
+    try {
+        const response = await fetch('http://localhost:8000/api/pipeline/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                show_id: 'olivers_workshop',
+                topic: 'How do rainbows form?',
+            }),
+        });
+
+        out.textContent += `Response status: ${response.status}\n`;
+        const text = await response.text();
+        out.textContent += `Body: ${text}\n`;
+    } catch (err) {
+        out.textContent += `ERROR: ${err.name}: ${err.message}\n`;
+        console.error(err);
+    }
+}
+</script>
+</body>
+</html>
