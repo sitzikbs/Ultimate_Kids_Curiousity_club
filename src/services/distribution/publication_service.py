@@ -65,6 +65,11 @@ class PublicationService:
         """
         metadata = PublicationMetadata()
 
+        # Store episode metadata for feed regeneration
+        metadata.title = title
+        metadata.description = description
+        metadata.episode_number = episode_number
+
         # Step 1: Upload audio to R2
         metadata.state = PublicationState.UPLOADING
         file_size = audio_path.stat().st_size
@@ -221,15 +226,15 @@ class PublicationService:
                 episodes.append(
                     {
                         "id": episode_id,
-                        "title": episode_id,
-                        "description": "",
+                        "title": meta.title or episode_id,
+                        "description": meta.description,
                         "audio_url": meta.audio_url,
                         "file_size_bytes": meta.file_size_bytes,
                         "duration_seconds": meta.duration_seconds,
                         "publish_date": (
                             meta.published_at.isoformat() if meta.published_at else ""
                         ),
-                        "episode_number": len(episodes) + 1,
+                        "episode_number": meta.episode_number,
                     }
                 )
         return episodes

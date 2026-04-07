@@ -91,6 +91,30 @@ class TestPublicationService:
 
         assert result.state == PublicationState.UNLISTED
 
+    def test_publish_stores_episode_metadata(
+        self,
+        pub_service: PublicationService,
+        tmp_path: Path,
+    ) -> None:
+        """Test that publish stores title, description, episode_number."""
+        audio_file = tmp_path / "test.mp3"
+        audio_file.write_bytes(b"x" * 1000)
+
+        pub_service.publish_episode(
+            show_id="test_show",
+            episode_id="ep_meta",
+            audio_path=audio_file,
+            title="My Title",
+            description="My Description",
+            duration_seconds=90.0,
+            episode_number=5,
+        )
+
+        loaded = pub_service._load_publication_state("test_show", "ep_meta")
+        assert loaded.title == "My Title"
+        assert loaded.description == "My Description"
+        assert loaded.episode_number == 5
+
     def test_state_persistence_save_and_load(
         self, pub_service: PublicationService
     ) -> None:
@@ -100,6 +124,9 @@ class TestPublicationService:
             audio_url="https://cdn.example.com/test.mp3",
             file_size_bytes=5000,
             duration_seconds=300.0,
+            title="Test Title",
+            description="Test Description",
+            episode_number=3,
         )
         metadata.mark_published()
 
@@ -110,6 +137,9 @@ class TestPublicationService:
         assert loaded.audio_url == "https://cdn.example.com/test.mp3"
         assert loaded.file_size_bytes == 5000
         assert loaded.duration_seconds == 300.0
+        assert loaded.title == "Test Title"
+        assert loaded.description == "Test Description"
+        assert loaded.episode_number == 3
 
     def test_load_nonexistent_state_returns_unpublished(
         self, pub_service: PublicationService

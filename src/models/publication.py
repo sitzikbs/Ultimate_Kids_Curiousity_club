@@ -24,6 +24,9 @@ class PublicationMetadata(BaseModel):
     published_at: datetime | None = None
     file_size_bytes: int | None = None
     duration_seconds: float | None = None
+    title: str = ""
+    description: str = ""
+    episode_number: int = 1
     platform_urls: dict[str, str] = Field(default_factory=dict)
 
     def mark_uploaded(self, audio_url: str, file_size: int, duration: float) -> None:

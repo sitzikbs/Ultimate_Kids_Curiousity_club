@@ -95,8 +95,10 @@ class R2StorageClient:
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=key)
             return True
-        except ClientError:
-            return False
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "404":
+                return False
+            raise
 
     def get_episode_url(self, show_id: str, episode_id: str) -> str:
         """Get CDN URL for an episode.

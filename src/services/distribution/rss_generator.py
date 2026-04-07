@@ -64,7 +64,7 @@ class PodcastFeedGenerator:
 
         # iTunes metadata
         fg.podcast.itunes_author(author)
-        fg.podcast.itunes_category("Kids &amp; Family", "Education for Kids")
+        fg.podcast.itunes_category("Kids & Family", "Education for Kids")
         fg.podcast.itunes_explicit("no")
         fg.podcast.itunes_image(artwork_url)
         fg.podcast.itunes_owner(name=author, email="hello@kidscuriosityclub.com")

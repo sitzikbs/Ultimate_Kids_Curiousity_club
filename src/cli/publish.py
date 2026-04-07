@@ -22,6 +22,10 @@ def publish_episode(
     audio_path: Path = typer.Option(..., "--audio", "-a", help="Path to audio file"),
     title: str = typer.Option("", "--title", "-t", help="Episode title"),
     description: str = typer.Option("", "--desc", "-d", help="Episode description"),
+    duration: float = typer.Option(0.0, "--duration", help="Duration in seconds"),
+    episode_number: int = typer.Option(
+        1, "--episode-number", "-n", help="Episode number"
+    ),
 ) -> None:
     """Publish an episode: upload to R2 and add to RSS feed."""
     if not audio_path.exists():
@@ -37,6 +41,8 @@ def publish_episode(
             "audio_path": str(audio_path),
             "title": title or episode_id,
             "description": description,
+            "duration_seconds": duration,
+            "episode_number": episode_number,
         },
         timeout=120.0,
     )

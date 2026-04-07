@@ -1,5 +1,6 @@
 """Distribution API server for RSS feeds and R2 storage."""
 
+import logging
 import os
 from pathlib import Path
 
@@ -7,7 +8,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from pydantic import BaseModel
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI(title="Podcast Distribution Service", version="0.1.0")
+
+ALLOWED_DATA_DIR = Path(os.environ.get("DATA_DIR", "/data"))
 
 # Lazy init
 _publication_service = None
@@ -23,8 +28,12 @@ def get_service():
         from services.distribution.r2_storage import R2StorageClient
         from services.distribution.rss_generator import PodcastFeedGenerator
 
+        account_id = os.environ.get("R2_ACCOUNT_ID", "")
+        if not account_id:
+            logger.warning("R2_ACCOUNT_ID not set — uploads will fail")
+
         r2 = R2StorageClient(
-            account_id=os.environ.get("R2_ACCOUNT_ID", ""),
+            account_id=account_id,
             access_key_id=os.environ.get("R2_ACCESS_KEY_ID", ""),
             secret_access_key=os.environ.get("R2_SECRET_ACCESS_KEY", ""),
             bucket_name=os.environ.get("R2_BUCKET_NAME", "kids-curiosity-club"),
@@ -111,7 +120,15 @@ async def validate_feed(show_id: str):
 async def publish_episode(request: PublishRequest):
     """Publish an episode: upload to R2 and add to RSS feed."""
     svc = get_service()
-    audio = Path(request.audio_path)
+    audio = Path(request.audio_path).resolve()
+
+    # Prevent path traversal
+    allowed_dir = ALLOWED_DATA_DIR.resolve()
+    if not str(audio).startswith(str(allowed_dir)):
+        raise HTTPException(
+            403, f"Access denied: audio_path must be within {allowed_dir}"
+        )
+
     if not audio.exists():
         raise HTTPException(400, f"Audio file not found: {request.audio_path}")
     metadata = svc.publish_episode(

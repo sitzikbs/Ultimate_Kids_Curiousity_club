@@ -12,13 +12,18 @@ RUN pip install --no-cache-dir \
     pydantic \
     pydantic-settings
 
-# Copy distribution service code
-COPY server.py /app/server.py
-
-# Also need the src modules for imports
-# In production this would be a proper package install
-
 WORKDIR /app
+
+# Copy distribution server
+COPY docker/distribution/server.py /app/server.py
+
+# Copy src modules needed by the server
+COPY src/services/distribution/ /app/services/distribution/
+COPY src/models/publication.py /app/models/publication.py
+
+# Create __init__.py files for package imports
+RUN touch /app/services/__init__.py /app/models/__init__.py
+
 EXPOSE 8200
 
 HEALTHCHECK --interval=15s --timeout=5s --retries=3 \

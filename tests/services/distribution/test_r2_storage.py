@@ -85,6 +85,16 @@ class TestR2StorageClient:
 
         assert r2_client.episode_exists("my_show", "ep_001") is False
 
+    def test_episode_exists_reraises_non_404(self, r2_client: R2StorageClient) -> None:
+        """Test episode_exists re-raises non-404 ClientErrors."""
+        r2_client.s3.head_object.side_effect = ClientError(
+            {"Error": {"Code": "403", "Message": "Forbidden"}},
+            "HeadObject",
+        )
+
+        with pytest.raises(ClientError):
+            r2_client.episode_exists("my_show", "ep_001")
+
     def test_get_episode_url(self, r2_client: R2StorageClient) -> None:
         """Test URL construction."""
         url = r2_client.get_episode_url("my_show", "ep_001")
