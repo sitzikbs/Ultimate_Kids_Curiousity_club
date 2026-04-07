@@ -1,0 +1,12 @@
+.git
+__pycache__
+*.pyc
+.venv
+.env
+.env.local
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data/audio/segment_*
+*.egg-info
+.claude/

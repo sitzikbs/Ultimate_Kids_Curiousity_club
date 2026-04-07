@@ -1,0 +1,111 @@
+name: kids-podcast
+
+services:
+  llm:
+    build:
+      context: .
+      dockerfile: docker/llm/Dockerfile
+    ports: ["127.0.0.1:11434:11434"]
+    volumes:
+      - ollama-models:/root/.ollama
+      - episode-data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    profiles: ["gpu"]
+    networks: [podcast-net]
+
+  tts:
+    build:
+      context: .
+      dockerfile: docker/tts/Dockerfile
+    ports: ["127.0.0.1:8100:8100"]
+    volumes:
+      - tts-models:/app/models
+      - episode-data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+    profiles: ["gpu"]
+    networks: [podcast-net]
+
+  distribution:
+    build:
+      context: .
+      dockerfile: docker/distribution/Dockerfile
+    ports: ["8200:8200"]
+    volumes:
+      - episode-data:/data
+    env_file: .env
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8200/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks: [podcast-net]
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    ports: ["8000:8000"]
+    volumes:
+      - episode-data:/data
+    env_file: .env
+    depends_on:
+      distribution:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks: [podcast-net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    ports: ["3000:80"]
+    depends_on: [app]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    profiles: ["dev"]
+    networks: [podcast-net]
+
+networks:
+  podcast-net:
+    driver: bridge
+
+volumes:
+  ollama-models:
+  tts-models:
+  episode-data:
