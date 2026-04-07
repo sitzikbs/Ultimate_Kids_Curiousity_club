@@ -41,6 +41,7 @@ class APISettings(BaseSettings):
         env_file_encoding="utf-8",
         env_prefix="API_",
         case_sensitive=True,
+        extra="ignore",
     )
 
 

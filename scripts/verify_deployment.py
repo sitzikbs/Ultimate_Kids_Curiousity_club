@@ -181,10 +181,7 @@ def main() -> int:
         return 0
     else:
         failed = total - passed
-        print(
-            f"\n⚠️  {failed} check(s) failed. "
-            "Please fix issues before deploying."
-        )
+        print(f"\n⚠️  {failed} check(s) failed. Please fix issues before deploying.")
         return 1
 
 

@@ -36,8 +36,7 @@ def create_example_show_blueprint() -> ShowBlueprint:
         name="Oliver",
         age=10,
         description=(
-            "A curious young inventor with a passion for "
-            "understanding how things work"
+            "A curious young inventor with a passion for understanding how things work"
         ),
         values=["curiosity", "creativity", "perseverance", "teamwork"],
         catchphrases=["Let's find out!", "Amazing!", "I wonder why..."],
