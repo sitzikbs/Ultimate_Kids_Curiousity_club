@@ -5,6 +5,7 @@ from pathlib import Path
 from services.llm.anthropic_provider import AnthropicProvider
 from services.llm.base import BaseLLMProvider
 from services.llm.gemini_provider import GeminiProvider
+from services.llm.gemma_provider import GemmaProvider
 from services.llm.mock_provider import MockLLMProvider
 from services.llm.openai_provider import OpenAIProvider
 
@@ -18,14 +19,17 @@ class LLMProviderFactory:
         api_key: str | None = None,
         model: str | None = None,
         fixtures_dir: Path | None = None,
+        base_url: str | None = None,
     ) -> BaseLLMProvider:
         """Create an LLM provider instance.
 
         Args:
-            provider_type: Type of provider ('mock', 'openai', 'anthropic', 'gemini')
+            provider_type: Type of provider
+                ('mock', 'openai', 'anthropic', 'gemini', 'gemma')
             api_key: API key for the provider (required for real providers)
             model: Model name to use (optional, uses provider defaults)
             fixtures_dir: Directory for mock fixtures (only for mock provider)
+            base_url: Base URL override (only for gemma provider)
 
         Returns:
             LLM provider instance
@@ -62,10 +66,18 @@ class LLMProviderFactory:
             else:
                 provider = GeminiProvider(api_key=api_key)
 
+        elif provider_type == "gemma":
+            kwargs: dict[str, str] = {}
+            if base_url:
+                kwargs["base_url"] = base_url
+            if model:
+                kwargs["model"] = model
+            provider = GemmaProvider(**kwargs)
+
         else:
             raise ValueError(
                 f"Invalid provider type: {provider_type}. "
-                f"Must be one of: mock, openai, anthropic, gemini"
+                f"Must be one of: mock, openai, anthropic, gemini, gemma"
             )
 
         return provider
