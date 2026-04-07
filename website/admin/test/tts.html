@@ -443,7 +443,7 @@
             playerArea.classList.remove('has-audio');
 
             try {
-                const response = await fetch('/tts/v1/tts/synthesize', {
+                const response = await fetch('http://localhost:8100/v1/tts/synthesize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -492,7 +492,7 @@
             playerArea.classList.remove('has-audio');
 
             try {
-                const response = await fetch('/tts/v1/tts/synthesize-multi', {
+                const response = await fetch('http://localhost:8100/v1/tts/synthesize-multi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

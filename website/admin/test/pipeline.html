@@ -548,7 +548,7 @@
             }
 
             try {
-                const response = await fetch('/api/pipeline/run-step', {
+                const response = await fetch('http://localhost:8000/api/pipeline/run-step', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

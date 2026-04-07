@@ -134,6 +134,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="VibeVoice TTS Service", version="0.1.0", lifespan=lifespan)
 
+# Allow browser access from the test dashboard (different port)
+from starlette.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ---------------------------------------------------------------------------
 # Endpoints
