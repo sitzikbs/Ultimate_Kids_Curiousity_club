@@ -5,12 +5,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ffmpeg && 
 
 WORKDIR /app
 
-# Install dependencies first for layer caching
+# Copy project files
 COPY pyproject.toml .
-RUN pip install --no-cache-dir .
-
-# Copy source code
 COPY src/ ./src/
+
+# Install the package and dependencies
+RUN pip install --no-cache-dir .
 
 ENV PYTHONPATH=/app/src
 EXPOSE 8000

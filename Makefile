@@ -20,7 +20,7 @@ health:
 	@curl -sf http://localhost:8000/api/health 2>/dev/null && echo "app: OK" || echo "app: DOWN"
 	@curl -sf http://localhost:8200/health 2>/dev/null && echo "distribution: OK" || echo "distribution: DOWN"
 	@curl -sf http://localhost:8100/health 2>/dev/null && echo "tts: OK" || echo "tts: DOWN"
-	@curl -sf http://localhost:11434/api/tags 2>/dev/null && echo "llm: OK" || echo "llm: DOWN"
+	@curl -sf http://localhost:11435/api/tags 2>/dev/null && echo "llm: OK" || echo "llm: DOWN"
 	@curl -sf http://localhost:3000/ 2>/dev/null && echo "frontend: OK" || echo "frontend: DOWN"
 
 pull-models:

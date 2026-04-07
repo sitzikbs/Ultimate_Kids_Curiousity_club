@@ -40,8 +40,8 @@ else
 fi
 
 # LLM service (optional - requires GPU)
-if curl -sf "${BASE_URL}:11434/api/tags" > /dev/null 2>&1; then
-    pass "LLM service (port 11434)"
+if curl -sf "${BASE_URL}:11435/api/tags" > /dev/null 2>&1; then
+    pass "LLM service (port 11435)"
     LLM_AVAILABLE=true
 else
     warn "LLM service not available (GPU services may not be running)"

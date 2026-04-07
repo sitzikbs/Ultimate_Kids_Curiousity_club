@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: str | None = None
 
     # Gemma / ollama settings
-    GEMMA_BASE_URL: str = "http://llm:11434/v1"
-    GEMMA_MODEL: str = "gemma4:26b-a4b"
+    GEMMA_BASE_URL: str = "http://localhost:11435/v1"
+    GEMMA_MODEL: str = "gemma4:27b-it-qat"
 
     # Provider selection
     LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, gemma, mock

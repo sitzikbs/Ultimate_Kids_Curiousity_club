@@ -18,18 +18,18 @@ class TestGemmaProviderInit:
         provider = GemmaProvider()
 
         assert isinstance(provider, BaseLLMProvider)
-        assert provider.model == "gemma4:26b-a4b"
-        assert provider._base_url == "http://llm:11434/v1"
+        assert provider.model == "gemma4:latest"
+        assert provider._base_url == "http://localhost:11435/v1"
 
     def test_custom_init(self):
         """Test provider initialises with custom base_url and model."""
         provider = GemmaProvider(
-            base_url="http://localhost:11434/v1",
+            base_url="http://localhost:11435/v1",
             model="gemma4:12b",
         )
 
         assert provider.model == "gemma4:12b"
-        assert provider._base_url == "http://localhost:11434/v1"
+        assert provider._base_url == "http://localhost:11435/v1"
 
     def test_is_base_provider_subclass(self):
         """Test that GemmaProvider is a subclass of BaseLLMProvider."""
@@ -87,7 +87,7 @@ class TestGemmaProviderGenerate:
 
         call_kwargs = provider.client.chat.completions.create.call_args.kwargs
         assert call_kwargs["model"] == "gemma4:12b"
-        assert call_kwargs["max_tokens"] == 500
+        assert call_kwargs["extra_body"] == {"num_predict": 500}
         assert call_kwargs["temperature"] == 0.3
         assert call_kwargs["messages"] == [{"role": "user", "content": "Test prompt"}]
 
@@ -251,7 +251,7 @@ class TestGemmaProviderFactory:
 
         assert isinstance(provider, GemmaProvider)
         assert isinstance(provider, BaseLLMProvider)
-        assert provider.model == "gemma4:26b-a4b"
+        assert provider.model == "gemma4:latest"
 
     def test_factory_creates_gemma_with_custom_model(self):
         """Test factory passes custom model to GemmaProvider."""
@@ -263,11 +263,11 @@ class TestGemmaProviderFactory:
     def test_factory_creates_gemma_with_custom_base_url(self):
         """Test factory passes custom base_url to GemmaProvider."""
         provider = LLMProviderFactory.create_provider(
-            "gemma", base_url="http://localhost:11434/v1"
+            "gemma", base_url="http://localhost:11435/v1"
         )
 
         assert isinstance(provider, GemmaProvider)
-        assert provider._base_url == "http://localhost:11434/v1"
+        assert provider._base_url == "http://localhost:11435/v1"
 
     def test_factory_gemma_no_api_key_required(self):
         """Test factory does not require api_key for gemma."""

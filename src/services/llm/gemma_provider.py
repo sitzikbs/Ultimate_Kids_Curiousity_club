@@ -27,8 +27,8 @@ class GemmaProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        base_url: str = "http://llm:11434/v1",
-        model: str = "gemma4:26b-a4b",
+        base_url: str = "http://localhost:11435/v1",
+        model: str = "gemma4:latest",
     ) -> None:
         """Initialize Gemma provider.
 
@@ -81,11 +81,19 @@ class GemmaProvider(BaseLLMProvider):
         Raises:
             Exception: If generation fails after retries.
         """
+        system_prompt = kwargs.pop("system_prompt", None)
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+
+        # Use extra_body for ollama-specific params; the openai SDK's
+        # max_tokens mapping can conflict with ollama's API.
         response = await self.client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens,
+            messages=messages,
             temperature=temperature,
+            extra_body={"num_predict": max_tokens},
             **kwargs,
         )
         content = response.choices[0].message.content

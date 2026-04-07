@@ -8,14 +8,14 @@ SERVER_PID=$!
 # Wait for server to be ready
 echo "Waiting for ollama server..."
 for i in $(seq 1 30); do
-    if curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; then
+    if curl -sf http://localhost:11435/api/tags > /dev/null 2>&1; then
         echo "Ollama server ready"
         break
     fi
     sleep 2
 done
 
-if ! curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; then
+if ! curl -sf http://localhost:11435/api/tags > /dev/null 2>&1; then
     echo "ERROR: ollama server failed to start within 60s" >&2
     exit 1
 fi

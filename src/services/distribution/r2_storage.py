@@ -35,12 +35,26 @@ class R2StorageClient:
         """
         self.bucket_name = bucket_name
         self.cdn_base_url = cdn_base_url.rstrip("/")
-        self.s3 = boto3.client(
-            "s3",
-            endpoint_url=f"https://{account_id}.r2.cloudflarestorage.com",
-            aws_access_key_id=access_key_id,
-            aws_secret_access_key=secret_access_key,
-        )
+        self._account_id = account_id
+        self._access_key_id = access_key_id
+        self._secret_access_key = secret_access_key
+        self._s3 = None
+
+    @property
+    def s3(self):
+        """Lazy-init boto3 client (fails only when R2 is actually needed)."""
+        if self._s3 is None:
+            if not self._account_id:
+                raise ValueError(
+                    "R2_ACCOUNT_ID not configured — cannot access R2 storage"
+                )
+            self._s3 = boto3.client(
+                "s3",
+                endpoint_url=f"https://{self._account_id}.r2.cloudflarestorage.com",
+                aws_access_key_id=self._access_key_id,
+                aws_secret_access_key=self._secret_access_key,
+            )
+        return self._s3
 
     def upload_episode(self, show_id: str, episode_id: str, audio_path: Path) -> str:
         """Upload episode audio and return CDN URL.

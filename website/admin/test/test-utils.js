@@ -8,11 +8,12 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// Direct URLs for local dev; when behind nginx proxy these would be relative paths
 const SERVICES = {
-    llm: { name: 'LLM (Gemma 4)', url: '/llm', healthUrl: '/llm/api/tags', port: 11434 },
-    tts: { name: 'TTS (VibeVoice)', url: '/tts', healthUrl: '/tts/health', port: 8100 },
-    distribution: { name: 'Distribution', url: '/dist', healthUrl: '/dist/health', port: 8200 },
-    app: { name: 'App', url: '/api', healthUrl: '/api/health', port: 8000 },
+    llm: { name: 'LLM (Gemma)', url: 'http://localhost:11435', healthUrl: 'http://localhost:11435/api/tags', port: 11435 },
+    tts: { name: 'TTS (VibeVoice)', url: 'http://localhost:8100', healthUrl: 'http://localhost:8100/health', port: 8100 },
+    distribution: { name: 'Distribution', url: 'http://localhost:8200', healthUrl: 'http://localhost:8200/health', port: 8200 },
+    app: { name: 'App', url: 'http://localhost:8000', healthUrl: 'http://localhost:8000/api/health', port: 8000 },
 };
 
 async function checkServiceHealth(serviceKey) {

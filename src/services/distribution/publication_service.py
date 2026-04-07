@@ -203,7 +203,25 @@ class PublicationService:
             for show in shows.get("shows", []):
                 if show.get("id") == show_id:
                     return show
-        return {"title": show_id, "description": ""}
+        # Provide sensible defaults for known shows
+        defaults = {
+            "olivers_workshop": {
+                "title": "Oliver the Inventor",
+                "description": "Explore inventions and STEM concepts with Oliver!",
+            },
+            "hannah_the_historian": {
+                "title": "Hannah the Historian",
+                "description": "Travel through time and learn history with Hannah!",
+            },
+        }
+        show_defaults = defaults.get(show_id, {})
+        return {
+            "title": show_defaults.get("title", show_id),
+            "description": show_defaults.get(
+                "description",
+                f"A Kids Curiosity Club podcast: {show_id}",
+            ),
+        }
 
     def _get_published_episodes(self, show_id: str) -> list[dict]:
         """Get all published episodes for RSS feed.
