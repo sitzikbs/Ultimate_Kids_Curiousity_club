@@ -5,6 +5,7 @@ import logging
 from collections.abc import AsyncGenerator
 from typing import Any
 
+from openai import APIConnectionError, APITimeoutError
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -94,8 +95,8 @@ class GemmaProvider(BaseLLMProvider):
 
     @retry(
         stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(Exception),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        retry=retry_if_exception_type((APIConnectionError, APITimeoutError)),
     )
     async def generate_structured(
         self,
@@ -104,7 +105,11 @@ class GemmaProvider(BaseLLMProvider):
         temperature: float = 0.7,
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """Generate structured JSON output from prompt.
+        """Generate structured JSON output using ollama's JSON mode.
+
+        Note: This method is specific to GemmaProvider and not part of
+        BaseLLMProvider. Callers should check for this capability or
+        use the service layer for structured output parsing.
 
         Uses ``response_format={"type": "json_object"}`` to instruct
         the model to return valid JSON.
@@ -120,7 +125,6 @@ class GemmaProvider(BaseLLMProvider):
 
         Raises:
             ValueError: If the response is empty or not valid JSON.
-            Exception: If generation fails after retries.
         """
         response = await self.client.chat.completions.create(
             model=self.model,

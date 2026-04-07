@@ -146,7 +146,11 @@ class TestGemmaProviderGenerateStructured:
 
     @pytest.mark.asyncio
     async def test_generate_structured_raises_on_invalid_json(self):
-        """Test generate_structured() raises on non-JSON response."""
+        """Test generate_structured() raises ValueError immediately on bad JSON.
+
+        ValueError is not retried (only transient connection errors are),
+        so a single attempt should raise directly.
+        """
         provider = GemmaProvider()
 
         mock_message = MagicMock()
@@ -158,10 +162,11 @@ class TestGemmaProviderGenerateStructured:
 
         provider.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
-        with pytest.raises(RetryError) as exc_info:
+        with pytest.raises(ValueError, match="not valid JSON"):
             await provider.generate_structured("Generate JSON")
-        assert isinstance(exc_info.value.last_attempt.exception(), ValueError)
-        assert "not valid JSON" in str(exc_info.value.last_attempt.exception())
+
+        # Verify only a single attempt was made (no retries for ValueError)
+        assert provider.client.chat.completions.create.await_count == 1
 
 
 class TestGemmaProviderStream:

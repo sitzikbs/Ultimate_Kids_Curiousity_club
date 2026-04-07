@@ -15,6 +15,11 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
+if ! curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; then
+    echo "ERROR: ollama server failed to start within 60s" >&2
+    exit 1
+fi
+
 # Pull model if not present
 MODEL="${LLM_MODEL:-gemma4:26b-a4b}"
 if ! ollama list | grep -q "${MODEL%%:*}"; then
