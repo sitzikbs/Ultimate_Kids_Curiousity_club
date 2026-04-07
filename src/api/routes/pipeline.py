@@ -60,6 +60,8 @@ async def run_pipeline(request: PipelineRequest) -> PipelineStatus:
     Returns:
         Pipeline status with the new episode ID and current stage.
     """
+    # Deferred import to avoid circular dependency:
+    # cli.factory imports config which may import api modules at module level
     from cli.factory import create_pipeline
 
     try:
@@ -87,34 +89,11 @@ async def run_pipeline(request: PipelineRequest) -> PipelineStatus:
 
 @router.post("/run-step")
 async def run_step(request: StepRequest) -> PipelineStatus:
-    """Run a single pipeline step for an existing episode.
-
-    Executes one stage of the pipeline for debugging or step-by-step
-    execution.
-
-    Args:
-        request: Step execution parameters.
-
-    Returns:
-        Pipeline status after step execution.
-    """
-    storage = _get_storage()
-
-    try:
-        episode = storage.load_episode(request.show_id, request.episode_id)
-    except StorageError as exc:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Episode not found: {request.episode_id}",
-        ) from exc
-
-    # Return current status — full step-by-step execution would require
-    # more orchestrator refactoring to support individual step dispatch
-    return PipelineStatus(
-        episode_id=episode.episode_id,
-        show_id=episode.show_id,
-        current_stage=episode.current_stage.value,
-        stages_completed=list(episode.checkpoints.keys()),
+    """Run a single pipeline step (not yet implemented)."""
+    raise HTTPException(
+        501,
+        "Step-by-step execution not yet implemented. "
+        "Use POST /api/pipeline/run for full pipeline execution.",
     )
 
 

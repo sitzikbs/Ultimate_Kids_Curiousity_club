@@ -14,9 +14,12 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+FAILURES=0
+
 pass() { echo -e "${GREEN}✓ $1${NC}"; }
 fail() { echo -e "${RED}✗ $1${NC}"; exit 1; }
 warn() { echo -e "${YELLOW}⚠ $1${NC}"; }
+warn_fail() { echo -e "${YELLOW}⚠ $1${NC}"; FAILURES=$((FAILURES + 1)); }
 info() { echo -e "  $1"; }
 
 echo "Step 1: Service Health Checks"
@@ -79,7 +82,7 @@ REGEN_RESPONSE=$(curl -s -X POST "${BASE_URL}:8200/feeds/olivers_workshop/regene
 if echo "$REGEN_RESPONSE" | grep -q "regenerated"; then
     pass "Feed regeneration works"
 else
-    warn "Feed regeneration returned unexpected response"
+    warn_fail "Feed regeneration returned unexpected response"
     info "$REGEN_RESPONSE"
 fi
 
@@ -95,7 +98,7 @@ if [ "$HTTP_CODE" = "404" ]; then
 elif [ "$HTTP_CODE" = "200" ]; then
     pass "Pipeline status endpoint works"
 else
-    warn "Pipeline status returned HTTP $HTTP_CODE"
+    warn_fail "Pipeline status returned HTTP $HTTP_CODE"
 fi
 
 echo ""
@@ -115,7 +118,7 @@ if [ "$LLM_AVAILABLE" = true ] && [ "$TTS_AVAILABLE" = true ]; then
         info "Episode ID: $EPISODE_ID"
         info "Response: $PIPELINE_RESPONSE"
     else
-        warn "Full pipeline test failed (may need longer timeout)"
+        warn_fail "Full pipeline test failed (may need longer timeout)"
         info "Response: $PIPELINE_RESPONSE"
     fi
 else
@@ -128,10 +131,9 @@ echo ""
 echo "========================================="
 echo "  E2E Test Summary"
 echo "========================================="
-echo ""
-pass "Integration test complete"
-echo ""
-echo "To run with all services:"
-echo "  make up-dev    # Start all services including GPU and frontend"
-echo "  make health    # Verify all services are up"
-echo "  ./scripts/e2e_test.sh   # Run this test"
+
+if [ "$FAILURES" -gt 0 ]; then
+    fail "$FAILURES test(s) failed"
+else
+    pass "All integration tests passed"
+fi
