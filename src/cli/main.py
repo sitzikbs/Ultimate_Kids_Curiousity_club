@@ -7,6 +7,7 @@ from rich.console import Console
 
 from cli.config import config_app
 from cli.episodes import episodes_app
+from cli.publish import publish_app
 from cli.shows import shows_app
 
 app = typer.Typer(
@@ -39,6 +40,7 @@ verbose_option = typer.Option(
 app.add_typer(shows_app, name="shows")
 app.add_typer(episodes_app, name="episodes")
 app.add_typer(config_app, name="config")
+app.add_typer(publish_app, name="publish")
 
 
 @app.command()
