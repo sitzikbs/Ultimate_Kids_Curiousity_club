@@ -2,17 +2,19 @@
 
 import logging
 import os
+import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Podcast Distribution Service", version="0.1.0")
 
 ALLOWED_DATA_DIR = Path(os.environ.get("DATA_DIR", "/data"))
+SAFE_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_-]+$")
 
 # Lazy init
 _publication_service = None
@@ -65,6 +67,16 @@ class PublishRequest(BaseModel):
     duration_seconds: float = 0.0
     episode_number: int = 1
 
+    @field_validator("show_id", "episode_id")
+    @classmethod
+    def validate_ids(cls, v: str) -> str:
+        """Reject IDs with path traversal characters."""
+        if not SAFE_ID_PATTERN.match(v):
+            raise ValueError(
+                f"Invalid ID format: must match {SAFE_ID_PATTERN.pattern}"
+            )
+        return v
+
 
 @app.get("/health")
 async def health():
@@ -85,8 +97,11 @@ async def get_feed(show_id: str):
         # Generate on first request
         try:
             xml = svc.regenerate_feed(show_id)
-        except Exception:
+        except FileNotFoundError:
             raise HTTPException(404, f"Feed not found for show: {show_id}")
+        except Exception:
+            logger.exception("Failed to regenerate feed for %s", show_id)
+            raise HTTPException(500, "Failed to generate feed")
     else:
         xml = feed_path.read_text()
     return Response(content=xml, media_type="application/rss+xml")
@@ -124,7 +139,7 @@ async def publish_episode(request: PublishRequest):
 
     # Prevent path traversal
     allowed_dir = ALLOWED_DATA_DIR.resolve()
-    if not str(audio).startswith(str(allowed_dir)):
+    if not audio.is_relative_to(allowed_dir):
         raise HTTPException(
             403, f"Access denied: audio_path must be within {allowed_dir}"
         )

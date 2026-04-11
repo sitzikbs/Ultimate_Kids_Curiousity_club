@@ -57,15 +57,19 @@ class R2StorageClient:
         file_size = audio_path.stat().st_size
 
         logger.info("Uploading %s (%d bytes) to R2: %s", audio_path, file_size, key)
-        self.s3.upload_file(
-            str(audio_path),
-            self.bucket_name,
-            key,
-            ExtraArgs={
-                "ContentType": "audio/mpeg",
-                "CacheControl": "public, max-age=31536000",
-            },
-        )
+        try:
+            self.s3.upload_file(
+                str(audio_path),
+                self.bucket_name,
+                key,
+                ExtraArgs={
+                    "ContentType": "audio/mpeg",
+                    "CacheControl": "public, max-age=31536000",
+                },
+            )
+        except ClientError as e:
+            logger.error("R2 upload failed for %s: %s", key, e)
+            raise
         url = f"{self.cdn_base_url}/{key}"
         logger.info("Upload complete: %s", url)
         return url

@@ -108,19 +108,35 @@ class PodcastFeedGenerator:
         Returns:
             Dict with 'valid' bool and 'errors' list.
         """
+        import xml.etree.ElementTree as ET
+
         errors: list[str] = []
 
-        if "<?xml" not in feed_xml:
-            errors.append("Missing XML declaration")
-        if "<rss" not in feed_xml:
-            errors.append("Missing <rss> root element")
+        # Validate well-formed XML
+        try:
+            root = ET.fromstring(feed_xml)
+        except ET.ParseError as e:
+            return {"valid": False, "errors": [f"Malformed XML: {e}"]}
+
+        if root.tag != "rss":
+            errors.append(f"Root element is <{root.tag}>, expected <rss>")
+
+        channel = root.find("channel")
+        if channel is None:
+            errors.append("Missing <channel> element")
+        else:
+            if channel.find("title") is None:
+                errors.append("Missing <title> element")
+
+        # Check for iTunes namespace
         if "xmlns:itunes" not in feed_xml:
-            errors.append("Missing iTunes namespace")
-        if "<title>" not in feed_xml:
-            errors.append("Missing <title> element")
-        if "<itunes:explicit>" not in feed_xml:
-            errors.append("Missing <itunes:explicit> element")
-        if "<enclosure" not in feed_xml and "<item>" in feed_xml:
-            errors.append("Episodes missing <enclosure> element")
+            errors.append("Missing iTunes namespace declaration")
+
+        # Check episodes have enclosures
+        items = root.findall(".//item")
+        for i, item in enumerate(items):
+            if item.find("enclosure") is None:
+                title = item.findtext("title", f"item {i + 1}")
+                errors.append(f"Episode '{title}' missing <enclosure>")
 
         return {"valid": len(errors) == 0, "errors": errors}
