@@ -170,12 +170,13 @@ class VibeVoiceProvider(BaseTTSProvider):
                 },
             )
             response.raise_for_status()
+            audio_bytes = response.content
 
         with tempfile.NamedTemporaryFile(
             delete=False, suffix=f".{output_format}", prefix="dialogue_"
         ) as fh:
             output_path = Path(fh.name)
-        output_path.write_bytes(response.content)
+        output_path.write_bytes(audio_bytes)
         return output_path
 
     def list_voices(self) -> list[dict[str, Any]]:
