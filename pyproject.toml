@@ -82,6 +82,12 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+markers = [
+    "unit: unit tests (fast, no external deps)",
+    "integration: integration tests (may use containers)",
+    "real_api: tests requiring running Docker services or real API keys",
+    "slow: tests that take more than a few seconds",
+]
 
 [tool.mypy]
 python_version = "3.12"

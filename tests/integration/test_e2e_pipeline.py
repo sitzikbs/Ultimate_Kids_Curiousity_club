@@ -178,7 +178,7 @@ class TestPipelineIntegration:
         feed_path = tmp_path / "feeds" / "test_show.xml"
         if feed_path.exists():
             feed_content = feed_path.read_text()
-            assert "Test Episode" not in feed_content or "<item>" not in feed_content
+            assert "Test Episode" not in feed_content
 
 
 class TestServiceHealth:
