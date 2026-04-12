@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.config import get_api_settings
 from api.models import HealthResponse
-from api.routes import episodes, shows, uploads
+from api.routes import episodes, pipeline, shows, uploads
 from api.websocket import websocket_endpoint
 from config import get_settings as _get_app_settings
 
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(shows.router)
 app.include_router(episodes.router)
 app.include_router(uploads.router)
+app.include_router(pipeline.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
@@ -48,6 +49,16 @@ async def health_check() -> HealthResponse:
         Service status and timestamp
     """
     return HealthResponse(status="healthy", timestamp=datetime.now(UTC))
+
+
+@app.get("/api/health", tags=["health"])
+async def api_health() -> dict[str, str]:
+    """API health check endpoint for containerized deployments.
+
+    Returns:
+        Simple status dict for service liveness probes.
+    """
+    return {"status": "ok", "service": "app"}
 
 
 @app.websocket("/ws")

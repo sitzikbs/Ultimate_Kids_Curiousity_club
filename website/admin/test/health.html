@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Health - Test Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        .admin-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .admin-navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .test-badge {
+            background: #8b5cf6;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #3b82f6; }
+
+        .page-header {
+            background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+        }
+
+        .health-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: 100%;
+            transition: border-color 0.3s;
+        }
+
+        .health-card.healthy { border-left: 4px solid #22c55e; }
+        .health-card.unhealthy { border-left: 4px solid #f59e0b; }
+        .health-card.down { border-left: 4px solid #ef4444; }
+        .health-card.checking { border-left: 4px solid #6b7280; }
+
+        .health-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .health-card-port {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-bottom: 0.75rem;
+        }
+
+        .health-card-status {
+            margin-bottom: 0.5rem;
+        }
+
+        .health-card-latency {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .health-card-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+
+        .gpu-info {
+            font-size: 0.8rem;
+            background: #f3f4f6;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .gpu-info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .controls-bar {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-admin-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-primary:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .raw-json {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="admin-navbar">
+        <div class="content-container">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="navbar-brand">
+                    Kids Curiosity Club
+                    <span class="admin-badge">ADMIN</span>
+                    <span class="test-badge">TEST</span>
+                </span>
+                <div class="nav-links">
+                    <a href="index.html" class="back-link">&larr; Test Dashboard</a>
+                    <a href="../index.html" class="back-link">Show Management</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="content-container">
+            <h1 class="page-title">Service Health Dashboard</h1>
+            <p class="page-subtitle">Monitor all containerized services</p>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <!-- Controls -->
+        <div class="controls-bar">
+            <button class="btn btn-admin-primary" id="btn-check-all" onclick="refreshAll()">Check All</button>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="auto-refresh-toggle">
+                <label class="form-check-label" for="auto-refresh-toggle">Auto-refresh</label>
+            </div>
+            <select class="form-select form-select-sm" id="refresh-interval" style="width: auto;" disabled>
+                <option value="5000">Every 5s</option>
+                <option value="10000" selected>Every 10s</option>
+                <option value="30000">Every 30s</option>
+            </select>
+        </div>
+
+        <!-- Health Cards -->
+        <div class="row g-4 mb-4" id="health-cards">
+            <!-- LLM -->
+            <div class="col-sm-6 col-lg">
+                <div class="health-card checking" id="card-llm">
+                    <h4 class="health-card-title">LLM (Gemma 4)</h4>
+                    <div class="health-card-port">Port 11434</div>
+                    <div class="health-card-status" id="status-llm"><span class="badge bg-secondary">Checking...</span></div>
+                    <div class="health-card-latency" id="latency-llm">--</div>
+                    <div class="health-card-time" id="time-llm">--</div>
+                </div>
+            </div>
+            <!-- TTS -->
+            <div class="col-sm-6 col-lg">
+                <div class="health-card checking" id="card-tts">
+                    <h4 class="health-card-title">TTS (VibeVoice)</h4>
+                    <div class="health-card-port">Port 8100</div>
+                    <div class="health-card-status" id="status-tts"><span class="badge bg-secondary">Checking...</span></div>
+                    <div class="health-card-latency" id="latency-tts">--</div>
+                    <div class="health-card-time" id="time-tts">--</div>
+                    <div class="gpu-info" id="gpu-tts" style="display: none;"></div>
+                </div>
+            </div>
+            <!-- Distribution -->
+            <div class="col-sm-6 col-lg">
+                <div class="health-card checking" id="card-distribution">
+                    <h4 class="health-card-title">Distribution</h4>
+                    <div class="health-card-port">Port 8200</div>
+                    <div class="health-card-status" id="status-distribution"><span class="badge bg-secondary">Checking...</span></div>
+                    <div class="health-card-latency" id="latency-distribution">--</div>
+                    <div class="health-card-time" id="time-distribution">--</div>
+                </div>
+            </div>
+            <!-- App -->
+            <div class="col-sm-6 col-lg">
+                <div class="health-card checking" id="card-app">
+                    <h4 class="health-card-title">App</h4>
+                    <div class="health-card-port">Port 8000</div>
+                    <div class="health-card-status" id="status-app"><span class="badge bg-secondary">Checking...</span></div>
+                    <div class="health-card-latency" id="latency-app">--</div>
+                    <div class="health-card-time" id="time-app">--</div>
+                </div>
+            </div>
+            <!-- Frontend -->
+            <div class="col-sm-6 col-lg">
+                <div class="health-card healthy" id="card-frontend">
+                    <h4 class="health-card-title">Frontend</h4>
+                    <div class="health-card-port">Port 80 (this page)</div>
+                    <div class="health-card-status" id="status-frontend"><span class="badge bg-success">&#9679; healthy</span></div>
+                    <div class="health-card-latency" id="latency-frontend">0 ms</div>
+                    <div class="health-card-time" id="time-frontend">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw Responses -->
+        <h5 class="mb-3">Raw Responses</h5>
+        <div class="accordion" id="raw-accordion">
+            <div class="accordion-item" id="accordion-item-llm">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#raw-llm">LLM</button>
+                </h2>
+                <div id="raw-llm" class="accordion-collapse collapse" data-bs-parent="#raw-accordion">
+                    <div class="accordion-body"><div class="raw-json" id="json-llm">No data yet.</div></div>
+                </div>
+            </div>
+            <div class="accordion-item" id="accordion-item-tts">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#raw-tts">TTS</button>
+                </h2>
+                <div id="raw-tts" class="accordion-collapse collapse" data-bs-parent="#raw-accordion">
+                    <div class="accordion-body"><div class="raw-json" id="json-tts">No data yet.</div></div>
+                </div>
+            </div>
+            <div class="accordion-item" id="accordion-item-distribution">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#raw-distribution">Distribution</button>
+                </h2>
+                <div id="raw-distribution" class="accordion-collapse collapse" data-bs-parent="#raw-accordion">
+                    <div class="accordion-body"><div class="raw-json" id="json-distribution">No data yet.</div></div>
+                </div>
+            </div>
+            <div class="accordion-item" id="accordion-item-app">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#raw-app">App</button>
+                </h2>
+                <div id="raw-app" class="accordion-collapse collapse" data-bs-parent="#raw-accordion">
+                    <div class="accordion-body"><div class="raw-json" id="json-app">No data yet.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="test-utils.js"></script>
+    <script>
+        let autoRefreshTimer = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshAll();
+            updateFrontendTime();
+
+            document.getElementById('auto-refresh-toggle').addEventListener('change', toggleAutoRefresh);
+            document.getElementById('refresh-interval').addEventListener('change', () => {
+                if (document.getElementById('auto-refresh-toggle').checked) {
+                    toggleAutoRefresh();
+                    toggleAutoRefresh();
+                }
+            });
+        });
+
+        function toggleAutoRefresh() {
+            const toggle = document.getElementById('auto-refresh-toggle');
+            const intervalSelect = document.getElementById('refresh-interval');
+
+            if (toggle.checked) {
+                intervalSelect.disabled = false;
+                const ms = parseInt(intervalSelect.value);
+                autoRefreshTimer = setInterval(refreshAll, ms);
+            } else {
+                intervalSelect.disabled = true;
+                if (autoRefreshTimer) {
+                    clearInterval(autoRefreshTimer);
+                    autoRefreshTimer = null;
+                }
+            }
+        }
+
+        async function refreshAll() {
+            const btn = document.getElementById('btn-check-all');
+            btn.disabled = true;
+            btn.textContent = 'Checking...';
+
+            const results = await checkAllHealth();
+
+            for (const [key, result] of Object.entries(results)) {
+                updateCard(key, result);
+            }
+
+            updateFrontendTime();
+
+            btn.disabled = false;
+            btn.textContent = 'Check All';
+        }
+
+        function updateCard(key, result) {
+            const card = document.getElementById(`card-${key}`);
+            const statusEl = document.getElementById(`status-${key}`);
+            const latencyEl = document.getElementById(`latency-${key}`);
+            const timeEl = document.getElementById(`time-${key}`);
+            const jsonEl = document.getElementById(`json-${key}`);
+
+            // Update card class
+            card.className = `health-card ${result.status}`;
+
+            // Update status badge
+            statusEl.innerHTML = statusBadge(result.status);
+
+            // Update latency
+            if (result.latency !== null) {
+                latencyEl.textContent = `${result.latency} ms`;
+            } else {
+                latencyEl.textContent = '--';
+            }
+
+            // Update timestamp
+            timeEl.textContent = new Date().toLocaleTimeString();
+
+            // Update raw JSON
+            if (jsonEl) {
+                if (result.data) {
+                    jsonEl.textContent = formatJson(result.data);
+                } else if (result.error) {
+                    jsonEl.textContent = `Error: ${result.error}`;
+                }
+            }
+
+            // GPU info for TTS
+            if (key === 'tts' && result.data) {
+                const gpuEl = document.getElementById('gpu-tts');
+                const gpuData = result.data.gpu || result.data.device_info;
+                if (gpuData) {
+                    gpuEl.style.display = 'block';
+                    const name = gpuData.name || gpuData.gpu_name || 'Unknown GPU';
+                    const memFree = gpuData.memory_free || gpuData.mem_free || '?';
+                    const memTotal = gpuData.memory_total || gpuData.mem_total || '?';
+                    gpuEl.innerHTML = `
+                        <div class="gpu-info-label">GPU</div>
+                        <div>${name}</div>
+                        <div>Memory: ${memFree} / ${memTotal}</div>
+                    `;
+                } else {
+                    gpuEl.style.display = 'none';
+                }
+            }
+        }
+
+        function updateFrontendTime() {
+            document.getElementById('time-frontend').textContent = new Date().toLocaleTimeString();
+        }
+    </script>
+</body>
+</html>

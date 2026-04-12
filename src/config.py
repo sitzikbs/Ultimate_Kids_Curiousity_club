@@ -26,10 +26,18 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     ELEVENLABS_API_KEY: str | None = None
 
+    # Gemma / ollama settings
+    GEMMA_BASE_URL: str = "http://llm:11434/v1"
+    GEMMA_MODEL: str = "gemma4:26b-a4b"
+
     # Provider selection
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, mock
-    TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, mock
+    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, gemma, mock
+    TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, vibevoice, mock
     IMAGE_PROVIDER: str = "flux"  # flux, dalle, mock
+
+    # VibeVoice local TTS settings
+    VIBEVOICE_BASE_URL: str = "http://tts:8100"
+    VIBEVOICE_MODEL: str = "vibevoice-1.5b"
 
     # Storage paths (resolve relative to project root)
     DATA_DIR: Path = Path(__file__).resolve().parent.parent / "data"

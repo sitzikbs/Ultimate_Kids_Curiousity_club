@@ -26,10 +26,11 @@ from services.tts.synthesis_service import AudioSynthesisService
 def _resolve_api_key(settings: "Settings") -> str | None:  # noqa: F821
     """Pick the correct API key for the active LLM provider."""
     provider = settings.LLM_PROVIDER
-    key_map = {
+    key_map: dict[str, str | None] = {
         "openai": settings.OPENAI_API_KEY,
         "anthropic": settings.ANTHROPIC_API_KEY,
         "gemini": settings.GEMINI_API_KEY,
+        "gemma": "ollama",  # ollama doesn't need a real key
     }
     return key_map.get(provider)
 
@@ -55,10 +56,14 @@ def create_pipeline(
 
     # LLM provider
     llm_type = "mock" if settings.USE_MOCK_SERVICES else settings.LLM_PROVIDER
-    llm_provider = LLMProviderFactory.create_provider(
-        provider_type=llm_type,
-        api_key=_resolve_api_key(settings),
-    )
+    llm_kwargs: dict[str, str | None] = {
+        "provider_type": llm_type,
+        "api_key": _resolve_api_key(settings),
+    }
+    if llm_type == "gemma":
+        llm_kwargs["base_url"] = settings.GEMMA_BASE_URL
+        llm_kwargs["model"] = settings.GEMMA_MODEL
+    llm_provider = LLMProviderFactory.create_provider(**llm_kwargs)
 
     # LLM services
     ideation = IdeationService(provider=llm_provider, enhancer=enhancer)
@@ -75,6 +80,7 @@ def create_pipeline(
     tts_provider = TTSProviderFactory.create_provider(
         provider_type=tts_type,
         api_key=settings.ELEVENLABS_API_KEY,
+        base_url=(settings.VIBEVOICE_BASE_URL if tts_type == "vibevoice" else None),
     )
 
     # Audio services
