@@ -115,22 +115,32 @@
             font-weight: 700; margin-right: 0.75rem;
         }
 
-        .beat-title { font-weight: 600; font-size: 1rem; }
-        .beat-description { color: #374151; margin: 0.75rem 0; font-size: 0.9rem; line-height: 1.6; }
+        .beat-title { font-weight: 600; font-size: 1.05rem; color: #111827; }
+        .beat-description { color: #1f2937; margin: 0.75rem 0; font-size: 1rem; line-height: 1.65; }
 
         /* Script blocks */
         .script-block {
-            padding: 0.75rem 1rem; border-bottom: 1px solid #f3f4f6;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
         }
 
+        .script-block:nth-child(even) { background: #f3f4f6; }
         .script-block:last-child { border-bottom: none; }
 
         .speaker-name {
-            font-weight: 600; font-size: 0.85rem;
-            color: #3b82f6; text-transform: uppercase; letter-spacing: 0.03em;
+            display: inline-block;
+            font-weight: 600; font-size: 0.8rem;
+            color: #1d4ed8; background: #dbeafe;
+            text-transform: uppercase; letter-spacing: 0.04em;
+            padding: 0.15rem 0.6rem; border-radius: 999px;
+            margin-bottom: 0.5rem;
         }
 
-        .script-text { font-size: 0.9rem; color: #374151; margin-top: 0.25rem; line-height: 1.5; }
+        .script-text {
+            font-size: 1.05rem; color: #1f2937;
+            margin-top: 0.25rem; line-height: 1.65;
+        }
 
         /* Metadata */
         .meta-card { text-align: center; }
