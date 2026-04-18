@@ -1,5 +1,6 @@
 """Factory for creating LLM provider instances."""
 
+import os
 from pathlib import Path
 
 from services.llm.anthropic_provider import AnthropicProvider
@@ -49,8 +50,9 @@ class LLMProviderFactory:
         elif provider_type == "anthropic":
             if not api_key:
                 raise ValueError("API key is required for Anthropic provider")
-            if model:
-                provider = AnthropicProvider(api_key=api_key, model=model)
+            resolved_model = model or os.getenv("ANTHROPIC_MODEL")
+            if resolved_model:
+                provider = AnthropicProvider(api_key=api_key, model=resolved_model)
             else:
                 provider = AnthropicProvider(api_key=api_key)
 

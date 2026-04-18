@@ -186,15 +186,15 @@ class TestSettingsValidation:
     def test_case_sensitivity(self, monkeypatch):
         """Test that environment variables are case-sensitive."""
         monkeypatch.setenv("USE_MOCK_SERVICES", "true")
-        monkeypatch.setenv("llm_provider", "anthropic")  # lowercase
+        monkeypatch.setenv("llm_provider", "openai")  # lowercase, ignored
 
         settings = Settings()
-        # Should use default, not the lowercase version
-        assert settings.LLM_PROVIDER == "openai"
+        # Should use default (anthropic), not the lowercase version
+        assert settings.LLM_PROVIDER == "anthropic"
 
         # Reset and test with correct case
         reset_settings()
 
-        monkeypatch.setenv("LLM_PROVIDER", "anthropic")
+        monkeypatch.setenv("LLM_PROVIDER", "openai")
         settings = Settings()
-        assert settings.LLM_PROVIDER == "anthropic"
+        assert settings.LLM_PROVIDER == "openai"

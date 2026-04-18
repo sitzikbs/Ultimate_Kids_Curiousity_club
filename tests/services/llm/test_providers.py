@@ -132,9 +132,31 @@ class TestLLMProviderFactory:
                 "anthropic", api_key="test-key-123"
             )
             assert isinstance(provider, BaseLLMProvider)
-            assert provider.model == "claude-3-sonnet-20240229"
+            assert provider.model == "claude-haiku-4-5-20251001"
         except ImportError as e:
             # Skip test if anthropic package not installed
+            pytest.skip(f"Anthropic package not installed: {e}")
+
+    def test_create_anthropic_provider_custom_model(self):
+        """Test creating Anthropic provider with custom model."""
+        try:
+            provider = LLMProviderFactory.create_provider(
+                "anthropic", api_key="test-key-123", model="claude-sonnet-4-6"
+            )
+            assert isinstance(provider, BaseLLMProvider)
+            assert provider.model == "claude-sonnet-4-6"
+        except ImportError as e:
+            pytest.skip(f"Anthropic package not installed: {e}")
+
+    def test_create_anthropic_provider_env_override(self, monkeypatch):
+        """Test ANTHROPIC_MODEL env var overrides the default."""
+        monkeypatch.setenv("ANTHROPIC_MODEL", "claude-opus-4-7")
+        try:
+            provider = LLMProviderFactory.create_provider(
+                "anthropic", api_key="test-key-123"
+            )
+            assert provider.model == "claude-opus-4-7"
+        except ImportError as e:
             pytest.skip(f"Anthropic package not installed: {e}")
 
     def test_create_gemini_provider_without_key(self):
