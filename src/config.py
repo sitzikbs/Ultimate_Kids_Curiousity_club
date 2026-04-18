@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: str | None = None
 
     # Provider selection
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, gemini, mock
+    LLM_PROVIDER: str = "anthropic"  # anthropic, openai, gemini, mock
     TTS_PROVIDER: str = "elevenlabs"  # elevenlabs, google, openai, mock
     IMAGE_PROVIDER: str = "flux"  # flux, dalle, mock
 
